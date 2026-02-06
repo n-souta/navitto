@@ -6,6 +6,79 @@
 
 ---
 
+## 🚀 現在の開発状況（2026-02-06 更新）
+
+### ✅ Phase 1: MVP開発 - **完了**
+
+以下の機能が実装済みです：
+
+| 機能 | 状態 | ファイル |
+|------|------|----------|
+| プラグイン基本構造 | ✅ 完了 | `contentpilot.php` |
+| メインクラス | ✅ 完了 | `includes/class-contentpilot.php` |
+| 管理画面クラス | ✅ 完了 | `includes/class-contentpilot-admin.php` |
+| H2見出し自動検出 | ✅ 完了 | `assets/js/frontend.js` |
+| 固定ナビゲーション表示 | ✅ 完了 | `assets/js/frontend.js`, `assets/css/frontend.css` |
+| スムーズスクロール | ✅ 完了 | `assets/js/frontend.js` |
+| アクティブ項目ハイライト | ✅ 完了 | `assets/js/frontend.js` |
+| 投稿ごとの有効/無効設定 | ✅ 完了 | `includes/class-contentpilot-admin.php` |
+| アンインストール処理 | ✅ 完了 | `uninstall.php` |
+
+**表示条件:**
+- H2見出し: 2つ以上
+- 文字数: 3000文字以上
+- メタボックスで「有効」にチェック
+
+### ⏳ Phase 2: 目次連携機能 - **未着手**
+
+| 機能 | 状態 |
+|------|------|
+| テーマ内蔵目次の検出（SWELL, JIN, SANGO） | ⬜ 未着手 |
+| 目次プラグインの検出（TOC+, Easy TOC） | ⬜ 未着手 |
+| 検出優先順位のロジック | ⬜ 未着手 |
+
+### ⏳ Phase 3: デザイン・カスタマイズ - **未着手**
+
+| 機能 | 状態 |
+|------|------|
+| デザインプリセット5種類 | ⬜ 未着手 |
+| WordPress カスタマイザー統合 | ⬜ 未着手 |
+| H2選択UI | ⬜ 未着手 |
+| 横スクロール機能 | ⬜ 未着手 |
+
+### 📁 現在のファイル構成
+
+```
+contentpilot/
+├── contentpilot.php          # メインプラグインファイル
+├── uninstall.php             # アンインストール処理
+├── includes/
+│   ├── class-contentpilot.php       # メインクラス
+│   └── class-contentpilot-admin.php # 管理画面クラス
+├── assets/
+│   ├── css/
+│   │   └── frontend.css      # フロントエンドスタイル
+│   └── js/
+│       └── frontend.js       # フロントエンドJS
+├── SETUP_GUIDE.md            # 別PC用セットアップガイド
+├── development-flow.md       # このファイル
+├── plugin-specification.md   # プラグイン仕様書
+└── wordpress-development-guide.md # 開発ガイド
+```
+
+### 🔀 ブランチ状況
+
+- `main`: 初期コミットのみ
+- `develop`: Phase 1 MVP完了（最新）
+
+### 📝 次のタスク
+
+別PCで作業を再開する場合：
+1. `SETUP_GUIDE.md` を参照してセットアップ
+2. Phase 2（目次連携機能）から開発を継続
+
+---
+
 ## 1. 初期セットアップ（1日目）
 
 ### 1-1. ローカル開発環境の準備
