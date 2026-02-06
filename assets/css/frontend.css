@@ -143,15 +143,7 @@
    bodyのパディング調整
    ========================================================================== */
 
-body.contentpilot-active {
-	padding-top: var(--contentpilot-height);
-}
-
-@media (max-width: 768px) {
-	body.contentpilot-active {
-		padding-top: var(--contentpilot-height-mobile);
-	}
-}
+/* JSで動的にコンテンツエリアにpadding-topを追加するため、CSSでは設定しない */
 
 /* ==========================================================================
    印刷時は非表示

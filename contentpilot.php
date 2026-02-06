@@ -46,6 +46,7 @@ define( 'CONTENTPILOT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
  */
 require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot.php';
 require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot-admin.php';
+require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot-detector.php';
 
 /**
  * プラグインを初期化する

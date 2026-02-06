@@ -29,13 +29,20 @@
 - 文字数: 3000文字以上
 - メタボックスで「有効」にチェック
 
-### ⏳ Phase 2: 目次連携機能 - **未着手**
+### ✅ Phase 2: 目次連携機能 - **完了**
 
-| 機能 | 状態 |
-|------|------|
-| テーマ内蔵目次の検出（SWELL, JIN, SANGO） | ⬜ 未着手 |
-| 目次プラグインの検出（TOC+, Easy TOC） | ⬜ 未着手 |
-| 検出優先順位のロジック | ⬜ 未着手 |
+| 機能 | 状態 | ファイル |
+|------|------|----------|
+| テーマ内蔵目次の検出（SWELL, JIN, SANGO, AFFINGER, Cocoon, THE THOR） | ✅ 完了 | `includes/class-contentpilot-detector.php` |
+| 目次プラグインの検出（TOC+, Easy TOC, Rich TOC, LuckyWP） | ✅ 完了 | `includes/class-contentpilot-detector.php` |
+| 検出優先順位のロジック | ✅ 完了 | `assets/js/frontend.js` |
+| PHP→JS連携（検出データの受け渡し） | ✅ 完了 | `includes/class-contentpilot.php` |
+
+**検出優先順位:**
+1. テーマ内蔵目次（PHP側でテーマ判定 → JS側でDOM検出）
+2. 目次プラグイン（PHP側で有効プラグイン判定 → JS側でDOM検出）
+3. 汎用セレクタ検出（テーマ/プラグイン未判定でもDOMに存在する場合）
+4. H2タグから自動生成（フォールバック）
 
 ### ⏳ Phase 3: デザイン・カスタマイズ - **未着手**
 
@@ -53,13 +60,14 @@ contentpilot/
 ├── contentpilot.php          # メインプラグインファイル
 ├── uninstall.php             # アンインストール処理
 ├── includes/
-│   ├── class-contentpilot.php       # メインクラス
-│   └── class-contentpilot-admin.php # 管理画面クラス
+│   ├── class-contentpilot.php          # メインクラス
+│   ├── class-contentpilot-admin.php    # 管理画面クラス
+│   └── class-contentpilot-detector.php # 目次検出クラス（Phase 2）
 ├── assets/
 │   ├── css/
 │   │   └── frontend.css      # フロントエンドスタイル
 │   └── js/
-│       └── frontend.js       # フロントエンドJS
+│       └── frontend.js       # フロントエンドJS（目次連携対応）
 ├── SETUP_GUIDE.md            # 別PC用セットアップガイド
 ├── development-flow.md       # このファイル
 ├── plugin-specification.md   # プラグイン仕様書
@@ -75,7 +83,7 @@ contentpilot/
 
 別PCで作業を再開する場合：
 1. `SETUP_GUIDE.md` を参照してセットアップ
-2. Phase 2（目次連携機能）から開発を継続
+2. Phase 3（デザイン・カスタマイズ機能）から開発を継続
 
 ---
 

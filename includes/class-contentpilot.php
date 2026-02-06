@@ -95,6 +95,11 @@ class ContentPilot_Main {
 			true
 		);
 
+		// 目次検出データを取得
+		$detector       = ContentPilot_Detector::get_instance();
+		$detection_data = $detector->get_detection_data();
+		$header_data    = $detector->get_fixed_header_data();
+
 		// データをJavaScriptに渡す
 		wp_localize_script(
 			'contentpilot-frontend',
@@ -104,6 +109,8 @@ class ContentPilot_Main {
 				'animDuration'    => 500,
 				'showAfterScroll' => 100,
 				'position'        => get_option( 'contentpilot_position', 'top' ),
+				'detection'       => $detection_data,
+				'fixedHeader'     => $header_data,
 			)
 		);
 	}
@@ -123,20 +130,29 @@ class ContentPilot_Main {
 			return false;
 		}
 
+		// 強制表示が有効な場合は条件チェックをスキップ
+		$force_display = get_post_meta( $post_id, '_contentpilot_force_display', true );
+		if ( '1' === $force_display ) {
+			return true;
+		}
+
 		// 投稿コンテンツを取得
 		$post    = get_post( $post_id );
 		$content = $post ? $post->post_content : '';
 
+		// Gutenbergブロックをレンダリングしてからチェック
+		$rendered_content = do_blocks( $content );
+
 		// 最小文字数チェック
 		$min_word_count = get_option( 'contentpilot_min_word_count', 3000 );
-		$word_count     = $this->get_word_count( $content );
+		$word_count     = $this->get_word_count( $rendered_content );
 
 		if ( $word_count < $min_word_count ) {
 			return false;
 		}
 
 		// H2見出しが2個以上あるかチェック
-		$h2_count = $this->count_h2_headings( $content );
+		$h2_count = $this->count_h2_headings( $rendered_content );
 		if ( $h2_count < 2 ) {
 			return false;
 		}
