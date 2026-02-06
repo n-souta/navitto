@@ -1,3 +1,4 @@
+# .gitignore の内容
 # OS
 .DS_Store
 Thumbs.db
@@ -28,6 +29,8 @@ composer.lock
 wp-config.php
 wp-content/uploads/
 wp-content/cache/
+wp-content/backup*/
+wp-content/updraft/
 *.log
 
 # Temporary
@@ -35,3 +38,11 @@ wp-content/cache/
 *.bak
 *.swp
 *~
+
+# macOS
+.AppleDouble
+.LSOverride
+
+# Testing
+.phpunit.result.cache
+tests/_output/
