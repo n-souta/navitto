@@ -66,21 +66,17 @@ class ContentPilot_Main {
 	 * スクリプトとスタイルを読み込む
 	 */
 	public function enqueue_scripts() {
-		// デバッグ: 一時的に全ページで読み込み
 		// 投稿ページ以外は読み込まない
 		if ( ! is_singular( 'post' ) ) {
 			return;
 		}
 
-		// デバッグ: 条件チェックを一時的にスキップ
-		/*
 		$post_id = get_the_ID();
 
 		// 表示条件をチェック
 		if ( ! $this->should_display( $post_id ) ) {
 			return;
 		}
-		*/
 
 		// CSS
 		wp_enqueue_style(
@@ -131,8 +127,8 @@ class ContentPilot_Main {
 		$post    = get_post( $post_id );
 		$content = $post ? $post->post_content : '';
 
-		// 最小文字数チェック（開発中は100文字に緩和）
-		$min_word_count = get_option( 'contentpilot_min_word_count', 100 );
+		// 最小文字数チェック
+		$min_word_count = get_option( 'contentpilot_min_word_count', 3000 );
 		$word_count     = $this->get_word_count( $content );
 
 		if ( $word_count < $min_word_count ) {

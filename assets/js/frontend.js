@@ -26,27 +26,18 @@
 		init: function() {
 			var self = this;
 
-			console.log('[ContentPilot] 初期化開始');
-
 			// 設定をマージ
 			if (typeof contentpilotData !== 'undefined') {
 				$.extend(this.settings, contentpilotData);
-				console.log('[ContentPilot] 設定読み込み完了', this.settings);
 			}
 
 			$(document).ready(function() {
-				console.log('[ContentPilot] DOM準備完了');
-				
 				self.collectHeadings();
-				console.log('[ContentPilot] H2検出数:', self.headings.length, self.headings);
 
 				if (self.headings.length >= 2) {
 					self.assignIds();
 					self.createNav();
 					self.bindEvents();
-					console.log('[ContentPilot] ナビゲーション作成完了');
-				} else {
-					console.log('[ContentPilot] H2が2つ未満のためナビ非表示');
 				}
 			});
 		},
@@ -70,19 +61,14 @@
 				$container = $('main').first();
 			}
 
-			console.log('[ContentPilot] コンテナ:', $container.length ? $container[0].className : 'なし');
-
 			if ($container.length === 0) {
-				console.log('[ContentPilot] コンテナが見つかりません');
 				return;
 			}
 
 			// コンテナ内のH2を取得
-			$container.find('h2').each(function(index) {
+			$container.find('h2').each(function() {
 				var $h2 = $(this);
 				var text = $h2.text().trim();
-
-				console.log('[ContentPilot] H2発見:', index, text, 'offset:', $h2.offset().top);
 
 				if (text) {
 					self.headings.push({
