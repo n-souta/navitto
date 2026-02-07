@@ -1,14 +1,14 @@
 /**
  * ContentPilot フロントエンド CSS
  *
- * シンプルプリセット - MVP版
+ * デザインプリセット対応版
  *
  * @package ContentPilot
- * @since   1.0.0
+ * @since   1.1.0
  */
 
 /* ==========================================================================
-   CSS変数
+   CSS変数（デフォルト = シンプル）
    ========================================================================== */
 
 :root {
@@ -18,14 +18,100 @@
 	--contentpilot-active-bg: #f5f5f5;
 	--contentpilot-active-text: #0073aa;
 	--contentpilot-border: #e0e0e0;
-	--contentpilot-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	--contentpilot-nav-shadow: none;
 	--contentpilot-height: 56px;
 	--contentpilot-height-mobile: 48px;
-	--contentpilot-z-index: 9999;
+	--contentpilot-z-index: 99;
+	--contentpilot-font-size: 14px;
+	--contentpilot-font-size-mobile: 13px;
+	--contentpilot-radius: 0px;
 }
 
 /* ==========================================================================
-   固定ナビゲーション
+   プリセット: シンプル（デフォルト）
+   ========================================================================== */
+
+.contentpilot-nav.cp-preset-simple {
+	--contentpilot-bg: #ffffff;
+	--contentpilot-text: #333333;
+	--contentpilot-text-hover: #0073aa;
+	--contentpilot-active-bg: #f0f0f0;
+	--contentpilot-active-text: #0073aa;
+	--contentpilot-border: #e0e0e0;
+	--contentpilot-nav-shadow: none;
+}
+
+/* ==========================================================================
+   プリセット: モダン
+   ========================================================================== */
+
+.contentpilot-nav.cp-preset-modern {
+	--contentpilot-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	--contentpilot-text: rgba(255, 255, 255, 0.9);
+	--contentpilot-text-hover: #ffffff;
+	--contentpilot-active-bg: rgba(255, 255, 255, 0.15);
+	--contentpilot-active-text: #ffffff;
+	--contentpilot-border: transparent;
+	--contentpilot-nav-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.contentpilot-nav.cp-preset-modern .contentpilot-nav__item--active .contentpilot-nav__link {
+	border-bottom-color: rgba(255, 255, 255, 0.8);
+}
+
+/* ==========================================================================
+   プリセット: フラット
+   ========================================================================== */
+
+.contentpilot-nav.cp-preset-flat {
+	--contentpilot-bg: #f8f9fa;
+	--contentpilot-text: #495057;
+	--contentpilot-text-hover: #228be6;
+	--contentpilot-active-bg: #228be6;
+	--contentpilot-active-text: #ffffff;
+	--contentpilot-border: transparent;
+	--contentpilot-nav-shadow: none;
+}
+
+.contentpilot-nav.cp-preset-flat .contentpilot-nav__item--active .contentpilot-nav__link {
+	border-radius: 4px;
+	border-bottom-color: transparent;
+	margin: 4px 0;
+	height: calc(var(--contentpilot-height) - 8px);
+}
+
+/* ==========================================================================
+   プリセット: ダーク
+   ========================================================================== */
+
+.contentpilot-nav.cp-preset-dark {
+	--contentpilot-bg: #1a1a2e;
+	--contentpilot-text: #b0b0c0;
+	--contentpilot-text-hover: #e0e0ff;
+	--contentpilot-active-bg: rgba(255, 255, 255, 0.08);
+	--contentpilot-active-text: #7c83ff;
+	--contentpilot-border: #2a2a3e;
+	--contentpilot-nav-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================================================
+   プリセット: テーマ準拠
+   ========================================================================== */
+
+.contentpilot-nav.cp-preset-theme {
+	--contentpilot-bg: rgba(255, 255, 255, 0.85);
+	--contentpilot-text: #333333;
+	--contentpilot-text-hover: var(--color_main, var(--wp--preset--color--primary, #0073aa));
+	--contentpilot-active-bg: transparent;
+	--contentpilot-active-text: var(--color_main, var(--wp--preset--color--primary, #0073aa));
+	--contentpilot-border: rgba(0, 0, 0, 0.08);
+	--contentpilot-nav-shadow: none;
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+}
+
+/* ==========================================================================
+   固定ナビゲーション（ベース）
    ========================================================================== */
 
 .contentpilot-nav {
@@ -35,10 +121,11 @@
 	right: 0;
 	z-index: var(--contentpilot-z-index);
 	background: var(--contentpilot-bg);
-	box-shadow: var(--contentpilot-shadow);
+	box-shadow: var(--contentpilot-nav-shadow);
 	border-bottom: 1px solid var(--contentpilot-border);
 	height: var(--contentpilot-height);
-	display: none; /* JSで表示制御 */
+	border-radius: var(--contentpilot-radius);
+	display: none;
 }
 
 .contentpilot-nav.is-visible {
@@ -47,15 +134,31 @@
 	animation: contentpilot-slideDown 0.3s ease;
 }
 
+/* --- 配置: 下部固定 --- */
+
+.contentpilot-nav.cp-pos-bottom {
+	top: auto;
+	bottom: 0;
+	border-bottom: none;
+	border-top: 1px solid var(--contentpilot-border);
+}
+
+.contentpilot-nav.cp-pos-bottom.is-visible {
+	animation: contentpilot-slideUp 0.3s ease;
+}
+
+/* ==========================================================================
+   アニメーション
+   ========================================================================== */
+
 @keyframes contentpilot-slideDown {
-	from {
-		opacity: 0;
-		transform: translateY(-100%);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+	from { opacity: 0; transform: translateY(-100%); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes contentpilot-slideUp {
+	from { opacity: 0; transform: translateY(100%); }
+	to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ==========================================================================
@@ -64,24 +167,26 @@
 
 .contentpilot-nav__inner {
 	width: 100%;
-	max-width: 1200px;
-	margin: 0 auto;
-	padding: 0 16px;
-}
-
-.contentpilot-nav__list {
-	display: flex;
-	align-items: center;
 	margin: 0;
-	padding: 0;
-	list-style: none;
+	padding: 0 16px;
 	overflow-x: auto;
+	overflow-y: hidden;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
 }
 
-.contentpilot-nav__list::-webkit-scrollbar {
+.contentpilot-nav__inner::-webkit-scrollbar {
 	display: none;
+}
+
+.contentpilot-nav__list {
+	display: inline-flex;
+	align-items: center;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	white-space: nowrap;
+	flex-wrap: nowrap;
 }
 
 /* ==========================================================================
@@ -100,12 +205,12 @@
 	height: var(--contentpilot-height);
 	padding: 0 16px;
 	color: var(--contentpilot-text);
-	font-size: 14px;
+	font-size: var(--contentpilot-font-size);
 	font-weight: 500;
 	text-decoration: none;
 	white-space: nowrap;
 	border-bottom: 3px solid transparent;
-	transition: all 0.2s ease;
+	transition: color 0.2s ease, background 0.2s ease;
 }
 
 .contentpilot-nav__link:hover {
@@ -117,6 +222,43 @@
 	color: var(--contentpilot-active-text);
 	background: var(--contentpilot-active-bg);
 	border-bottom-color: var(--contentpilot-active-text);
+}
+
+/* 下部固定時はborder-topに変更 */
+.contentpilot-nav.cp-pos-bottom .contentpilot-nav__link {
+	border-bottom: none;
+	border-top: 3px solid transparent;
+}
+
+.contentpilot-nav.cp-pos-bottom .contentpilot-nav__item--active .contentpilot-nav__link {
+	border-top-color: var(--contentpilot-active-text);
+}
+
+/* ==========================================================================
+   横スクロールヒント（グラデーション）
+   ========================================================================== */
+
+.contentpilot-nav__inner::before,
+.contentpilot-nav__inner::after {
+	content: '';
+	position: sticky;
+	top: 0;
+	bottom: 0;
+	width: 24px;
+	min-height: 100%;
+	flex-shrink: 0;
+	pointer-events: none;
+	z-index: 1;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+}
+
+.contentpilot-nav__inner.has-scroll-left::before {
+	opacity: 1;
+}
+
+.contentpilot-nav__inner.has-scroll-right::after {
+	opacity: 1;
 }
 
 /* ==========================================================================
@@ -135,15 +277,9 @@
 	.contentpilot-nav__link {
 		height: var(--contentpilot-height-mobile);
 		padding: 0 12px;
-		font-size: 13px;
+		font-size: var(--contentpilot-font-size-mobile);
 	}
 }
-
-/* ==========================================================================
-   bodyのパディング調整
-   ========================================================================== */
-
-/* JSで動的にコンテンツエリアにpadding-topを追加するため、CSSでは設定しない */
 
 /* ==========================================================================
    印刷時は非表示
@@ -155,5 +291,6 @@
 	}
 	body.contentpilot-active {
 		padding-top: 0 !important;
+		padding-bottom: 0 !important;
 	}
 }

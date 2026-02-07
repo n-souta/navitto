@@ -3,11 +3,6 @@
  *
  * 目次連携型の固定ナビゲーションを生成
  *
- * 検出優先順位:
- * 1. テーマ内蔵目次（SWELL, JIN, SANGO, AFFINGER, Cocoon, THE THOR）
- * 2. 目次プラグイン（TOC+, Easy TOC, Rich TOC, LuckyWP）
- * 3. H2タグから自動生成（フォールバック）
- *
  * @package ContentPilot
  * @since   1.1.0
  */
@@ -22,15 +17,16 @@
 		detectedSource: null,
 		fixedHeaderHeight: 0,
 		$contentArea: null,
+		isScrolling: false,
 		settings: {
 			scrollOffset: 80,
 			animDuration: 500,
-			showAfterScroll: 100
+			showAfterScroll: 100,
+			preset: 'simple',
+			position: 'top',
+			selectedH2: []
 		},
 
-		/**
-		 * 初期化
-		 */
 		init: function() {
 			var self = this;
 
@@ -40,6 +36,7 @@
 
 			$(document).ready(function() {
 				self.detectAndCollect();
+				self.filterSelectedH2();
 				if (self.headings.length >= 2) {
 					self.assignIds();
 					self.detectFixedHeader();
@@ -51,18 +48,51 @@
 		},
 
 		/**
-		 * 検出優先順位に従って見出しを収集
+		 * H2選択フィルタとカスタムテキスト適用
 		 *
-		 * PHP側から渡された detectionOrder を順に試行し、
-		 * 最初に見つかったソースを採用する
+		 * displayMode:
+		 *   'show_all' - 全H2をそのまま表示
+		 *   'select'   - 選択したH2のみ、カスタムテキスト適用
 		 */
+		filterSelectedH2: function() {
+			var mode = this.settings.displayMode || 'show_all';
+			if (mode !== 'select') return;
+
+			var sel = this.settings.selectedH2;
+			var ct  = this.settings.customTexts || {};
+
+			// カスタムテキストを適用
+			for (var k in ct) {
+				if (ct.hasOwnProperty(k)) {
+					var idx = parseInt(k, 10);
+					if (idx < this.headings.length && ct[k]) {
+						this.headings[idx].text = ct[k];
+					}
+				}
+			}
+
+			// 選択フィルタ
+			if (!sel || !sel.length) return;
+			var filtered = [];
+			for (var i = 0; i < this.headings.length; i++) {
+				for (var j = 0; j < sel.length; j++) {
+					if (parseInt(sel[j], 10) === i) {
+						filtered.push(this.headings[i]);
+						break;
+					}
+				}
+			}
+			if (filtered.length >= 2) {
+				this.headings = filtered;
+			}
+		},
+
 		detectAndCollect: function() {
 			var d = this.settings.detection;
 			if (!d || !d.detectionOrder || !d.detectionOrder.length) {
 				this.collectFromH2();
 				return;
 			}
-
 			for (var i = 0; i < d.detectionOrder.length; i++) {
 				var e = d.detectionOrder[i];
 				if (e.source === 'h2') {
@@ -78,12 +108,6 @@
 			}
 		},
 
-		/**
-		 * 既存の目次（テーマ/プラグイン）から見出しを収集
-		 *
-		 * @param {Object} entry 検出エントリ {source, name, container, items}
-		 * @return {boolean} 見出しが2個以上取得できた場合 true
-		 */
 		collectFromToc: function(e) {
 			var $c = $(e.container);
 			if (!$c.length) return false;
@@ -163,16 +187,32 @@
 			return found;
 		},
 
+		/**
+		 * ナビゲーション生成
+		 */
 		createNav: function() {
-			var s = this, h = '<nav class="contentpilot-nav" role="navigation" aria-label="記事内ナビゲーション" data-source="' + s.escapeAttr(s.detectedSource || 'u') + '"><div class="contentpilot-nav__inner"><ul class="contentpilot-nav__list">';
+			var s = this;
+			var preset = this.settings.preset || 'simple';
+			var pos = this.settings.position || 'top';
+			var cls = 'contentpilot-nav cp-preset-' + this.escapeAttr(preset);
+			if (pos === 'bottom') cls += ' cp-pos-bottom';
+
+			var html = '<nav class="' + cls + '" role="navigation" aria-label="記事内ナビゲーション" data-source="' + s.escapeAttr(s.detectedSource || 'u') + '">';
+			html += '<div class="contentpilot-nav__inner"><ul class="contentpilot-nav__list">';
+
 			this.headings.forEach(function(hd, i) {
-				h += '<li class="contentpilot-nav__item' + (i === 0 ? ' contentpilot-nav__item--active' : '') + '"><a href="#' + s.escapeAttr(hd.id) + '" class="contentpilot-nav__link">' + s.escapeHtml(hd.text) + '</a></li>';
+				html += '<li class="contentpilot-nav__item' + (i === 0 ? ' contentpilot-nav__item--active' : '') + '">';
+				html += '<a href="#' + s.escapeAttr(hd.id) + '" class="contentpilot-nav__link">' + s.escapeHtml(hd.text) + '</a></li>';
 			});
-			this.$nav = $(h + '</ul></div></nav>');
+
+			html += '</ul></div></nav>';
+			this.$nav = $(html);
 			$('body').append(this.$nav).addClass('contentpilot-active');
+
 			var adjust = function() {
 				s.detectFixedHeader();
 				s.adjustNavPosition();
+				s.updateScrollHint();
 			};
 			setTimeout(adjust, 0);
 			setTimeout(adjust, 100);
@@ -188,43 +228,117 @@
 
 		adjustNavPosition: function() {
 			if (!this.$nav) return;
+			var isBottom = this.settings.position === 'bottom';
+
+			// 下部配置なら固定ヘッダー考慮不要
+			if (isBottom) {
+				var nh = this.$nav.outerHeight();
+				this.$nav.css({ 'z-index': 99 });
+				this.settings.scrollOffset = nh + 10;
+				this.matchHeaderWidth();
+				this.adjustContentPadding();
+				return;
+			}
+
 			this.detectFixedHeader();
-			var nh = this.$nav.outerHeight(), navTop = this.fixedHeaderHeight > 0 ? this.fixedHeaderHeight : 0, hz = 9998;
+			var nh2 = this.$nav.outerHeight();
+			var navTop = this.fixedHeaderHeight > 0 ? this.fixedHeaderHeight : 0;
+			var hz = 99;
+
 			if (navTop > 0) {
-				var isM = window.innerWidth <= 768, sels = isM ? '#header,#fix_header' : '#fix_header,#header';
-				var $h = $(sels).first();
-				if ($h.length) {
-					var zh = parseInt($h.css('z-index'), 10);
-					if (zh > 0) hz = zh - 1;
-					else if (navTop === 64) hz = 9997;
+				var isM = window.innerWidth <= 768;
+				var sels = isM ? '#header,#fix_header' : '#fix_header,#header';
+				$(sels).each(function() {
+					var zh = parseInt($(this).css('z-index'), 10);
+					if (!isNaN(zh) && zh > 0) {
+						hz = zh - 1;
+						return false;
+					}
+				});
+			}
+
+			this.$nav.css({ 'top': navTop + 'px', 'z-index': hz });
+			this.settings.scrollOffset = navTop + nh2 + 10;
+			this.matchHeaderWidth();
+			this.adjustContentPadding();
+		},
+
+		/**
+		 * テーマ固定ヘッダーのコンテンツ幅を検出して合わせる
+		 */
+		matchHeaderWidth: function() {
+			if (!this.$nav) return;
+			var $inner = this.$nav.find('.contentpilot-nav__inner');
+			// テーマヘッダーの内部コンテナを検出
+			var innerSels = [
+				'#fix_header .l-header__inner',
+				'#header .l-header__inner',
+				'.l-header__inner',
+				'#fix_header > div',
+				'#header > div',
+				'header .l-header__inner',
+				'header > div > div'
+			];
+			for (var i = 0; i < innerSels.length; i++) {
+				var $hi = $(innerSels[i]).first();
+				if ($hi.length && $hi.width() > 0) {
+					var mw = $hi.css('max-width');
+					var w = $hi.width();
+					if (mw && mw !== 'none') {
+						$inner.css({ 'max-width': mw, 'margin': '0 auto' });
+					} else if (w < window.innerWidth - 20) {
+						$inner.css({ 'max-width': w + 'px', 'margin': '0 auto' });
+					}
+					return;
 				}
 			}
-			this.$nav.css({ 'top': navTop + 'px', 'z-index': hz });
-			this.settings.scrollOffset = navTop + nh;
-			this.adjustContentPadding();
 		},
 
 		adjustContentPadding: function() {
 			if (!this.$nav) return;
-			var $c = this.detectContentArea(), nh = this.$nav.outerHeight(), navTop = this.fixedHeaderHeight || 0, total = navTop + nh;
-			if (!$c.length) {
-				$('body').css('padding-top', total + 'px');
+			var isBottom = this.settings.position === 'bottom';
+			var $c = this.detectContentArea();
+			var nh = this.$nav.outerHeight();
+			var navTop = isBottom ? 0 : (this.fixedHeaderHeight || 0);
+			var total = navTop + nh;
+			var prop = isBottom ? 'padding-bottom' : 'padding-top';
+			var origKey = isBottom ? 'cp-orig-pb' : 'cp-orig-pt';
+
+			if (!$c || !$c.length) {
+				$('body').css(prop, total + 'px');
 				return;
 			}
-			var orig = $c.data('cp-orig-pt');
+			var orig = $c.data(origKey);
 			if (orig === undefined) {
-				orig = parseInt($c.css('padding-top'), 10) || 0;
-				$c.data('cp-orig-pt', orig);
+				orig = parseInt($c.css(prop), 10) || 0;
+				$c.data(origKey, orig);
 			}
-			$c.css('padding-top', (orig + total) + 'px');
+			$c.css(prop, (orig + total) + 'px');
+		},
+
+		/**
+		 * 横スクロールヒントの更新
+		 */
+		updateScrollHint: function() {
+			if (!this.$nav) return;
+			var $inner = this.$nav.find('.contentpilot-nav__inner');
+			var el = $inner[0];
+			if (!el) return;
+			var sl = el.scrollLeft, sw = el.scrollWidth, cw = el.clientWidth;
+			$inner.toggleClass('has-scroll-left', sl > 4);
+			$inner.toggleClass('has-scroll-right', sl < sw - cw - 4);
 		},
 
 		bindEvents: function() {
 			var s = this, st = null;
+
+			// スクロール
 			$(window).on('scroll.contentpilot', function() {
 				if (st) return;
 				st = setTimeout(function() { st = null; s.onScroll(); }, 16);
 			});
+
+			// ナビクリック
 			this.$nav.on('click', '.contentpilot-nav__link', function(e) {
 				e.preventDefault();
 				var id = $(this).attr('href').slice(1);
@@ -232,28 +346,41 @@
 				$(this).parent().addClass('contentpilot-nav__item--active');
 				s.scrollTo(id);
 			});
+
+			// リサイズ
 			var rt = null;
 			$(window).on('resize.contentpilot', function() {
 				if (rt) return;
 				rt = setTimeout(function() {
 					rt = null;
 					if (s.$contentArea && s.$contentArea.length) {
-						s.$contentArea.css('padding-top', (s.$contentArea.data('cp-orig-pt') || 0) + 'px');
+						var isB = s.settings.position === 'bottom';
+						var key = isB ? 'cp-orig-pb' : 'cp-orig-pt';
+						var prop = isB ? 'padding-bottom' : 'padding-top';
+						s.$contentArea.css(prop, (s.$contentArea.data(key) || 0) + 'px');
 					}
 					s.detectFixedHeader();
 					s.adjustNavPosition();
+					s.updateScrollHint();
 				}, 250);
 			});
+
+			// 横スクロールヒント
+			this.$nav.find('.contentpilot-nav__inner').on('scroll', function() {
+				s.updateScrollHint();
+			});
+
 			this.onScroll();
 		},
 
 		onScroll: function() {
 			var st = $(window).scrollTop();
 			if (st > this.settings.showAfterScroll) {
-				if (!this.$nav.hasClass('is-visible')) {
+				var wasHidden = !this.$nav.hasClass('is-visible');
+				this.$nav.addClass('is-visible');
+				if (wasHidden) {
 					this.adjustNavPosition();
 				}
-				this.$nav.addClass('is-visible');
 			} else {
 				this.$nav.removeClass('is-visible');
 			}
@@ -261,7 +388,8 @@
 		},
 
 		updateActive: function(st) {
-			var ai = 0, ov = parseInt(this.settings.scrollOffset, 10) + 50;
+			if (this.isScrolling) return;
+			var ai = 0, ov = this.getScrollOffset() + 50;
 			this.headings.forEach(function(h, i) {
 				var $e = $(h.element);
 				if ($e.length && st >= ($e.offset().top - ov)) ai = i;
@@ -269,11 +397,35 @@
 			this.$nav.find('.contentpilot-nav__item').removeClass('contentpilot-nav__item--active').eq(ai).addClass('contentpilot-nav__item--active');
 		},
 
+		/**
+		 * クリック時のオフセットをリアルタイム計算
+		 */
+		getScrollOffset: function() {
+			var headerH = this.fixedHeaderHeight || 0;
+			var navH = (window.innerWidth <= 768) ? 48 : 56;
+			return headerH + navH + 10;
+		},
+
 		scrollTo: function(id) {
-			var $t = $('#' + id);
-			if ($t.length) {
-				$('html, body').animate({ scrollTop: $t.offset().top - this.settings.scrollOffset }, this.settings.animDuration);
-			}
+			var s = this, $t = $('#' + id), done = false;
+			if (!$t.length) return;
+			s.isScrolling = true;
+			s.detectFixedHeader();
+			var offset = s.getScrollOffset();
+			var target = $t.offset().top - offset;
+			$('html, body').stop().animate(
+				{ scrollTop: target },
+				s.settings.animDuration,
+				function() {
+					if (done) return;
+					done = true;
+					var final_pos = $t.offset().top - s.getScrollOffset();
+					if (Math.abs($(window).scrollTop() - final_pos) > 2) {
+						$(window).scrollTop(final_pos);
+					}
+					s.isScrolling = false;
+				}
+			);
 		},
 
 		escapeHtml: function(s) {

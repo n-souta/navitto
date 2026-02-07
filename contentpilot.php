@@ -66,9 +66,12 @@ function contentpilot_init() {
 	$plugin = ContentPilot_Main::get_instance();
 	$plugin->init();
 
+	// カスタマイザー登録（管理画面・プレビュー両方で必要）
+	$admin = ContentPilot_Admin::get_instance();
+	$admin->init_customizer();
+
 	// 管理画面初期化
 	if ( is_admin() ) {
-		$admin = ContentPilot_Admin::get_instance();
 		$admin->init();
 	}
 }
