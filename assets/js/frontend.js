@@ -43,11 +43,12 @@
 				self.detectHeadings();
 				self.filterSelectedH2();
 
-				if (self.headings.length >= 2) {
+				// selectモードでは1つ以上、それ以外は2つ以上で表示
+				var minHeadings = (self.settings.displayMode === 'select') ? 1 : 2;
+				if (self.headings.length >= minHeadings) {
 					self.assignIds();
 					self.createNav();
 					self.detectFixedHeader();
-					self.adjustNavPosition();
 					self.bindEvents();
 				}
 			});
@@ -210,11 +211,10 @@
 			html += '</ul></div></nav>';
 
 			this.$nav = $(html);
-			var bodyClass = 'contentpilot-active';
+			$('body').append(this.$nav);
 			if (s.position === 'bottom') {
-				bodyClass += ' contentpilot-bottom';
+				$('body').addClass('contentpilot-bottom');
 			}
-			$('body').append(this.$nav).addClass(bodyClass);
 
 			// 横スクロールヒントを初期化
 			this.updateScrollHint();
@@ -367,10 +367,15 @@
 			if (scrollTop > this.settings.showAfterScroll) {
 				if (!this.$nav.hasClass('is-visible')) {
 					this.$nav.addClass('is-visible');
+					$('body').addClass('contentpilot-active');
 					this.adjustNavPosition();
 				}
 			} else {
-				this.$nav.removeClass('is-visible');
+				if (this.$nav.hasClass('is-visible')) {
+					this.$nav.removeClass('is-visible');
+					$('body').removeClass('contentpilot-active');
+					$('body').css({ 'padding-top': '', 'padding-bottom': '' });
+				}
 			}
 
 			if (!this.isScrolling) {

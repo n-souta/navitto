@@ -181,6 +181,11 @@ class ContentPilot_Main {
 		$post    = get_post( $post_id );
 		$content = $post ? $post->post_content : '';
 
+		// selectモードでは文字数・H2数チェックをスキップ
+		if ( 'select' === $display_mode ) {
+			return true;
+		}
+
 		// 最小文字数チェック
 		$min_word_count = get_theme_mod( 'contentpilot_min_word_count', 3000 );
 		if ( ! $min_word_count ) {
