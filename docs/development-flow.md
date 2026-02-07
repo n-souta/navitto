@@ -29,13 +29,13 @@
 - 文字数: 3000文字以上
 - メタボックスで「有効」にチェック
 
-### ⏳ Phase 2: 目次連携機能 - **未着手**
+### ✅ Phase 2: 目次連携機能 - **完了**
 
 | 機能 | 状態 |
 |------|------|
-| テーマ内蔵目次の検出（SWELL, JIN, SANGO） | ⬜ 未着手 |
-| 目次プラグインの検出（TOC+, Easy TOC） | ⬜ 未着手 |
-| 検出優先順位のロジック | ⬜ 未着手 |
+| テーマ内蔵目次の検出（SWELL, JIN, SANGO等） | ✅ 完了 |
+| 目次プラグインの検出（TOC+, Easy TOC等） | ✅ 完了 |
+| 検出優先順位のロジック | ✅ 完了 |
 
 ### ⏳ Phase 3: デザイン・カスタマイズ - **未着手**
 
@@ -53,8 +53,9 @@ contentpilot/
 ├── contentpilot.php          # メインプラグインファイル
 ├── uninstall.php             # アンインストール処理
 ├── includes/
-│   ├── class-contentpilot.php       # メインクラス
-│   └── class-contentpilot-admin.php # 管理画面クラス
+│   ├── class-contentpilot.php          # メインクラス
+│   ├── class-contentpilot-admin.php    # 管理画面クラス
+│   └── class-contentpilot-detector.php # 目次検出クラス
 ├── assets/
 │   ├── css/
 │   │   └── frontend.css      # フロントエンドスタイル
@@ -69,7 +70,8 @@ contentpilot/
 ### 🔀 ブランチ状況
 
 - `main`: 初期コミットのみ
-- `develop`: Phase 1 MVP完了（最新）
+- `develop`: Phase 1 MVP完了
+- `feature/toc-detection`: Phase 2 目次連携機能（最新）
 
 ### 📝 次のタスク
 

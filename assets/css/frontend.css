@@ -1,10 +1,10 @@
 /**
  * ContentPilot フロントエンド CSS
  *
- * シンプルプリセット - MVP版
+ * シンプルプリセット - 目次連携対応版
  *
  * @package ContentPilot
- * @since   1.0.0
+ * @since   1.1.0
  */
 
 /* ==========================================================================
@@ -21,7 +21,7 @@
 	--contentpilot-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	--contentpilot-height: 56px;
 	--contentpilot-height-mobile: 48px;
-	--contentpilot-z-index: 9999;
+	--contentpilot-z-index: 99;
 }
 
 /* ==========================================================================
@@ -67,21 +67,23 @@
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 0 16px;
-}
-
-.contentpilot-nav__list {
-	display: flex;
-	align-items: center;
-	margin: 0;
-	padding: 0;
-	list-style: none;
 	overflow-x: auto;
+	overflow-y: hidden;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
 }
 
-.contentpilot-nav__list::-webkit-scrollbar {
+.contentpilot-nav__inner::-webkit-scrollbar {
 	display: none;
+}
+
+.contentpilot-nav__list {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: nowrap;
+	margin: 0;
+	padding: 0;
+	list-style: none;
 }
 
 /* ==========================================================================
@@ -140,7 +142,7 @@
 }
 
 /* ==========================================================================
-   bodyのパディング調整
+   bodyのパディング調整（JSで動的に上書き）
    ========================================================================== */
 
 body.contentpilot-active {

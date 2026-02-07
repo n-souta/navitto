@@ -95,6 +95,11 @@ class ContentPilot_Main {
 			true
 		);
 
+		// 目次検出データを取得
+		$detector       = ContentPilot_Detector::get_instance();
+		$detection_data = $detector->get_detection_data();
+		$header_data    = $detector->get_fixed_header_data();
+
 		// データをJavaScriptに渡す
 		wp_localize_script(
 			'contentpilot-frontend',
@@ -104,6 +109,8 @@ class ContentPilot_Main {
 				'animDuration'    => 500,
 				'showAfterScroll' => 100,
 				'position'        => get_option( 'contentpilot_position', 'top' ),
+				'detection'       => $detection_data,
+				'fixedHeader'     => $header_data,
 			)
 		);
 	}
