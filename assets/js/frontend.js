@@ -271,7 +271,38 @@
 				$('body').addClass('contentpilot-bottom');
 			}
 
+			this.detectContentWidth();
 			this.updateScrollHint();
+		},
+
+		/**
+		 * テーマのコンテンツ幅を検出してCSS変数に設定
+		 */
+		detectContentWidth: function() {
+			// テーマの主要コンテンツコンテナから幅を取得
+			var selectors = [
+				'.l-content',         // SWELL
+				'.l-mainContent',     // SWELL
+				'#content-in',        // Cocoon
+				'.wrap',              // Cocoon
+				'.l-main',            // JIN
+				'#main',              // 汎用
+				'.main-content',      // 汎用
+				'main',              // 汎用
+				'.site-content'       // 汎用
+			];
+
+			for (var i = 0; i < selectors.length; i++) {
+				var $el = $(selectors[i]);
+				if ($el.length > 0 && $el.is(':visible')) {
+					var width = $el.outerWidth();
+					if (width > 0) {
+						this.$nav[0].style.setProperty('--contentpilot-content-width', width + 'px');
+						return;
+					}
+				}
+			}
+			// 見つからない場合はデフォルト（100%）のまま
 		},
 
 		/* ==================================================================
@@ -360,6 +391,7 @@
 				clearTimeout(resizeTimer);
 				resizeTimer = setTimeout(function() {
 					self.relocateNav();
+					self.detectContentWidth();
 					self.updateScrollHint();
 				}, 150);
 			});
