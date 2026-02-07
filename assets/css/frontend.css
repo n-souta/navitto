@@ -24,6 +24,18 @@
 	--contentpilot-z-index: 99;
 	--contentpilot-font-size: 14px;
 	--contentpilot-radius: 0px;
+	--contentpilot-adminbar-h: 0px;
+}
+
+/* 管理バーの高さをCSS変数で管理（SWELL方式） */
+.admin-bar {
+	--contentpilot-adminbar-h: var(--wp-admin--admin-bar--height, 32px);
+}
+
+@media screen and (max-width: 782px) {
+	.admin-bar {
+		--contentpilot-adminbar-h: var(--wp-admin--admin-bar--height, 46px);
+	}
 }
 
 /* ==========================================================================
@@ -42,6 +54,8 @@
 	height: var(--contentpilot-height);
 	display: none;
 	align-items: center;
+	/* 管理バー分を下げる（ない場合は0px） */
+	margin-top: var(--contentpilot-adminbar-h);
 }
 
 /* ヘッダー内に挿入された場合: fixed解除、相対配置にする */
@@ -52,6 +66,7 @@
 	right: auto;
 	z-index: auto;
 	width: 100%;
+	margin-top: 0;
 }
 
 .contentpilot-nav.is-visible {
