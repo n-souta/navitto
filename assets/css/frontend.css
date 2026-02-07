@@ -1,14 +1,14 @@
 /**
  * ContentPilot フロントエンド CSS
  *
- * シンプルプリセット - 目次連携対応版
+ * デザインプリセット5種類 + 横スクロール対応
  *
  * @package ContentPilot
- * @since   1.1.0
+ * @since   1.2.0
  */
 
 /* ==========================================================================
-   CSS変数
+   CSS変数（デフォルト = シンプルプリセット）
    ========================================================================== */
 
 :root {
@@ -18,10 +18,12 @@
 	--contentpilot-active-bg: #f5f5f5;
 	--contentpilot-active-text: #0073aa;
 	--contentpilot-border: #e0e0e0;
-	--contentpilot-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	--contentpilot-nav-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	--contentpilot-height: 56px;
 	--contentpilot-height-mobile: 48px;
 	--contentpilot-z-index: 99;
+	--contentpilot-font-size: 14px;
+	--contentpilot-radius: 0px;
 }
 
 /* ==========================================================================
@@ -35,10 +37,10 @@
 	right: 0;
 	z-index: var(--contentpilot-z-index);
 	background: var(--contentpilot-bg);
-	box-shadow: var(--contentpilot-shadow);
+	box-shadow: var(--contentpilot-nav-shadow);
 	border-bottom: 1px solid var(--contentpilot-border);
 	height: var(--contentpilot-height);
-	display: none; /* JSで表示制御 */
+	display: none;
 }
 
 .contentpilot-nav.is-visible {
@@ -48,21 +50,33 @@
 }
 
 @keyframes contentpilot-slideDown {
-	from {
-		opacity: 0;
-		transform: translateY(-100%);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+	from { opacity: 0; transform: translateY(-100%); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 下部固定 */
+.contentpilot-nav.cp-pos-bottom {
+	top: auto;
+	bottom: 0;
+	border-bottom: none;
+	border-top: 1px solid var(--contentpilot-border);
+}
+
+.contentpilot-nav.cp-pos-bottom.is-visible {
+	animation: contentpilot-slideUp 0.3s ease;
+}
+
+@keyframes contentpilot-slideUp {
+	from { opacity: 0; transform: translateY(100%); }
+	to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ==========================================================================
-   ナビゲーション内部
+   ナビゲーション内部（横スクロール対応）
    ========================================================================== */
 
 .contentpilot-nav__inner {
+	position: relative;
 	width: 100%;
 	max-width: 1200px;
 	margin: 0 auto;
@@ -75,6 +89,28 @@
 
 .contentpilot-nav__inner::-webkit-scrollbar {
 	display: none;
+}
+
+/* スクロールヒント（グラデーション） */
+.contentpilot-nav__inner.has-scroll-right::after,
+.contentpilot-nav__inner.has-scroll-left::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 32px;
+	pointer-events: none;
+	z-index: 2;
+}
+
+.contentpilot-nav__inner.has-scroll-left::before {
+	left: 0;
+	background: linear-gradient(to right, var(--contentpilot-bg), transparent);
+}
+
+.contentpilot-nav__inner.has-scroll-right::after {
+	right: 0;
+	background: linear-gradient(to left, var(--contentpilot-bg), transparent);
 }
 
 .contentpilot-nav__list {
@@ -102,11 +138,12 @@
 	height: var(--contentpilot-height);
 	padding: 0 16px;
 	color: var(--contentpilot-text);
-	font-size: 14px;
+	font-size: var(--contentpilot-font-size);
 	font-weight: 500;
 	text-decoration: none;
 	white-space: nowrap;
 	border-bottom: 3px solid transparent;
+	border-radius: var(--contentpilot-radius);
 	transition: all 0.2s ease;
 }
 
@@ -119,6 +156,59 @@
 	color: var(--contentpilot-active-text);
 	background: var(--contentpilot-active-bg);
 	border-bottom-color: var(--contentpilot-active-text);
+}
+
+/* ==========================================================================
+   デザインプリセット
+   ========================================================================== */
+
+/* モダン（グラデーション背景、影付き） */
+.contentpilot-nav.cp-preset-modern {
+	--contentpilot-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	--contentpilot-text: rgba(255, 255, 255, 0.85);
+	--contentpilot-text-hover: #ffffff;
+	--contentpilot-active-bg: rgba(255, 255, 255, 0.15);
+	--contentpilot-active-text: #ffffff;
+	--contentpilot-border: transparent;
+	--contentpilot-nav-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.contentpilot-nav.cp-preset-modern .contentpilot-nav__item--active .contentpilot-nav__link {
+	border-bottom-color: #ffffff;
+}
+
+/* フラット（明るい色、影なし） */
+.contentpilot-nav.cp-preset-flat {
+	--contentpilot-bg: #f8f9fa;
+	--contentpilot-text: #495057;
+	--contentpilot-text-hover: #228be6;
+	--contentpilot-active-bg: #228be6;
+	--contentpilot-active-text: #ffffff;
+	--contentpilot-border: #dee2e6;
+	--contentpilot-nav-shadow: none;
+}
+
+.contentpilot-nav.cp-preset-flat .contentpilot-nav__item--active .contentpilot-nav__link {
+	border-bottom-color: transparent;
+	border-radius: 4px;
+}
+
+/* ダーク（黒背景、白テキスト） */
+.contentpilot-nav.cp-preset-dark {
+	--contentpilot-bg: #1a1a2e;
+	--contentpilot-text: rgba(255, 255, 255, 0.7);
+	--contentpilot-text-hover: #e94560;
+	--contentpilot-active-bg: rgba(233, 69, 96, 0.15);
+	--contentpilot-active-text: #e94560;
+	--contentpilot-border: #16213e;
+	--contentpilot-nav-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+	background: #1a1a2e;
+}
+
+/* テーマ準拠（テーマカラー自動検出 - JSで動的に設定） */
+.contentpilot-nav.cp-preset-theme {
+	--contentpilot-nav-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 /* ==========================================================================
@@ -149,9 +239,18 @@ body.contentpilot-active {
 	padding-top: var(--contentpilot-height);
 }
 
+body.contentpilot-active.contentpilot-bottom {
+	padding-top: 0;
+	padding-bottom: var(--contentpilot-height);
+}
+
 @media (max-width: 768px) {
 	body.contentpilot-active {
 		padding-top: var(--contentpilot-height-mobile);
+	}
+	body.contentpilot-active.contentpilot-bottom {
+		padding-top: 0;
+		padding-bottom: var(--contentpilot-height-mobile);
 	}
 }
 
@@ -165,5 +264,6 @@ body.contentpilot-active {
 	}
 	body.contentpilot-active {
 		padding-top: 0 !important;
+		padding-bottom: 0 !important;
 	}
 }

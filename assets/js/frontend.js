@@ -1,10 +1,10 @@
 /**
  * ContentPilot フロントエンド JavaScript
  *
- * 目次連携・H2フォールバック対応の固定ナビゲーション
+ * 目次連携・プリセット・H2選択・横スクロール対応
  *
  * @package ContentPilot
- * @since   1.1.0
+ * @since   1.2.0
  */
 
 (function($) {
@@ -20,6 +20,11 @@
 			scrollOffset: 80,
 			animDuration: 500,
 			showAfterScroll: 100,
+			preset: 'simple',
+			position: 'top',
+			displayMode: 'auto',
+			selectedH2: [],
+			customTexts: {},
 			detection: null,
 			fixedHeader: null
 		},
@@ -36,6 +41,7 @@
 
 			$(document).ready(function() {
 				self.detectHeadings();
+				self.filterSelectedH2();
 
 				if (self.headings.length >= 2) {
 					self.assignIds();
@@ -49,75 +55,50 @@
 
 		/**
 		 * 検出優先順位に基づいて見出しを収集
-		 *
-		 * 1. テーマ内蔵目次 → 2. 目次プラグイン → 3. H2フォールバック
 		 */
 		detectHeadings: function() {
-			var self = this;
 			var detection = this.settings.detection;
 
-			// detection データがない場合はH2フォールバック
 			if (!detection || !detection.detectionOrder) {
 				this.collectH2Headings();
 				return;
 			}
 
-			// 検出順に試行
 			var order = detection.detectionOrder;
 			for (var i = 0; i < order.length; i++) {
 				var entry = order[i];
 
 				if (entry.source === 'h2') {
-					// H2フォールバック
 					this.collectH2Headings();
-					if (this.headings.length > 0) {
-						return;
-					}
+					if (this.headings.length > 0) return;
 				} else {
-					// テーマ/プラグイン/汎用の目次を検出
-					var found = this.collectFromToc(entry);
-					if (found) {
-						return;
-					}
+					if (this.collectFromToc(entry)) return;
 				}
 			}
 		},
 
 		/**
-		 * 既存の目次コンテナから見出しを収集
-		 *
-		 * @param {Object} entry 検出エントリ { container, items, name }
-		 * @return {boolean} 検出成功
+		 * 既存の目次から見出しを収集
 		 */
 		collectFromToc: function(entry) {
 			var self = this;
 			var $container = $(entry.container);
-
-			if ($container.length === 0) {
-				return false;
-			}
+			if ($container.length === 0) return false;
 
 			var $items = $(entry.items);
-			if ($items.length === 0) {
-				return false;
-			}
+			if ($items.length === 0) return false;
 
 			$items.each(function() {
 				var $a = $(this);
 				var href = $a.attr('href') || '';
 				var text = $a.text().trim();
+				if (!text) return;
 
-				if (!text) {
-					return;
-				}
-
-				// アンカーリンクからIDを抽出
 				var id = '';
 				if (href.indexOf('#') !== -1) {
 					id = href.split('#')[1] || '';
 				}
 
-				// 対応するH2要素を取得
 				var element = null;
 				if (id) {
 					var $target = $('#' + id);
@@ -126,16 +107,9 @@
 					}
 				}
 
-				// H2以外は除外（目次にはH3以下も含まれるため）
-				if (!element) {
-					return;
-				}
+				if (!element) return;
 
-				self.headings.push({
-					element: element,
-					text: text,
-					id: id
-				});
+				self.headings.push({ element: element, text: text, id: id });
 			});
 
 			return this.headings.length > 0;
@@ -152,32 +126,56 @@
 				'article .content, .post_content, #the_content'
 			).first();
 
-			if ($container.length === 0) {
-				$container = $('article').first();
-			}
-			if ($container.length === 0) {
-				$container = $('main').first();
-			}
-			if ($container.length === 0) {
-				return;
-			}
+			if ($container.length === 0) $container = $('article').first();
+			if ($container.length === 0) $container = $('main').first();
+			if ($container.length === 0) return;
 
 			$container.find('h2').each(function() {
 				var $h2 = $(this);
 				var text = $h2.text().trim();
-
 				if (text) {
-					self.headings.push({
-						element: this,
-						text: text,
-						id: $h2.attr('id') || ''
-					});
+					self.headings.push({ element: this, text: text, id: $h2.attr('id') || '' });
 				}
 			});
 		},
 
 		/**
-		 * IDを付与（IDがない見出しに自動付与）
+		 * H2選択モードの場合、選択された見出しのみに絞り込む
+		 */
+		filterSelectedH2: function() {
+			var s = this.settings;
+			if (s.displayMode !== 'select' || !s.selectedH2 || s.selectedH2.length === 0) {
+				return;
+			}
+
+			var selected = s.selectedH2;
+			var texts = s.customTexts || {};
+			var filtered = [];
+
+			for (var i = 0; i < this.headings.length; i++) {
+				var inSelected = false;
+				for (var j = 0; j < selected.length; j++) {
+					if (parseInt(selected[j], 10) === i) {
+						inSelected = true;
+						break;
+					}
+				}
+				if (inSelected) {
+					var heading = this.headings[i];
+					// カスタムテキストがあれば適用
+					var customText = texts[String(i)];
+					if (customText && customText.length > 0) {
+						heading.text = customText;
+					}
+					filtered.push(heading);
+				}
+			}
+
+			this.headings = filtered;
+		},
+
+		/**
+		 * IDを付与
 		 */
 		assignIds: function() {
 			this.headings.forEach(function(heading, index) {
@@ -193,7 +191,11 @@
 		 */
 		createNav: function() {
 			var self = this;
-			var html = '<nav class="contentpilot-nav" role="navigation">';
+			var s = this.settings;
+			var presetClass = s.preset ? ' cp-preset-' + s.preset : '';
+			var posClass = s.position === 'bottom' ? ' cp-pos-bottom' : '';
+
+			var html = '<nav class="contentpilot-nav' + presetClass + posClass + '" role="navigation">';
 			html += '<div class="contentpilot-nav__inner">';
 			html += '<ul class="contentpilot-nav__list">';
 
@@ -208,22 +210,26 @@
 			html += '</ul></div></nav>';
 
 			this.$nav = $(html);
-			$('body').append(this.$nav).addClass('contentpilot-active');
+			var bodyClass = 'contentpilot-active';
+			if (s.position === 'bottom') {
+				bodyClass += ' contentpilot-bottom';
+			}
+			$('body').append(this.$nav).addClass(bodyClass);
+
+			// 横スクロールヒントを初期化
+			this.updateScrollHint();
 		},
 
 		/**
-		 * テーマの固定ヘッダーを検出して高さを取得
+		 * テーマの固定ヘッダーを検出
 		 */
 		detectFixedHeader: function() {
 			var headerData = this.settings.fixedHeader;
-			if (!headerData) {
-				return;
-			}
+			if (!headerData) return;
 
 			var selector = '';
 			var isMobile = window.innerWidth <= 768;
 
-			// カスタムセレクタ優先
 			if (headerData.customSelector) {
 				selector = headerData.customSelector;
 			} else if (headerData.selectors) {
@@ -234,9 +240,7 @@
 				}
 			}
 
-			if (!selector) {
-				return;
-			}
+			if (!selector) return;
 
 			var $header = $(selector);
 			if ($header.length > 0 && $header.is(':visible')) {
@@ -248,18 +252,16 @@
 		},
 
 		/**
-		 * プラグインナビの位置をテーマヘッダーに合わせて調整
+		 * ナビの位置を調整
 		 */
 		adjustNavPosition: function() {
-			if (!this.$nav) {
-				return;
-			}
+			if (!this.$nav) return;
+			var isBottom = this.settings.position === 'bottom';
 
-			if (this.fixedHeaderHeight > 0) {
-				// テーマヘッダーの下に配置
+			if (this.fixedHeaderHeight > 0 && !isBottom) {
 				this.$nav.css('top', this.fixedHeaderHeight + 'px');
 
-				// z-indexをテーマヘッダーより低く設定
+				// z-indexをテーマヘッダーより低く
 				var headerData = this.settings.fixedHeader;
 				var selector = '';
 				if (headerData && headerData.customSelector) {
@@ -270,15 +272,14 @@
 				if (selector) {
 					var $hdr = $(selector);
 					if ($hdr.length > 0) {
-						var zIndex = parseInt($hdr.css('z-index'), 10);
-						if (!isNaN(zIndex) && zIndex > 0) {
-							this.$nav.css('z-index', zIndex - 1);
+						var zIdx = parseInt($hdr.css('z-index'), 10);
+						if (!isNaN(zIdx) && zIdx > 0) {
+							this.$nav.css('z-index', zIdx - 1);
 						}
 					}
 				}
 			}
 
-			// コンテンツのパディング調整
 			this.adjustContentPadding();
 		},
 
@@ -286,17 +287,39 @@
 		 * コンテンツのパディングを調整
 		 */
 		adjustContentPadding: function() {
-			var navHeight = this.$nav.is(':visible') ? this.$nav.outerHeight(true) : 56;
-			var totalOffset = this.fixedHeaderHeight + navHeight;
-			$('body.contentpilot-active').css('padding-top', totalOffset + 'px');
+			var navH = this.$nav.is(':visible') ? this.$nav.outerHeight(true) : 56;
+			var isBottom = this.settings.position === 'bottom';
+
+			if (isBottom) {
+				$('body.contentpilot-active').css({ 'padding-top': '', 'padding-bottom': navH + 'px' });
+			} else {
+				var total = this.fixedHeaderHeight + navH;
+				$('body.contentpilot-active').css({ 'padding-top': total + 'px', 'padding-bottom': '' });
+			}
 		},
 
 		/**
-		 * スクロールオフセットを取得（固定ヘッダー + プラグインナビの高さ）
+		 * スクロールオフセットを取得
 		 */
 		getScrollOffset: function() {
-			var navHeight = window.innerWidth <= 768 ? 48 : 56;
-			return this.fixedHeaderHeight + navHeight + 10;
+			var navH = window.innerWidth <= 768 ? 48 : 56;
+			return this.fixedHeaderHeight + navH + 10;
+		},
+
+		/**
+		 * 横スクロールヒントを更新
+		 */
+		updateScrollHint: function() {
+			if (!this.$nav) return;
+			var $inner = this.$nav.find('.contentpilot-nav__inner');
+			if ($inner.length === 0) return;
+
+			var el = $inner[0];
+			var scrollLeft = el.scrollLeft;
+			var maxScroll = el.scrollWidth - el.clientWidth;
+
+			$inner.toggleClass('has-scroll-left', scrollLeft > 5);
+			$inner.toggleClass('has-scroll-right', maxScroll > 5 && scrollLeft < maxScroll - 5);
 		},
 
 		/**
@@ -305,15 +328,19 @@
 		bindEvents: function() {
 			var self = this;
 
-			// スクロール
 			$(window).on('scroll.contentpilot', function() {
 				self.onScroll();
 			});
 
-			// リサイズ時に固定ヘッダーを再検出
 			$(window).on('resize.contentpilot', function() {
 				self.detectFixedHeader();
 				self.adjustNavPosition();
+				self.updateScrollHint();
+			});
+
+			// 横スクロール時にヒントを更新
+			this.$nav.find('.contentpilot-nav__inner').on('scroll', function() {
+				self.updateScrollHint();
 			});
 
 			// クリック
@@ -328,7 +355,6 @@
 				self.scrollTo(id);
 			});
 
-			// 初回実行
 			this.onScroll();
 		},
 
@@ -361,9 +387,7 @@
 
 			this.headings.forEach(function(heading, index) {
 				var $el = $(heading.element);
-				if ($el.length === 0) {
-					return;
-				}
+				if ($el.length === 0) return;
 				if (scrollTop >= $el.offset().top - offset - 10) {
 					activeIndex = index;
 				}
@@ -381,9 +405,7 @@
 		scrollTo: function(id) {
 			var self = this;
 			var $target = $('#' + id);
-			if ($target.length === 0) {
-				return;
-			}
+			if ($target.length === 0) return;
 
 			this.isScrolling = true;
 			var offset = this.getScrollOffset();
@@ -394,8 +416,6 @@
 			}, this.settings.animDuration, function() {
 				if (self.isScrolling) {
 					self.isScrolling = false;
-
-					// 最終位置を補正
 					var finalTop = $target.offset().top - offset;
 					if (Math.abs($(window).scrollTop() - finalTop) > 2) {
 						$(window).scrollTop(finalTop);
@@ -404,18 +424,12 @@
 			});
 		},
 
-		/**
-		 * HTMLエスケープ
-		 */
 		escapeHtml: function(str) {
 			var div = document.createElement('div');
 			div.textContent = str;
 			return div.innerHTML;
 		},
 
-		/**
-		 * 属性エスケープ
-		 */
 		escapeAttr: function(str) {
 			return String(str)
 				.replace(/&/g, '&amp;')
