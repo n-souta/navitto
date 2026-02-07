@@ -17,6 +17,7 @@
 		$headerParent: null,  // ナビの挿入先ヘッダー要素
 		insertMode: 'body',   // 'inside' | 'after' | 'body'
 		isScrolling: false,
+		lastActiveIndex: -1,  // 前回のアクティブインデックス
 		settings: {
 			scrollOffset: 80,
 			animDuration: 500,
@@ -371,10 +372,14 @@
 				e.preventDefault();
 				var $link = $(this);
 				var id = $link.attr('href').slice(1);
+				var $item = $link.parent();
 
 				self.$nav.find('.contentpilot-nav__item').removeClass('contentpilot-nav__item--active');
-				$link.parent().addClass('contentpilot-nav__item--active');
+				$item.addClass('contentpilot-nav__item--active');
+				self.lastActiveIndex = $item.index();
 
+				// クリックしたアイテムを中央に配置
+				self.centerActiveItem($item);
 				self.scrollTo(id);
 			});
 
@@ -450,10 +455,36 @@
 				}
 			});
 
-			this.$nav.find('.contentpilot-nav__item')
-				.removeClass('contentpilot-nav__item--active')
-				.eq(activeIndex)
-				.addClass('contentpilot-nav__item--active');
+			var $items = this.$nav.find('.contentpilot-nav__item');
+			$items.removeClass('contentpilot-nav__item--active');
+			var $active = $items.eq(activeIndex).addClass('contentpilot-nav__item--active');
+
+			// カレントが変わったらセンタリング
+			if (activeIndex !== this.lastActiveIndex) {
+				this.lastActiveIndex = activeIndex;
+				this.centerActiveItem($active);
+			}
+		},
+
+		/**
+		 * アクティブなナビアイテムを横スクロールで中央に配置
+		 */
+		centerActiveItem: function($activeItem) {
+			if (!$activeItem || $activeItem.length === 0) return;
+
+			var $inner = this.$nav.find('.contentpilot-nav__inner');
+			if ($inner.length === 0) return;
+
+			var innerEl = $inner[0];
+			var innerRect = innerEl.getBoundingClientRect();
+			var itemRect = $activeItem[0].getBoundingClientRect();
+
+			// アイテムの中央とコンテナの中央の差分をスクロール量に加算
+			var itemCenter = itemRect.left + itemRect.width / 2;
+			var innerCenter = innerRect.left + innerRect.width / 2;
+			var scrollTarget = innerEl.scrollLeft + (itemCenter - innerCenter);
+
+			$inner.stop().animate({ scrollLeft: scrollTarget }, 300);
 		},
 
 		scrollTo: function(id) {

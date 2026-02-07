@@ -80,6 +80,7 @@
 	overflow-y: hidden;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
+	text-align: center;
 }
 
 .contentpilot-nav__inner::-webkit-scrollbar {
