@@ -23,9 +23,10 @@
 			showAfterScroll: 100,
 			preset: 'simple',
 			position: 'top',
-			displayMode: 'auto',
+			displayMode: 'show_all',
 			selectedH2: [],
 			customTexts: {},
+			trigger: { type: 'immediate' },
 			detection: null,
 			fixedHeader: null
 		},
@@ -380,10 +381,49 @@
 			this.onScroll();
 		},
 
+		/**
+		 * 表示開始条件を満たしているか判定
+		 */
+		shouldShow: function(scrollTop) {
+			var trigger = this.settings.trigger || { type: 'immediate' };
+			var type = trigger.type || 'immediate';
+
+			// immediate: showAfterScroll ベース（デフォルト動作）
+			if (type === 'immediate') {
+				return scrollTop > this.settings.showAfterScroll;
+			}
+
+			// first_selected: 選択した最初の見出しを通過したら
+			if (type === 'first_selected') {
+				if (this.headings.length === 0) return false;
+				var $first = $(this.headings[0].element);
+				if ($first.length === 0) return false;
+				return scrollTop >= $first.offset().top - this.getScrollOffset();
+			}
+
+			// nth_selected: N番目の見出しを通過したら
+			if (type === 'nth_selected') {
+				var nth = (trigger.nth || 2) - 1; // 0ベースに変換
+				if (nth < 0 || nth >= this.headings.length) return false;
+				var $nth = $(this.headings[nth].element);
+				if ($nth.length === 0) return false;
+				return scrollTop >= $nth.offset().top - this.getScrollOffset();
+			}
+
+			// scroll_px: 指定ピクセルスクロール後
+			if (type === 'scroll_px') {
+				var px = trigger.scrollPx || 300;
+				return scrollTop > px;
+			}
+
+			// フォールバック
+			return scrollTop > this.settings.showAfterScroll;
+		},
+
 		onScroll: function() {
 			var scrollTop = $(window).scrollTop();
 
-			if (scrollTop > this.settings.showAfterScroll) {
+			if (this.shouldShow(scrollTop)) {
 				if (!this.$nav.hasClass('is-visible')) {
 					this.$nav.addClass('is-visible');
 				}

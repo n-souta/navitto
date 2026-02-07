@@ -47,6 +47,7 @@ define( 'CONTENTPILOT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot.php';
 require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot-admin.php';
 require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot-detector.php';
+require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot-settings.php';
 
 /**
  * プラグインを初期化する
@@ -73,6 +74,10 @@ function contentpilot_init() {
 	// 管理画面初期化
 	if ( is_admin() ) {
 		$admin->init();
+
+		// 設定ページ初期化
+		$settings = ContentPilot_Settings::get_instance();
+		$settings->init();
 	}
 }
 add_action( 'plugins_loaded', 'contentpilot_init' );

@@ -71,7 +71,11 @@ class ContentPilot_Main {
 		// 表示モード・H2選択データ
 		$display_mode = get_post_meta( $post_id, '_contentpilot_display_mode', true );
 		if ( '' === $display_mode ) {
-			$display_mode = 'auto';
+			$display_mode = 'show_all';
+		}
+		// 後方互換: auto → show_all
+		if ( 'auto' === $display_mode ) {
+			$display_mode = 'show_all';
 		}
 
 		$selected_h2  = array();
@@ -81,6 +85,18 @@ class ContentPilot_Main {
 			$selected_h2 = is_array( $raw ) ? $raw : array();
 			$raw_texts = get_post_meta( $post_id, '_contentpilot_h2_custom_texts', true );
 			$custom_texts = is_array( $raw_texts ) ? $raw_texts : array();
+		}
+
+		// 表示開始位置の設定
+		$trigger_type = get_post_meta( $post_id, '_contentpilot_trigger_type', true );
+		$trigger_data = array(
+			'type' => $trigger_type ? $trigger_type : 'immediate',
+		);
+		if ( 'nth_selected' === $trigger_type ) {
+			$trigger_data['nth'] = absint( get_post_meta( $post_id, '_contentpilot_trigger_nth', true ) ) ?: 2;
+		}
+		if ( 'scroll_px' === $trigger_type ) {
+			$trigger_data['scrollPx'] = absint( get_post_meta( $post_id, '_contentpilot_trigger_scroll_px', true ) ) ?: 300;
 		}
 
 		// プリセット（投稿メタ優先 → カスタマイザー）
@@ -111,6 +127,7 @@ class ContentPilot_Main {
 				'displayMode'     => $display_mode,
 				'selectedH2'      => $selected_h2,
 				'customTexts'     => ! empty( $js_custom_texts ) ? $js_custom_texts : new stdClass(),
+				'trigger'         => $trigger_data,
 				'detection'       => $detection_data,
 				'fixedHeader'     => $header_data,
 			)
@@ -171,7 +188,7 @@ class ContentPilot_Main {
 		}
 
 		// 後方互換
-		if ( '' === $display_mode ) {
+		if ( '' === $display_mode || 'auto' === $display_mode ) {
 			$enabled = get_post_meta( $post_id, '_contentpilot_enabled', true );
 			if ( '0' === $enabled ) {
 				return false;
@@ -184,6 +201,11 @@ class ContentPilot_Main {
 		// selectモードでは文字数・H2数チェックをスキップ
 		if ( 'select' === $display_mode ) {
 			return true;
+		}
+
+		// show_allモードでも表示を許可
+		if ( 'show_all' === $display_mode ) {
+			// 文字数・H2数チェックは引き続き実行
 		}
 
 		// 最小文字数チェック

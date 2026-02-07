@@ -41,6 +41,7 @@
 	border-bottom: 1px solid var(--contentpilot-border);
 	height: var(--contentpilot-height);
 	display: none;
+	align-items: center;
 }
 
 /* ヘッダー内に挿入された場合: fixed解除、相対配置にする */
@@ -55,18 +56,6 @@
 
 .contentpilot-nav.is-visible {
 	display: flex;
-	align-items: center;
-	animation: contentpilot-slideDown 0.3s ease;
-}
-
-/* ヘッダー内挿入の場合のアニメーション */
-.contentpilot-nav.cp-inside-header.is-visible {
-	animation: none;
-}
-
-@keyframes contentpilot-slideDown {
-	from { opacity: 0; transform: translateY(-100%); }
-	to   { opacity: 1; transform: translateY(0); }
 }
 
 /* 下部固定 */
@@ -75,15 +64,6 @@
 	bottom: 0;
 	border-bottom: none;
 	border-top: 1px solid var(--contentpilot-border);
-}
-
-.contentpilot-nav.cp-pos-bottom.is-visible {
-	animation: contentpilot-slideUp 0.3s ease;
-}
-
-@keyframes contentpilot-slideUp {
-	from { opacity: 0; transform: translateY(100%); }
-	to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ==========================================================================
@@ -106,26 +86,17 @@
 	display: none;
 }
 
-/* スクロールヒント（グラデーション） */
-.contentpilot-nav__inner.has-scroll-right::after,
+/* スクロールヒント（左側のみ） */
 .contentpilot-nav__inner.has-scroll-left::before {
 	content: '';
 	position: absolute;
 	top: 0;
 	bottom: 0;
+	left: 0;
 	width: 32px;
 	pointer-events: none;
 	z-index: 2;
-}
-
-.contentpilot-nav__inner.has-scroll-left::before {
-	left: 0;
 	background: linear-gradient(to right, var(--contentpilot-bg), transparent);
-}
-
-.contentpilot-nav__inner.has-scroll-right::after {
-	right: 0;
-	background: linear-gradient(to left, var(--contentpilot-bg), transparent);
 }
 
 .contentpilot-nav__list {
@@ -153,6 +124,7 @@
 	height: var(--contentpilot-height);
 	padding: 0 16px;
 	color: var(--contentpilot-text);
+	font-family: inherit;
 	font-size: var(--contentpilot-font-size);
 	font-weight: 500;
 	text-decoration: none;

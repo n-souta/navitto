@@ -64,12 +64,15 @@ class ContentPilot_Admin {
 		// 現在の値を取得
 		$display_mode = get_post_meta( $post->ID, '_contentpilot_display_mode', true );
 		if ( '' === $display_mode ) {
-			// 後方互換: 旧 _contentpilot_enabled を確認
 			$old_enabled = get_post_meta( $post->ID, '_contentpilot_enabled', true );
-			$display_mode = ( '0' === $old_enabled ) ? 'hide' : 'auto';
+			$display_mode = ( '0' === $old_enabled ) ? 'hide' : 'show_all';
+		}
+		// 後方互換: auto → show_all
+		if ( 'auto' === $display_mode ) {
+			$display_mode = 'show_all';
 		}
 
-		$selected_h2  = array();
+		$selected_h2   = array();
 		$custom_texts  = array();
 		if ( 'select' === $display_mode ) {
 			$selected_h2 = get_post_meta( $post->ID, '_contentpilot_selected_h2', true );
@@ -77,6 +80,14 @@ class ContentPilot_Admin {
 			$custom_texts = get_post_meta( $post->ID, '_contentpilot_h2_custom_texts', true );
 			$custom_texts = is_array( $custom_texts ) ? $custom_texts : array();
 		}
+
+		// トリガー設定
+		$trigger_type      = get_post_meta( $post->ID, '_contentpilot_trigger_type', true );
+		$trigger_type      = $trigger_type ? $trigger_type : 'immediate';
+		$trigger_nth       = get_post_meta( $post->ID, '_contentpilot_trigger_nth', true );
+		$trigger_nth       = $trigger_nth ? absint( $trigger_nth ) : 2;
+		$trigger_scroll_px = get_post_meta( $post->ID, '_contentpilot_trigger_scroll_px', true );
+		$trigger_scroll_px = $trigger_scroll_px ? absint( $trigger_scroll_px ) : 300;
 
 		$preset = get_post_meta( $post->ID, '_contentpilot_preset', true );
 
@@ -92,6 +103,8 @@ class ContentPilot_Admin {
 				$h2_list[] = wp_strip_all_tags( $h2_text );
 			}
 		}
+
+		$is_select = ( 'select' === $display_mode );
 		?>
 		<style>
 			.cp-radio-group { margin-bottom: 8px; }
@@ -102,94 +115,151 @@ class ContentPilot_Admin {
 			.cp-h2-item label { display: flex; align-items: center; gap: 4px; font-size: 13px; }
 			.cp-h2-text-input { width: 100%; margin-top: 4px; font-size: 12px; }
 			.cp-h2-text-input:disabled { opacity: 0.4; pointer-events: none; }
+			.cp-trigger-settings { margin: 8px 0; padding: 8px; background: #f0f6fc; border: 1px solid #c3d4e0; border-radius: 4px; }
+			.cp-trigger-settings h4 { margin: 0 0 8px; font-size: 13px; }
+			.cp-trigger-settings label { display: block; margin-bottom: 6px; cursor: pointer; font-size: 13px; }
+			.cp-trigger-settings label:last-child { margin-bottom: 0; }
+			.cp-trigger-settings .cp-trigger-inline { display: inline-block; vertical-align: middle; }
+			.cp-trigger-settings input[type="number"] { width: 60px; vertical-align: middle; }
+			.cp-trigger-settings .description { font-size: 11px; color: #666; margin: 2px 0 0 22px; }
 			.cp-select-row { margin-top: 10px; }
 			.cp-select-row label { font-weight: 600; font-size: 12px; display: block; margin-bottom: 4px; }
 			.cp-select-row select { width: 100%; }
 		</style>
 
-		<div class="cp-radio-group">
-			<label>
-				<input type="radio" name="contentpilot_display_mode" value="auto"
-					<?php checked( $display_mode, 'auto' ); ?> />
-				<?php esc_html_e( '固定ナビを表示（H2タグをそのまま反映）', 'contentpilot' ); ?>
-			</label>
-			<label>
-				<input type="radio" name="contentpilot_display_mode" value="select"
-					<?php checked( $display_mode, 'select' ); ?> />
-				<?php esc_html_e( '表示する見出しを選択', 'contentpilot' ); ?>
-			</label>
-			<label>
-				<input type="radio" name="contentpilot_display_mode" value="hide"
-					<?php checked( $display_mode, 'hide' ); ?> />
-				<?php esc_html_e( '固定ナビを非表示', 'contentpilot' ); ?>
-			</label>
-		</div>
+		<div class="contentpilot-meta-box">
+			<!-- 表示モード -->
+			<div class="cp-radio-group">
+				<label>
+					<input type="radio" name="contentpilot_display_mode" value="show_all"
+						<?php checked( $display_mode, 'show_all' ); ?> />
+					<?php esc_html_e( '固定ナビを表示（H2タグをそのまま反映）', 'contentpilot' ); ?>
+				</label>
+				<label>
+					<input type="radio" name="contentpilot_display_mode" value="select"
+						<?php checked( $display_mode, 'select' ); ?> />
+					<?php esc_html_e( '表示する見出しを選択', 'contentpilot' ); ?>
+				</label>
+				<label>
+					<input type="radio" name="contentpilot_display_mode" value="hide"
+						<?php checked( $display_mode, 'hide' ); ?> />
+					<?php esc_html_e( '固定ナビを非表示', 'contentpilot' ); ?>
+				</label>
+			</div>
 
-		<div id="cp-h2-select-area" style="<?php echo 'select' === $display_mode ? '' : 'display:none;'; ?>">
-			<?php if ( empty( $h2_list ) ) : ?>
-				<p class="description"><?php esc_html_e( 'H2見出しが見つかりません。', 'contentpilot' ); ?></p>
-			<?php else : ?>
-				<?php foreach ( $h2_list as $index => $h2_text ) :
-					$is_checked  = in_array( $index, $selected_h2, false );
-					$custom_text = isset( $custom_texts[ $index ] ) ? $custom_texts[ $index ] : '';
-				?>
-					<div class="cp-h2-item">
-						<label>
-							<input type="checkbox"
-								name="contentpilot_selected_h2[]"
-								value="<?php echo esc_attr( $index ); ?>"
-								class="cp-h2-checkbox"
+			<!-- 見出し選択（select時のみ表示） -->
+			<div id="cp-h2-select-area" style="<?php echo $is_select ? '' : 'display:none;'; ?>">
+				<?php if ( empty( $h2_list ) ) : ?>
+					<p class="description"><?php esc_html_e( 'H2見出しが見つかりません。', 'contentpilot' ); ?></p>
+				<?php else : ?>
+					<?php foreach ( $h2_list as $index => $h2_text ) :
+						$is_checked  = in_array( $index, $selected_h2, false );
+						$custom_text = isset( $custom_texts[ $index ] ) ? $custom_texts[ $index ] : '';
+					?>
+						<div class="cp-h2-item">
+							<label>
+								<input type="checkbox"
+									name="contentpilot_selected_h2[]"
+									value="<?php echo esc_attr( $index ); ?>"
+									class="cp-h2-checkbox"
+									data-index="<?php echo esc_attr( $index ); ?>"
+									<?php checked( $is_checked ); ?> />
+								<?php echo esc_html( $h2_text ); ?>
+							</label>
+							<input type="text"
+								name="contentpilot_h2_text_<?php echo esc_attr( $index ); ?>"
+								class="cp-h2-text-input"
 								data-index="<?php echo esc_attr( $index ); ?>"
-								<?php checked( $is_checked ); ?> />
-							<?php echo esc_html( $h2_text ); ?>
-						</label>
-						<input type="text"
-							name="contentpilot_h2_text_<?php echo esc_attr( $index ); ?>"
-							class="cp-h2-text-input"
-							data-index="<?php echo esc_attr( $index ); ?>"
-							value="<?php echo esc_attr( $custom_text ); ?>"
-							placeholder="<?php echo esc_attr( $h2_text ); ?>"
-							<?php echo $is_checked ? '' : 'disabled'; ?> />
-					</div>
-				<?php endforeach; ?>
-			<?php endif; ?>
-		</div>
+								value="<?php echo esc_attr( $custom_text ); ?>"
+								placeholder="<?php echo esc_attr( $h2_text ); ?>"
+								<?php echo $is_checked ? '' : 'disabled'; ?> />
+						</div>
+					<?php endforeach; ?>
+				<?php endif; ?>
+			</div>
 
-		<div class="cp-select-row">
-			<label><?php esc_html_e( 'デザインプリセット', 'contentpilot' ); ?></label>
-			<select name="contentpilot_preset">
-				<option value=""><?php esc_html_e( 'グローバル設定を使用', 'contentpilot' ); ?></option>
-				<option value="simple" <?php selected( $preset, 'simple' ); ?>><?php esc_html_e( 'シンプル', 'contentpilot' ); ?></option>
-				<option value="modern" <?php selected( $preset, 'modern' ); ?>><?php esc_html_e( 'モダン', 'contentpilot' ); ?></option>
-				<option value="flat" <?php selected( $preset, 'flat' ); ?>><?php esc_html_e( 'フラット', 'contentpilot' ); ?></option>
-				<option value="dark" <?php selected( $preset, 'dark' ); ?>><?php esc_html_e( 'ダーク', 'contentpilot' ); ?></option>
-				<option value="theme" <?php selected( $preset, 'theme' ); ?>><?php esc_html_e( 'テーマ準拠', 'contentpilot' ); ?></option>
-			</select>
-		</div>
+			<!-- 表示開始位置（select時のみ表示） -->
+			<div class="cp-trigger-settings contentpilot-trigger-settings" style="<?php echo $is_select ? '' : 'display:none;'; ?>">
+				<h4><?php esc_html_e( '表示開始位置', 'contentpilot' ); ?></h4>
 
-		<p class="description" style="margin-top:8px;">
-			<?php esc_html_e( '文字数・H2数の条件を満たす場合に表示されます。', 'contentpilot' ); ?>
-		</p>
+				<label>
+					<input type="radio" name="_contentpilot_trigger_type" value="immediate"
+						<?php checked( $trigger_type, 'immediate' ); ?> />
+					<?php esc_html_e( 'ページ上部から', 'contentpilot' ); ?>
+				</label>
+				<p class="description"><?php esc_html_e( '選択した見出しがページ上部に来たら固定ナビを表示', 'contentpilot' ); ?></p>
+
+				<label>
+					<input type="radio" name="_contentpilot_trigger_type" value="first_selected"
+						<?php checked( $trigger_type, 'first_selected' ); ?> />
+					<?php esc_html_e( '選択した最初の見出しを通過後', 'contentpilot' ); ?>
+				</label>
+				<p class="description"><?php esc_html_e( 'チェックを入れた最初の見出しを通過したら表示', 'contentpilot' ); ?></p>
+
+				<label>
+					<input type="radio" name="_contentpilot_trigger_type" value="nth_selected"
+						<?php checked( $trigger_type, 'nth_selected' ); ?> />
+					<span class="cp-trigger-inline">
+						<input type="number" name="_contentpilot_trigger_nth"
+							value="<?php echo esc_attr( $trigger_nth ); ?>"
+							min="1" max="99" style="width:60px;" />
+						<?php esc_html_e( '番目の見出しを通過後', 'contentpilot' ); ?>
+					</span>
+				</label>
+				<p class="description"><?php esc_html_e( 'チェックを入れたN番目の見出しを通過したら表示', 'contentpilot' ); ?></p>
+
+				<label>
+					<input type="radio" name="_contentpilot_trigger_type" value="scroll_px"
+						<?php checked( $trigger_type, 'scroll_px' ); ?> />
+					<span class="cp-trigger-inline">
+						<input type="number" name="_contentpilot_trigger_scroll_px"
+							value="<?php echo esc_attr( $trigger_scroll_px ); ?>"
+							min="0" max="10000" step="50" style="width:80px;" />
+						<?php esc_html_e( 'px スクロール後', 'contentpilot' ); ?>
+					</span>
+				</label>
+			</div>
+
+			<!-- デザインプリセット -->
+			<div class="cp-select-row">
+				<label><?php esc_html_e( 'デザインプリセット', 'contentpilot' ); ?></label>
+				<select name="contentpilot_preset">
+					<option value=""><?php esc_html_e( 'グローバル設定を使用', 'contentpilot' ); ?></option>
+					<option value="simple" <?php selected( $preset, 'simple' ); ?>><?php esc_html_e( 'シンプル', 'contentpilot' ); ?></option>
+					<option value="modern" <?php selected( $preset, 'modern' ); ?>><?php esc_html_e( 'モダン', 'contentpilot' ); ?></option>
+					<option value="flat" <?php selected( $preset, 'flat' ); ?>><?php esc_html_e( 'フラット', 'contentpilot' ); ?></option>
+					<option value="dark" <?php selected( $preset, 'dark' ); ?>><?php esc_html_e( 'ダーク', 'contentpilot' ); ?></option>
+					<option value="theme" <?php selected( $preset, 'theme' ); ?>><?php esc_html_e( 'テーマ準拠', 'contentpilot' ); ?></option>
+				</select>
+			</div>
+
+			<p class="description" style="margin-top:8px;">
+				<?php esc_html_e( '文字数・H2数の条件を満たす場合に表示されます（show_all時）。', 'contentpilot' ); ?>
+			</p>
+		</div>
 
 		<script>
 		(function(){
-			// ラジオボタンの切り替えでH2選択エリアを表示/非表示
-			var radios = document.querySelectorAll('input[name="contentpilot_display_mode"]');
-			var area = document.getElementById('cp-h2-select-area');
-			radios.forEach(function(r) {
-				r.addEventListener('change', function() {
-					area.style.display = this.value === 'select' ? '' : 'none';
-				});
-			});
+			var radios      = document.querySelectorAll('input[name="contentpilot_display_mode"]');
+			var h2Area      = document.getElementById('cp-h2-select-area');
+			var triggerArea  = document.querySelector('.contentpilot-trigger-settings');
+
+			// 表示モード切替
+			function onModeChange() {
+				var mode = document.querySelector('input[name="contentpilot_display_mode"]:checked');
+				var isSelect = mode && mode.value === 'select';
+				h2Area.style.display      = isSelect ? '' : 'none';
+				triggerArea.style.display  = isSelect ? '' : 'none';
+			}
+			radios.forEach(function(r) { r.addEventListener('change', onModeChange); });
+			onModeChange();
 
 			// チェックボックスでテキスト入力の有効/無効を切り替え
 			document.querySelectorAll('.cp-h2-checkbox').forEach(function(cb) {
 				cb.addEventListener('change', function() {
 					var idx = this.getAttribute('data-index');
 					var input = document.querySelector('.cp-h2-text-input[data-index="' + idx + '"]');
-					if (input) {
-						input.disabled = !this.checked;
-					}
+					if (input) { input.disabled = !this.checked; }
 				});
 			});
 		})();
@@ -213,9 +283,9 @@ class ContentPilot_Admin {
 		}
 
 		// 表示モード
-		$mode = isset( $_POST['contentpilot_display_mode'] ) ? sanitize_text_field( $_POST['contentpilot_display_mode'] ) : 'auto';
-		if ( ! in_array( $mode, array( 'auto', 'select', 'hide' ), true ) ) {
-			$mode = 'auto';
+		$mode = isset( $_POST['contentpilot_display_mode'] ) ? sanitize_text_field( $_POST['contentpilot_display_mode'] ) : 'show_all';
+		if ( ! in_array( $mode, array( 'show_all', 'select', 'hide' ), true ) ) {
+			$mode = 'show_all';
 		}
 		update_post_meta( $post_id, '_contentpilot_display_mode', $mode );
 
@@ -235,9 +305,35 @@ class ContentPilot_Admin {
 				}
 			}
 			update_post_meta( $post_id, '_contentpilot_h2_custom_texts', $texts );
+
+			// 表示開始位置
+			$trigger_type = isset( $_POST['_contentpilot_trigger_type'] )
+				? sanitize_text_field( $_POST['_contentpilot_trigger_type'] )
+				: 'immediate';
+			if ( ! in_array( $trigger_type, array( 'immediate', 'first_selected', 'nth_selected', 'scroll_px' ), true ) ) {
+				$trigger_type = 'immediate';
+			}
+			update_post_meta( $post_id, '_contentpilot_trigger_type', $trigger_type );
+
+			if ( 'nth_selected' === $trigger_type ) {
+				$nth = isset( $_POST['_contentpilot_trigger_nth'] ) ? absint( $_POST['_contentpilot_trigger_nth'] ) : 2;
+				update_post_meta( $post_id, '_contentpilot_trigger_nth', max( 1, $nth ) );
+			} else {
+				delete_post_meta( $post_id, '_contentpilot_trigger_nth' );
+			}
+
+			if ( 'scroll_px' === $trigger_type ) {
+				$scroll = isset( $_POST['_contentpilot_trigger_scroll_px'] ) ? absint( $_POST['_contentpilot_trigger_scroll_px'] ) : 300;
+				update_post_meta( $post_id, '_contentpilot_trigger_scroll_px', $scroll );
+			} else {
+				delete_post_meta( $post_id, '_contentpilot_trigger_scroll_px' );
+			}
 		} else {
 			delete_post_meta( $post_id, '_contentpilot_selected_h2' );
 			delete_post_meta( $post_id, '_contentpilot_h2_custom_texts' );
+			delete_post_meta( $post_id, '_contentpilot_trigger_type' );
+			delete_post_meta( $post_id, '_contentpilot_trigger_nth' );
+			delete_post_meta( $post_id, '_contentpilot_trigger_scroll_px' );
 		}
 
 		// プリセット
