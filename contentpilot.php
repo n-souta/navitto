@@ -23,21 +23,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * プラグインバージョン
+ *
+ * @var string
  */
 define( 'CONTENTPILOT_VERSION', '1.0.0' );
 
 /**
  * プラグインディレクトリパス
+ *
+ * @var string
  */
 define( 'CONTENTPILOT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
  * プラグインURL
+ *
+ * @var string
  */
 define( 'CONTENTPILOT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 /**
  * プラグインベースネーム
+ *
+ * @var string
  */
 define( 'CONTENTPILOT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
@@ -61,15 +69,15 @@ function contentpilot_init() {
 		false,
 		dirname( plugin_basename( __FILE__ ) ) . '/languages'
 	);
-
+	
 	// フロントエンド初期化
 	$plugin = ContentPilot_Main::get_instance();
 	$plugin->init();
-
+	
 	// カスタマイザー登録（管理画面・プレビュー両方で必要）
 	$admin = ContentPilot_Admin::get_instance();
 	$admin->init_customizer();
-
+	
 	// 管理画面初期化
 	if ( is_admin() ) {
 		$admin->init();
@@ -88,7 +96,7 @@ function contentpilot_activate() {
 	add_option( 'contentpilot_default_preset', 'simple' );
 	add_option( 'contentpilot_position', 'top' );
 	add_option( 'contentpilot_min_word_count', 3000 );
-
+	
 	flush_rewrite_rules();
 }
 register_activation_hook( __FILE__, 'contentpilot_activate' );

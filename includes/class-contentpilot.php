@@ -8,19 +8,74 @@
  * @since   1.0.0
  */
 
+// 直接アクセスを防ぐ
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Class ContentPilot_Main
+ *
+ * プラグインのメイン機能を管理するクラス
+ *
+ * @since 1.0.0
+ */
 class ContentPilot_Main {
 
+	/**
+	 * シングルトンインスタンス
+	 *
+	 * @since 1.0.0
+	 * @var ContentPilot_Main|null
+	 */
 	private static $instance = null;
+
+	/**
+	 * プラグインバージョン
+	 *
+	 * @since 1.0.0
+	 * @var string
+	 */
 	private $version;
 
+	/**
+	 * コンストラクタ
+	 *
+	 * シングルトンパターンのためprivate
+	 *
+	 * @since 1.0.0
+	 */
 	private function __construct() {
 		$this->version = CONTENTPILOT_VERSION;
 	}
 
+	/**
+	 * クローンを禁止
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	private function __clone() {
+		// クローンを禁止
+	}
+
+	/**
+	 * アンシリアライズを禁止
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 * @throws Exception アンシリアライズが試みられた場合
+	 */
+	public function __wakeup() {
+		throw new Exception( esc_html__( 'Cannot unserialize singleton', 'contentpilot' ) );
+	}
+
+	/**
+	 * シングルトンインスタンスを取得
+	 *
+	 * @since 1.0.0
+	 * @return ContentPilot_Main インスタンス
+	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -28,14 +83,27 @@ class ContentPilot_Main {
 		return self::$instance;
 	}
 
+	/**
+	 * プラグインを初期化
+	 *
+	 * フックの登録などを行う
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
 	public function init() {
+		// フロントエンドのスクリプトとスタイルを登録
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
 	/**
-	 * スクリプトとスタイルを読み込む
+	 * フロントエンドのスクリプトとスタイルを読み込む
+	 *
+	 * @since 1.0.0
+	 * @return void
 	 */
 	public function enqueue_scripts() {
+		// 投稿ページ以外は読み込まない
 		if ( ! is_singular( 'post' ) ) {
 			return;
 		}
@@ -230,6 +298,12 @@ class ContentPilot_Main {
 		return count( $matches[0] );
 	}
 
+	/**
+	 * プラグインバージョンを取得
+	 *
+	 * @since 1.0.0
+	 * @return string プラグインバージョン
+	 */
 	public function get_version() {
 		return $this->version;
 	}
