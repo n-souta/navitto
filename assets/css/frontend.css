@@ -1,7 +1,7 @@
 /**
  * ContentPilot フロントエンド CSS
  *
- * デザインプリセット5種類 + 横スクロール対応
+ * テーマヘッダー内挿入方式対応
  *
  * @package ContentPilot
  * @since   1.2.0
@@ -27,7 +27,7 @@
 }
 
 /* ==========================================================================
-   固定ナビゲーション
+   固定ナビゲーション（デフォルト: body追加時のfixed方式）
    ========================================================================== */
 
 .contentpilot-nav {
@@ -43,10 +43,25 @@
 	display: none;
 }
 
+/* ヘッダー内に挿入された場合: fixed解除、相対配置にする */
+.contentpilot-nav.cp-inside-header {
+	position: relative;
+	top: auto;
+	left: auto;
+	right: auto;
+	z-index: auto;
+	width: 100%;
+}
+
 .contentpilot-nav.is-visible {
 	display: flex;
 	align-items: center;
 	animation: contentpilot-slideDown 0.3s ease;
+}
+
+/* ヘッダー内挿入の場合のアニメーション */
+.contentpilot-nav.cp-inside-header.is-visible {
+	animation: none;
 }
 
 @keyframes contentpilot-slideDown {
@@ -162,7 +177,7 @@
    デザインプリセット
    ========================================================================== */
 
-/* モダン（グラデーション背景、影付き） */
+/* モダン */
 .contentpilot-nav.cp-preset-modern {
 	--contentpilot-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 	--contentpilot-text: rgba(255, 255, 255, 0.85);
@@ -178,7 +193,7 @@
 	border-bottom-color: #ffffff;
 }
 
-/* フラット（明るい色、影なし） */
+/* フラット */
 .contentpilot-nav.cp-preset-flat {
 	--contentpilot-bg: #f8f9fa;
 	--contentpilot-text: #495057;
@@ -194,7 +209,7 @@
 	border-radius: 4px;
 }
 
-/* ダーク（黒背景、白テキスト） */
+/* ダーク */
 .contentpilot-nav.cp-preset-dark {
 	--contentpilot-bg: #1a1a2e;
 	--contentpilot-text: rgba(255, 255, 255, 0.7);
@@ -206,7 +221,7 @@
 	background: #1a1a2e;
 }
 
-/* テーマ準拠（テーマカラー自動検出 - JSで動的に設定） */
+/* テーマ準拠 */
 .contentpilot-nav.cp-preset-theme {
 	--contentpilot-nav-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
@@ -232,7 +247,8 @@
 }
 
 /* ==========================================================================
-   bodyのパディング調整（JSで動的に上書き）
+   bodyのパディング調整（body追加方式の場合のみ必要）
+   ヘッダー内挿入方式ではヘッダー自体が高くなるので不要
    ========================================================================== */
 
 body.contentpilot-active {

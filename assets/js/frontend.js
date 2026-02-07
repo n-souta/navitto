@@ -1,7 +1,7 @@
 /**
  * ContentPilot フロントエンド JavaScript
  *
- * 目次連携・プリセット・H2選択・横スクロール対応
+ * テーマのヘッダー構造に挿入する方式
  *
  * @package ContentPilot
  * @since   1.2.0
@@ -14,7 +14,8 @@
 
 		headings: [],
 		$nav: null,
-		fixedHeaderHeight: 0,
+		$headerParent: null,  // ナビの挿入先ヘッダー要素
+		insertMode: 'body',   // 'inside' | 'after' | 'body'
 		isScrolling: false,
 		settings: {
 			scrollOffset: 80,
@@ -43,32 +44,29 @@
 				self.detectHeadings();
 				self.filterSelectedH2();
 
-				// selectモードでは1つ以上、それ以外は2つ以上で表示
 				var minHeadings = (self.settings.displayMode === 'select') ? 1 : 2;
 				if (self.headings.length >= minHeadings) {
 					self.assignIds();
+					self.findHeaderParent();
 					self.createNav();
-					self.detectFixedHeader();
 					self.bindEvents();
 				}
 			});
 		},
 
-		/**
-		 * 検出優先順位に基づいて見出しを収集
-		 */
+		/* ==================================================================
+		   見出し収集
+		   ================================================================== */
+
 		detectHeadings: function() {
 			var detection = this.settings.detection;
-
 			if (!detection || !detection.detectionOrder) {
 				this.collectH2Headings();
 				return;
 			}
-
 			var order = detection.detectionOrder;
 			for (var i = 0; i < order.length; i++) {
 				var entry = order[i];
-
 				if (entry.source === 'h2') {
 					this.collectH2Headings();
 					if (this.headings.length > 0) return;
@@ -78,14 +76,10 @@
 			}
 		},
 
-		/**
-		 * 既存の目次から見出しを収集
-		 */
 		collectFromToc: function(entry) {
 			var self = this;
 			var $container = $(entry.container);
 			if ($container.length === 0) return false;
-
 			var $items = $(entry.items);
 			if ($items.length === 0) return false;
 
@@ -94,12 +88,10 @@
 				var href = $a.attr('href') || '';
 				var text = $a.text().trim();
 				if (!text) return;
-
 				var id = '';
 				if (href.indexOf('#') !== -1) {
 					id = href.split('#')[1] || '';
 				}
-
 				var element = null;
 				if (id) {
 					var $target = $('#' + id);
@@ -107,26 +99,18 @@
 						element = $target[0];
 					}
 				}
-
 				if (!element) return;
-
 				self.headings.push({ element: element, text: text, id: id });
 			});
-
 			return this.headings.length > 0;
 		},
 
-		/**
-		 * H2タグから見出しを収集（フォールバック）
-		 */
 		collectH2Headings: function() {
 			var self = this;
-
 			var $container = $(
 				'.entry-content, .post-content, .wp-block-post-content, ' +
 				'article .content, .post_content, #the_content'
 			).first();
-
 			if ($container.length === 0) $container = $('article').first();
 			if ($container.length === 0) $container = $('main').first();
 			if ($container.length === 0) return;
@@ -140,44 +124,28 @@
 			});
 		},
 
-		/**
-		 * H2選択モードの場合、選択された見出しのみに絞り込む
-		 */
 		filterSelectedH2: function() {
 			var s = this.settings;
-			if (s.displayMode !== 'select' || !s.selectedH2 || s.selectedH2.length === 0) {
-				return;
-			}
+			if (s.displayMode !== 'select' || !s.selectedH2 || s.selectedH2.length === 0) return;
 
 			var selected = s.selectedH2;
 			var texts = s.customTexts || {};
 			var filtered = [];
-
 			for (var i = 0; i < this.headings.length; i++) {
 				var inSelected = false;
 				for (var j = 0; j < selected.length; j++) {
-					if (parseInt(selected[j], 10) === i) {
-						inSelected = true;
-						break;
-					}
+					if (parseInt(selected[j], 10) === i) { inSelected = true; break; }
 				}
 				if (inSelected) {
 					var heading = this.headings[i];
-					// カスタムテキストがあれば適用
 					var customText = texts[String(i)];
-					if (customText && customText.length > 0) {
-						heading.text = customText;
-					}
+					if (customText && customText.length > 0) heading.text = customText;
 					filtered.push(heading);
 				}
 			}
-
 			this.headings = filtered;
 		},
 
-		/**
-		 * IDを付与
-		 */
 		assignIds: function() {
 			this.headings.forEach(function(heading, index) {
 				if (!heading.id) {
@@ -187,8 +155,81 @@
 			});
 		},
 
+		/* ==================================================================
+		   ヘッダー検出 & ナビ挿入
+		   ================================================================== */
+
 		/**
-		 * ナビゲーションを生成
+		 * テーマの固定ヘッダーを探して挿入先を決定
+		 *
+		 * SWELL: #header 内に追加（p-spHeadMenuと同じレベル）
+		 * Cocoon: ヘッダー直後に追加
+		 * その他: bodyに追加（従来方式）
+		 */
+		findHeaderParent: function() {
+			// SWELL: #header が固定ヘッダーの親コンテナ
+			var $swellHeader = $('#header');
+			if ($swellHeader.length > 0) {
+				var pos = $swellHeader.css('position');
+				if (pos === 'fixed' || pos === 'sticky') {
+					this.$headerParent = $swellHeader;
+					this.insertMode = 'inside';
+					return;
+				}
+			}
+
+			// SWELL: #fix_header（PCスクロール時の固定ヘッダー）
+			var $fixHeader = $('#fix_header');
+			if ($fixHeader.length > 0 && $fixHeader.is(':visible')) {
+				var pos2 = $fixHeader.css('position');
+				if (pos2 === 'fixed' || pos2 === 'sticky') {
+					this.$headerParent = $fixHeader;
+					this.insertMode = 'inside';
+					return;
+				}
+			}
+
+			// Cocoon: .sticky-header
+			var $cocoon = $('.sticky-header');
+			if ($cocoon.length > 0 && $cocoon.is(':visible')) {
+				this.$headerParent = $cocoon;
+				this.insertMode = 'inside';
+				return;
+			}
+
+			// 汎用: 画面上部の固定要素を探す
+			var genericSelectors = [
+				'.l-header', '#masthead', '.site-header', '#site-header'
+			];
+			for (var i = 0; i < genericSelectors.length; i++) {
+				var $el = $(genericSelectors[i]);
+				if ($el.length > 0 && $el.is(':visible')) {
+					var gPos = $el.css('position');
+					if (gPos === 'fixed' || gPos === 'sticky') {
+						this.$headerParent = $el;
+						this.insertMode = 'inside';
+						return;
+					}
+				}
+			}
+
+			// カスタムセレクタ
+			var headerData = this.settings.fixedHeader;
+			if (headerData && headerData.customSelector) {
+				var $custom = $(headerData.customSelector);
+				if ($custom.length > 0 && $custom.is(':visible')) {
+					this.$headerParent = $custom;
+					this.insertMode = 'after';
+					return;
+				}
+			}
+
+			// 見つからない場合はbodyに追加（従来方式）
+			this.insertMode = 'body';
+		},
+
+		/**
+		 * ナビゲーションを生成して挿入
 		 */
 		createNav: function() {
 			var self = this;
@@ -209,106 +250,50 @@
 			});
 
 			html += '</ul></div></nav>';
-
 			this.$nav = $(html);
-			$('body').append(this.$nav);
+
+			// 挿入モードに応じてDOMに配置
+			if (this.insertMode === 'inside' && this.$headerParent) {
+				// ヘッダー内に追加 → position: fixedは不要（親が固定されている）
+				this.$headerParent.append(this.$nav);
+				this.$nav.addClass('cp-inside-header');
+			} else if (this.insertMode === 'after' && this.$headerParent) {
+				// ヘッダーの直後に追加
+				this.$headerParent.after(this.$nav);
+			} else {
+				// bodyに追加（従来方式）
+				$('body').append(this.$nav);
+			}
+
 			if (s.position === 'bottom') {
 				$('body').addClass('contentpilot-bottom');
 			}
 
-			// 横スクロールヒントを初期化
 			this.updateScrollHint();
 		},
 
-		/**
-		 * テーマの固定ヘッダーを検出
-		 */
-		detectFixedHeader: function() {
-			var headerData = this.settings.fixedHeader;
-			if (!headerData) return;
-
-			var selector = '';
-			var isMobile = window.innerWidth <= 768;
-
-			if (headerData.customSelector) {
-				selector = headerData.customSelector;
-			} else if (headerData.selectors) {
-				if (isMobile && headerData.selectors.sp) {
-					selector = headerData.selectors.sp;
-				} else if (headerData.selectors.pc) {
-					selector = headerData.selectors.pc;
-				}
-			}
-
-			if (!selector) return;
-
-			var $header = $(selector);
-			if ($header.length > 0 && $header.is(':visible')) {
-				var pos = $header.css('position');
-				if (pos === 'fixed' || pos === 'sticky') {
-					this.fixedHeaderHeight = $header.outerHeight(true);
-				}
-			}
-		},
-
-		/**
-		 * ナビの位置を調整
-		 */
-		adjustNavPosition: function() {
-			if (!this.$nav) return;
-			var isBottom = this.settings.position === 'bottom';
-
-			if (this.fixedHeaderHeight > 0 && !isBottom) {
-				this.$nav.css('top', this.fixedHeaderHeight + 'px');
-
-				// z-indexをテーマヘッダーより低く
-				var headerData = this.settings.fixedHeader;
-				var selector = '';
-				if (headerData && headerData.customSelector) {
-					selector = headerData.customSelector;
-				} else if (headerData && headerData.selectors && headerData.selectors.pc) {
-					selector = headerData.selectors.pc;
-				}
-				if (selector) {
-					var $hdr = $(selector);
-					if ($hdr.length > 0) {
-						var zIdx = parseInt($hdr.css('z-index'), 10);
-						if (!isNaN(zIdx) && zIdx > 0) {
-							this.$nav.css('z-index', zIdx - 1);
-						}
-					}
-				}
-			}
-
-			this.adjustContentPadding();
-		},
-
-		/**
-		 * コンテンツのパディングを調整
-		 */
-		adjustContentPadding: function() {
-			var navH = this.$nav.is(':visible') ? this.$nav.outerHeight(true) : 56;
-			var isBottom = this.settings.position === 'bottom';
-
-			if (isBottom) {
-				$('body.contentpilot-active').css({ 'padding-top': '', 'padding-bottom': navH + 'px' });
-			} else {
-				var total = this.fixedHeaderHeight + navH;
-				$('body.contentpilot-active').css({ 'padding-top': total + 'px', 'padding-bottom': '' });
-			}
-		},
+		/* ==================================================================
+		   スクロールオフセット
+		   ================================================================== */
 
 		/**
 		 * スクロールオフセットを取得
+		 * ヘッダー内に挿入されている場合、親ヘッダーの全体高さを使う
 		 */
 		getScrollOffset: function() {
+			if (this.insertMode === 'inside' && this.$headerParent) {
+				// ヘッダー全体の高さ（ナビ含む）
+				return this.$headerParent[0].offsetHeight + 10;
+			}
+			// bodyに追加された場合
 			var navH = window.innerWidth <= 768 ? 48 : 56;
-			return this.fixedHeaderHeight + navH + 10;
+			return navH + 10;
 		},
 
-		/**
-		 * 横スクロールヒントを更新
-		 */
+		/* ==================================================================
+		   横スクロールヒント
+		   ================================================================== */
+
 		updateScrollHint: function() {
 			if (!this.$nav) return;
 			var $inner = this.$nav.find('.contentpilot-nav__inner');
@@ -322,28 +307,65 @@
 			$inner.toggleClass('has-scroll-right', maxScroll > 5 && scrollLeft < maxScroll - 5);
 		},
 
+		/* ==================================================================
+		   イベント
+		   ================================================================== */
+
 		/**
-		 * イベントをバインド
+		 * リサイズ時にナビの挿入先を再検出・移動
+		 * SWELLなどPC/SPでヘッダー要素が変わるテーマに対応
 		 */
+		relocateNav: function() {
+			var oldParent = this.$headerParent;
+			var oldMode = this.insertMode;
+
+			// 再検出
+			this.findHeaderParent();
+
+			// 挿入先が変わった場合のみ移動
+			var parentChanged = (this.insertMode !== oldMode) ||
+				(this.$headerParent && oldParent && this.$headerParent[0] !== oldParent[0]) ||
+				(this.$headerParent && !oldParent) ||
+				(!this.$headerParent && oldParent);
+
+			if (!parentChanged) return;
+
+			// ナビをDOMから一旦外す
+			this.$nav.detach();
+
+			if (this.insertMode === 'inside' && this.$headerParent) {
+				this.$headerParent.append(this.$nav);
+				this.$nav.addClass('cp-inside-header');
+			} else if (this.insertMode === 'after' && this.$headerParent) {
+				this.$headerParent.after(this.$nav);
+				this.$nav.removeClass('cp-inside-header');
+			} else {
+				$('body').append(this.$nav);
+				this.$nav.removeClass('cp-inside-header');
+			}
+		},
+
 		bindEvents: function() {
 			var self = this;
+			var resizeTimer = null;
 
 			$(window).on('scroll.contentpilot', function() {
 				self.onScroll();
 			});
 
 			$(window).on('resize.contentpilot', function() {
-				self.detectFixedHeader();
-				self.adjustNavPosition();
-				self.updateScrollHint();
+				// デバウンス: リサイズ完了後に再配置
+				clearTimeout(resizeTimer);
+				resizeTimer = setTimeout(function() {
+					self.relocateNav();
+					self.updateScrollHint();
+				}, 150);
 			});
 
-			// 横スクロール時にヒントを更新
 			this.$nav.find('.contentpilot-nav__inner').on('scroll', function() {
 				self.updateScrollHint();
 			});
 
-			// クリック
 			this.$nav.on('click', '.contentpilot-nav__link', function(e) {
 				e.preventDefault();
 				var $link = $(this);
@@ -358,23 +380,16 @@
 			this.onScroll();
 		},
 
-		/**
-		 * スクロール時の処理
-		 */
 		onScroll: function() {
 			var scrollTop = $(window).scrollTop();
 
 			if (scrollTop > this.settings.showAfterScroll) {
 				if (!this.$nav.hasClass('is-visible')) {
 					this.$nav.addClass('is-visible');
-					$('body').addClass('contentpilot-active');
-					this.adjustNavPosition();
 				}
 			} else {
 				if (this.$nav.hasClass('is-visible')) {
 					this.$nav.removeClass('is-visible');
-					$('body').removeClass('contentpilot-active');
-					$('body').css({ 'padding-top': '', 'padding-bottom': '' });
 				}
 			}
 
@@ -383,9 +398,6 @@
 			}
 		},
 
-		/**
-		 * アクティブ項目を更新
-		 */
 		updateActive: function(scrollTop) {
 			var activeIndex = 0;
 			var offset = this.getScrollOffset();
@@ -404,9 +416,6 @@
 				.addClass('contentpilot-nav__item--active');
 		},
 
-		/**
-		 * 指定位置にスクロール
-		 */
 		scrollTo: function(id) {
 			var self = this;
 			var $target = $('#' + id);
