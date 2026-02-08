@@ -278,6 +278,12 @@
 			this.detectContentWidth();
 			this.updateScrollHint();
 			this.checkOverflow();
+
+			// ナビ作成直後にスクロールオフセットを設定（DOMレンダリング後）
+			var self = this;
+			requestAnimationFrame(function() {
+				self.updateScrollMargin();
+			});
 		},
 
 		/**
@@ -353,11 +359,11 @@
 
 			if (this.insertMode === 'inside' && this.$headerParent) {
 				// ヘッダー内挿入: ヘッダー全体の高さ（テーマヘッダー + プラグインナビ）
-				return this.$headerParent[0].offsetHeight + 20;
+				return this.$headerParent[0].offsetHeight + 40;
 			}
 
 			// body追加: プラグインナビの高さのみ
-			return navH + 20;
+			return navH + 40;
 		},
 
 		/* ==================================================================
@@ -583,22 +589,38 @@
 
 			this.isScrolling = true;
 			this._scrollDone = false;
-			var offset = this.getScrollOffset();
-			var targetTop = $target.offset().top - offset;
+
+			// ナビの下端の位置をビューポート基準で取得
+			var navBottom = 0;
+			if (this.insertMode === 'inside' && this.$headerParent) {
+				navBottom = this.$headerParent[0].getBoundingClientRect().bottom;
+			} else if (this.$nav && this.$nav[0]) {
+				navBottom = this.$nav[0].getBoundingClientRect().bottom;
+			}
+
+			// 見出しの位置 - ナビ下端 - 余白(20px) = スクロール先
+			var targetTop = $target.offset().top - navBottom - 20;
 
 			$('html, body').stop().animate({
 				scrollTop: targetTop
-			}, this.settings.animDuration, function() {
-				// html と body で2回呼ばれるので1回だけ実行
+			}, 500, 'swing', function() {
 				if (self._scrollDone) return;
 				self._scrollDone = true;
 
-				// 最終位置を補正
-				var finalTop = $target.offset().top - self.getScrollOffset();
-				if (Math.abs($(window).scrollTop() - finalTop) > 2) {
-					$(window).scrollTop(finalTop);
+				// 完了後に再度チェック・補正（レイアウトシフト対応）
+				var headingRect = $target[0].getBoundingClientRect();
+				var currentNavBottom = 0;
+				if (self.insertMode === 'inside' && self.$headerParent) {
+					currentNavBottom = self.$headerParent[0].getBoundingClientRect().bottom;
+				} else if (self.$nav && self.$nav[0]) {
+					currentNavBottom = self.$nav[0].getBoundingClientRect().bottom;
 				}
-				// 遅延してロック解除（スクロールイベントの発火を待つ）
+
+				if (headingRect.top < currentNavBottom + 15) {
+					var correction = currentNavBottom + 20 - headingRect.top;
+					$(window).scrollTop($(window).scrollTop() - correction);
+				}
+
 				setTimeout(function() {
 					self.isScrolling = false;
 				}, 100);
