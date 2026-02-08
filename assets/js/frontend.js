@@ -18,6 +18,8 @@
 		insertMode: 'body',   // 'inside' | 'after' | 'body'
 		isScrolling: false,
 		lastActiveIndex: -1,  // 前回のアクティブインデックス
+		_clickedIndex: -1,    // クリックで指定されたインデックス
+		_clickedTime: 0,      // クリック時刻
 		settings: {
 			scrollOffset: 80,
 			animDuration: 500,
@@ -238,8 +240,10 @@
 			var s = this.settings;
 			var presetClass = s.preset ? ' cp-preset-' + s.preset : '';
 			var posClass = s.position === 'bottom' ? ' cp-pos-bottom' : '';
+			var navWidth = (typeof contentpilotData !== 'undefined' && contentpilotData.navWidth) || 'scroll';
+			var widthClass = ' nav-' + navWidth;
 
-			var html = '<nav class="contentpilot-nav' + presetClass + posClass + '" role="navigation">';
+			var html = '<nav class="contentpilot-nav' + presetClass + posClass + widthClass + '" role="navigation">';
 			html += '<div class="contentpilot-nav__inner">';
 			html += '<ul class="contentpilot-nav__list">';
 
@@ -273,6 +277,7 @@
 
 			this.detectContentWidth();
 			this.updateScrollHint();
+			this.checkOverflow();
 		},
 
 		/**
@@ -298,11 +303,34 @@
 					var width = $el.outerWidth();
 					if (width > 0) {
 						this.$nav[0].style.setProperty('--contentpilot-content-width', width + 'px');
+						this.$nav[0].style.setProperty('--content-width', width + 'px');
 						return;
 					}
 				}
 			}
 			// 見つからない場合はデフォルト（100%）のまま
+		},
+
+		/**
+		 * 均等割モード: テキストがはみ出しているアイテムを検出
+		 */
+		checkOverflow: function() {
+			var navWidth = (typeof contentpilotData !== 'undefined' && contentpilotData.navWidth) || 'scroll';
+			if (navWidth !== 'equal') return;
+
+			// レイアウト確定後に実行
+			var self = this;
+			requestAnimationFrame(function() {
+				self.$nav.find('.contentpilot-nav__link').each(function() {
+					var el = this;
+					// scrollWidth > clientWidth ではみ出し判定
+					if (el.scrollWidth > el.clientWidth) {
+						$(el).addClass('is-overflow');
+					} else {
+						$(el).removeClass('is-overflow');
+					}
+				});
+			});
 		},
 
 		/* ==================================================================
@@ -314,13 +342,22 @@
 		 * ヘッダー内に挿入されている場合、親ヘッダーの全体高さを使う
 		 */
 		getScrollOffset: function() {
-			if (this.insertMode === 'inside' && this.$headerParent) {
-				// ヘッダー全体の高さ（ナビ含む）
-				return this.$headerParent[0].offsetHeight + 10;
+			// プラグインナビの実際の高さを取得
+			var navH = 0;
+			if (this.$nav) {
+				navH = this.$nav[0].offsetHeight;
 			}
-			// bodyに追加された場合
-			var navH = window.innerWidth <= 768 ? 48 : 56;
-			return navH + 10;
+			if (!navH) {
+				navH = window.innerWidth <= 768 ? 48 : 56;
+			}
+
+			if (this.insertMode === 'inside' && this.$headerParent) {
+				// ヘッダー内挿入: ヘッダー全体の高さ（テーマヘッダー + プラグインナビ）
+				return this.$headerParent[0].offsetHeight + 20;
+			}
+
+			// body追加: プラグインナビの高さのみ
+			return navH + 20;
 		},
 
 		/* ==================================================================
@@ -393,6 +430,8 @@
 					self.relocateNav();
 					self.detectContentWidth();
 					self.updateScrollHint();
+					self.checkOverflow();
+					self.updateScrollMargin();
 				}, 150);
 			});
 
@@ -405,10 +444,13 @@
 				var $link = $(this);
 				var id = $link.attr('href').slice(1);
 				var $item = $link.parent();
+				var idx = $item.index();
 
 				self.$nav.find('.contentpilot-nav__item').removeClass('contentpilot-nav__item--active');
 				$item.addClass('contentpilot-nav__item--active');
-				self.lastActiveIndex = $item.index();
+				self.lastActiveIndex = idx;
+				self._clickedIndex = idx;
+				self._clickedTime = Date.now();
 
 				// クリックしたアイテムを中央に配置
 				self.centerActiveItem($item);
@@ -457,12 +499,21 @@
 			return scrollTop > this.settings.showAfterScroll;
 		},
 
+		/**
+		 * scroll-margin-top のCSS変数を更新
+		 */
+		updateScrollMargin: function() {
+			var offset = this.getScrollOffset();
+			document.documentElement.style.setProperty('--contentpilot-scroll-offset', offset + 'px');
+		},
+
 		onScroll: function() {
 			var scrollTop = $(window).scrollTop();
 
 			if (this.shouldShow(scrollTop)) {
 				if (!this.$nav.hasClass('is-visible')) {
 					this.$nav.addClass('is-visible');
+					this.updateScrollMargin();
 				}
 			} else {
 				if (this.$nav.hasClass('is-visible')) {
@@ -476,6 +527,12 @@
 		},
 
 		updateActive: function(scrollTop) {
+			// クリック後1秒間はクリックで指定したインデックスを維持
+			if (this._clickedIndex >= 0 && (Date.now() - this._clickedTime) < 1000) {
+				return;
+			}
+			this._clickedIndex = -1;
+
 			var activeIndex = 0;
 			var offset = this.getScrollOffset();
 
@@ -525,19 +582,26 @@
 			if ($target.length === 0) return;
 
 			this.isScrolling = true;
+			this._scrollDone = false;
 			var offset = this.getScrollOffset();
 			var targetTop = $target.offset().top - offset;
 
 			$('html, body').stop().animate({
 				scrollTop: targetTop
 			}, this.settings.animDuration, function() {
-				if (self.isScrolling) {
-					self.isScrolling = false;
-					var finalTop = $target.offset().top - offset;
-					if (Math.abs($(window).scrollTop() - finalTop) > 2) {
-						$(window).scrollTop(finalTop);
-					}
+				// html と body で2回呼ばれるので1回だけ実行
+				if (self._scrollDone) return;
+				self._scrollDone = true;
+
+				// 最終位置を補正
+				var finalTop = $target.offset().top - self.getScrollOffset();
+				if (Math.abs($(window).scrollTop() - finalTop) > 2) {
+					$(window).scrollTop(finalTop);
 				}
+				// 遅延してロック解除（スクロールイベントの発火を待つ）
+				setTimeout(function() {
+					self.isScrolling = false;
+				}, 100);
 			});
 		},
 

@@ -233,6 +233,31 @@ class ContentPilot_Admin {
 				</select>
 			</div>
 
+			<!-- 固定ナビの表示方法 -->
+			<div class="cp-nav-width-setting" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd;">
+				<label style="font-weight: 600; font-size: 12px; display: block; margin-bottom: 6px;">
+					<?php esc_html_e( '固定ナビの表示方法', 'contentpilot' ); ?>
+				</label>
+				<p class="description" style="margin: 0 0 6px; font-size: 12px;">
+					<?php esc_html_e( '見出しが多い場合の表示方法を選択します', 'contentpilot' ); ?>
+				</p>
+				<?php
+				$nav_width = get_post_meta( $post->ID, '_contentpilot_nav_width', true );
+				$nw_options = array(
+					''       => __( 'デフォルト設定を使用（カスタマイザーの設定）', 'contentpilot' ),
+					'scroll' => __( '横スクロール可能（全て表示）', 'contentpilot' ),
+					'equal'  => __( '均等割（はみ出し非表示）', 'contentpilot' ),
+				);
+				foreach ( $nw_options as $val => $label ) : ?>
+					<label style="display: block; margin-bottom: 4px; font-size: 13px;">
+						<input type="radio" name="_contentpilot_nav_width"
+							value="<?php echo esc_attr( $val ); ?>"
+							<?php checked( $nav_width, $val ); ?> />
+						<?php echo esc_html( $label ); ?>
+					</label>
+				<?php endforeach; ?>
+			</div>
+
 			<p class="description" style="margin-top:8px;">
 				<?php esc_html_e( '文字数・H2数の条件を満たす場合に表示されます（show_all時）。', 'contentpilot' ); ?>
 			</p>
@@ -339,6 +364,12 @@ class ContentPilot_Admin {
 		// プリセット
 		$preset = isset( $_POST['contentpilot_preset'] ) ? sanitize_text_field( $_POST['contentpilot_preset'] ) : '';
 		update_post_meta( $post_id, '_contentpilot_preset', $preset );
+
+		// 固定ナビの表示方法
+		$nav_width = isset( $_POST['_contentpilot_nav_width'] ) ? sanitize_text_field( $_POST['_contentpilot_nav_width'] ) : '';
+		if ( in_array( $nav_width, array( '', 'scroll', 'equal' ), true ) ) {
+			update_post_meta( $post_id, '_contentpilot_nav_width', $nav_width );
+		}
 	}
 
 	/* =========================================================================
@@ -453,6 +484,22 @@ class ContentPilot_Admin {
 			'type'    => 'checkbox',
 		) );
 
+		// 固定ナビの表示方法
+		$wp_customize->add_setting( 'contentpilot_nav_width', array(
+			'default'           => 'scroll',
+			'sanitize_callback' => array( $this, 'sanitize_nav_width' ),
+		) );
+		$wp_customize->add_control( 'contentpilot_nav_width', array(
+			'label'       => __( '固定ナビの表示方法', 'contentpilot' ),
+			'description' => __( '見出しが多い場合の表示方法を選択します', 'contentpilot' ),
+			'section'     => 'contentpilot_design',
+			'type'        => 'radio',
+			'choices'     => array(
+				'scroll' => __( '横スクロール可能（全て表示）', 'contentpilot' ),
+				'equal'  => __( '均等割（はみ出し非表示）', 'contentpilot' ),
+			),
+		) );
+
 		// --- セクション: 共通設定 ---
 		$wp_customize->add_section( 'contentpilot_common', array(
 			'title'    => __( 'ContentPilot - 共通設定', 'contentpilot' ),
@@ -523,5 +570,9 @@ class ContentPilot_Admin {
 
 	public function sanitize_checkbox( $value ) {
 		return (bool) $value;
+	}
+
+	public function sanitize_nav_width( $value ) {
+		return in_array( $value, array( 'scroll', 'equal' ), true ) ? $value : 'scroll';
 	}
 }

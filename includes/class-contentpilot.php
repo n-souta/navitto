@@ -30,6 +30,26 @@ class ContentPilot_Main {
 
 	public function init() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_filter( 'body_class', array( $this, 'add_body_class' ) );
+	}
+
+	/**
+	 * body タグにクラスを追加（配置位置の判定用）
+	 */
+	public function add_body_class( $classes ) {
+		if ( ! is_singular( 'post' ) ) {
+			return $classes;
+		}
+
+		$post_id = get_the_ID();
+		if ( ! $this->should_display( $post_id ) ) {
+			return $classes;
+		}
+
+		$position = get_theme_mod( 'contentpilot_position', 'top' );
+		$classes[] = 'contentpilot-pos-' . $position;
+
+		return $classes;
 	}
 
 	/**
@@ -105,6 +125,12 @@ class ContentPilot_Main {
 			$preset = get_theme_mod( 'contentpilot_preset', 'simple' );
 		}
 
+		// 固定ナビの表示方法（投稿メタ優先 → カスタマイザー）
+		$post_nav_width = get_post_meta( $post_id, '_contentpilot_nav_width', true );
+		$nav_width = ! empty( $post_nav_width )
+			? $post_nav_width
+			: get_theme_mod( 'contentpilot_nav_width', 'scroll' );
+
 		// カスタマイザーの設定
 		$position    = get_theme_mod( 'contentpilot_position', 'top' );
 		$show_after  = get_theme_mod( 'contentpilot_show_after_scroll', 100 );
@@ -128,6 +154,7 @@ class ContentPilot_Main {
 				'selectedH2'      => $selected_h2,
 				'customTexts'     => ! empty( $js_custom_texts ) ? $js_custom_texts : new stdClass(),
 				'trigger'         => $trigger_data,
+				'navWidth'        => $nav_width,
 				'detection'       => $detection_data,
 				'fixedHeader'     => $header_data,
 			)
