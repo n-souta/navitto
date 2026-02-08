@@ -307,25 +307,19 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 	--contentpilot-scroll-offset: 100px;
 }
 
-.entry-content h2,
-.post-content h2,
-.post_content h2,
-.wp-block-post-content h2,
-article h2,
-main h2 {
-	scroll-margin-top: var(--contentpilot-scroll-offset);
-	-webkit-scroll-snap-margin-top: var(--contentpilot-scroll-offset);
+/* scroll-padding-top: html に設定するだけで
+   scrollIntoView / アンカーリンクのずれを自動補正 */
+html {
+	scroll-padding-top: var(--contentpilot-scroll-offset);
 }
 
 /* 下部配置の場合は不要 */
-body.contentpilot-pos-bottom .entry-content h2,
-body.contentpilot-pos-bottom .post-content h2,
-body.contentpilot-pos-bottom .post_content h2,
-body.contentpilot-pos-bottom .wp-block-post-content h2,
-body.contentpilot-pos-bottom article h2,
-body.contentpilot-pos-bottom main h2 {
-	scroll-margin-top: 0;
-	-webkit-scroll-snap-margin-top: 0;
+body.contentpilot-pos-bottom {
+	/* scroll-padding-top を無効化 */
+}
+body.contentpilot-pos-bottom ~ html,
+html:has(body.contentpilot-pos-bottom) {
+	scroll-padding-top: 0;
 }
 
 /* ==========================================================================
