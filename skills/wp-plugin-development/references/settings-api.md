@@ -1,6 +1,6 @@
 # Settings API (admin options)
 
-Use this file when adding settings pages or storing user-configurable options.
+This guide explains the WordPress Settings API and how to use it to add settings pages and store user-configurable options.
 
 Core APIs:
 
