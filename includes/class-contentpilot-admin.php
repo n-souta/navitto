@@ -26,11 +26,43 @@ class ContentPilot_Admin {
 	}
 
 	/**
-	 * 管理画面の初期化（メタボックス・保存）
+	 * 管理画面の初期化（メタボックス・保存・アセット）
 	 */
 	public function init() {
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_action( 'save_post', array( $this, 'save_meta' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
+	}
+
+	/**
+	 * メタボックス用のCSS/JSを投稿編集画面のみでエンキュー（#8 Structure）
+	 *
+	 * @param string $hook_suffix 現在の管理画面フック名
+	 */
+	public function enqueue_admin_assets( $hook_suffix ) {
+		if ( ! in_array( $hook_suffix, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+		if ( ! $screen || 'post' !== $screen->post_type ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'contentpilot-admin-metabox',
+			CONTENTPILOT_PLUGIN_URL . 'assets/css/admin-metabox.css',
+			array(),
+			CONTENTPILOT_VERSION
+		);
+
+		wp_enqueue_script(
+			'contentpilot-admin-metabox',
+			CONTENTPILOT_PLUGIN_URL . 'assets/js/admin-metabox.js',
+			array(),
+			CONTENTPILOT_VERSION,
+			true
+		);
 	}
 
 	/**
@@ -106,27 +138,6 @@ class ContentPilot_Admin {
 
 		$is_select = ( 'select' === $display_mode );
 		?>
-		<style>
-			.cp-radio-group { margin-bottom: 8px; }
-			.cp-radio-group label { display: block; margin-bottom: 6px; cursor: pointer; }
-			.cp-radio-group label:last-child { margin-bottom: 0; }
-			#cp-h2-select-area { margin: 8px 0; padding: 8px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; }
-			.cp-h2-item { margin-bottom: 6px; }
-			.cp-h2-item label { display: flex; align-items: center; gap: 4px; font-size: 13px; }
-			.cp-h2-text-input { width: 100%; margin-top: 4px; font-size: 12px; }
-			.cp-h2-text-input:disabled { opacity: 0.4; pointer-events: none; }
-			.cp-trigger-settings { margin: 8px 0; padding: 8px; background: #f0f6fc; border: 1px solid #c3d4e0; border-radius: 4px; }
-			.cp-trigger-settings h4 { margin: 0 0 8px; font-size: 13px; }
-			.cp-trigger-settings label { display: block; margin-bottom: 6px; cursor: pointer; font-size: 13px; }
-			.cp-trigger-settings label:last-child { margin-bottom: 0; }
-			.cp-trigger-settings .cp-trigger-inline { display: inline-block; vertical-align: middle; }
-			.cp-trigger-settings input[type="number"] { width: 60px; vertical-align: middle; }
-			.cp-trigger-settings .description { font-size: 11px; color: #666; margin: 2px 0 0 22px; }
-			.cp-select-row { margin-top: 10px; }
-			.cp-select-row label { font-weight: 600; font-size: 12px; display: block; margin-bottom: 4px; }
-			.cp-select-row select { width: 100%; }
-		</style>
-
 		<div class="contentpilot-meta-box">
 			<!-- 表示モード -->
 			<div class="cp-radio-group">
@@ -262,33 +273,6 @@ class ContentPilot_Admin {
 				<?php esc_html_e( '文字数・H2数の条件を満たす場合に表示されます（show_all時）。', 'contentpilot' ); ?>
 			</p>
 		</div>
-
-		<script>
-		(function(){
-			var radios      = document.querySelectorAll('input[name="contentpilot_display_mode"]');
-			var h2Area      = document.getElementById('cp-h2-select-area');
-			var triggerArea  = document.querySelector('.contentpilot-trigger-settings');
-
-			// 表示モード切替
-			function onModeChange() {
-				var mode = document.querySelector('input[name="contentpilot_display_mode"]:checked');
-				var isSelect = mode && mode.value === 'select';
-				h2Area.style.display      = isSelect ? '' : 'none';
-				triggerArea.style.display  = isSelect ? '' : 'none';
-			}
-			radios.forEach(function(r) { r.addEventListener('change', onModeChange); });
-			onModeChange();
-
-			// チェックボックスでテキスト入力の有効/無効を切り替え
-			document.querySelectorAll('.cp-h2-checkbox').forEach(function(cb) {
-				cb.addEventListener('change', function() {
-					var idx = this.getAttribute('data-index');
-					var input = document.querySelector('.cp-h2-text-input[data-index="' + idx + '"]');
-					if (input) { input.disabled = !this.checked; }
-				});
-			});
-		})();
-		</script>
 		<?php
 	}
 
@@ -300,7 +284,7 @@ class ContentPilot_Admin {
 			return;
 		}
 		if ( ! isset( $_POST['contentpilot_meta_nonce'] ) ||
-			! wp_verify_nonce( $_POST['contentpilot_meta_nonce'], 'contentpilot_save_meta' ) ) {
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['contentpilot_meta_nonce'] ) ), 'contentpilot_save_meta' ) ) {
 			return;
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
@@ -308,7 +292,7 @@ class ContentPilot_Admin {
 		}
 
 		// 表示モード
-		$mode = isset( $_POST['contentpilot_display_mode'] ) ? sanitize_text_field( $_POST['contentpilot_display_mode'] ) : 'show_all';
+		$mode = isset( $_POST['contentpilot_display_mode'] ) ? sanitize_text_field( wp_unslash( $_POST['contentpilot_display_mode'] ) ) : 'show_all';
 		if ( ! in_array( $mode, array( 'show_all', 'select', 'hide' ), true ) ) {
 			$mode = 'show_all';
 		}
@@ -319,21 +303,22 @@ class ContentPilot_Admin {
 
 		// H2選択データ
 		if ( 'select' === $mode ) {
-			$selected = isset( $_POST['contentpilot_selected_h2'] ) ? array_map( 'intval', $_POST['contentpilot_selected_h2'] ) : array();
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- array_map('intval') sanitizes
+			$selected = isset( $_POST['contentpilot_selected_h2'] ) ? array_map( 'intval', wp_unslash( $_POST['contentpilot_selected_h2'] ) ) : array();
 			update_post_meta( $post_id, '_contentpilot_selected_h2', $selected );
 
 			$texts = array();
 			foreach ( $selected as $idx ) {
 				$key = 'contentpilot_h2_text_' . $idx;
 				if ( isset( $_POST[ $key ] ) ) {
-					$texts[ $idx ] = sanitize_text_field( $_POST[ $key ] );
+					$texts[ $idx ] = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
 				}
 			}
 			update_post_meta( $post_id, '_contentpilot_h2_custom_texts', $texts );
 
 			// 表示開始位置
 			$trigger_type = isset( $_POST['_contentpilot_trigger_type'] )
-				? sanitize_text_field( $_POST['_contentpilot_trigger_type'] )
+				? sanitize_text_field( wp_unslash( $_POST['_contentpilot_trigger_type'] ) )
 				: 'immediate';
 			if ( ! in_array( $trigger_type, array( 'immediate', 'first_selected', 'nth_selected', 'scroll_px' ), true ) ) {
 				$trigger_type = 'immediate';
@@ -341,14 +326,14 @@ class ContentPilot_Admin {
 			update_post_meta( $post_id, '_contentpilot_trigger_type', $trigger_type );
 
 			if ( 'nth_selected' === $trigger_type ) {
-				$nth = isset( $_POST['_contentpilot_trigger_nth'] ) ? absint( $_POST['_contentpilot_trigger_nth'] ) : 2;
+				$nth = isset( $_POST['_contentpilot_trigger_nth'] ) ? absint( wp_unslash( $_POST['_contentpilot_trigger_nth'] ) ) : 2;
 				update_post_meta( $post_id, '_contentpilot_trigger_nth', max( 1, $nth ) );
 			} else {
 				delete_post_meta( $post_id, '_contentpilot_trigger_nth' );
 			}
 
 			if ( 'scroll_px' === $trigger_type ) {
-				$scroll = isset( $_POST['_contentpilot_trigger_scroll_px'] ) ? absint( $_POST['_contentpilot_trigger_scroll_px'] ) : 300;
+				$scroll = isset( $_POST['_contentpilot_trigger_scroll_px'] ) ? absint( wp_unslash( $_POST['_contentpilot_trigger_scroll_px'] ) ) : 300;
 				update_post_meta( $post_id, '_contentpilot_trigger_scroll_px', $scroll );
 			} else {
 				delete_post_meta( $post_id, '_contentpilot_trigger_scroll_px' );
@@ -362,11 +347,11 @@ class ContentPilot_Admin {
 		}
 
 		// プリセット
-		$preset = isset( $_POST['contentpilot_preset'] ) ? sanitize_text_field( $_POST['contentpilot_preset'] ) : '';
+		$preset = isset( $_POST['contentpilot_preset'] ) ? sanitize_text_field( wp_unslash( $_POST['contentpilot_preset'] ) ) : '';
 		update_post_meta( $post_id, '_contentpilot_preset', $preset );
 
 		// 固定ナビの表示方法
-		$nav_width = isset( $_POST['_contentpilot_nav_width'] ) ? sanitize_text_field( $_POST['_contentpilot_nav_width'] ) : '';
+		$nav_width = isset( $_POST['_contentpilot_nav_width'] ) ? sanitize_text_field( wp_unslash( $_POST['_contentpilot_nav_width'] ) ) : '';
 		if ( in_array( $nav_width, array( '', 'scroll', 'equal' ), true ) ) {
 			update_post_meta( $post_id, '_contentpilot_nav_width', $nav_width );
 		}

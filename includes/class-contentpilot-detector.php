@@ -293,8 +293,9 @@ class ContentPilot_Detector {
 	 */
 	public function get_fixed_header_data() {
 		return array(
-			'selectors'      => $this->get_fixed_header_selector() ?: array(),
-			'customSelector' => get_option( 'contentpilot_fixed_header_selector', '' ),
+			'selectors'        => $this->get_fixed_header_selector() ?: array(),
+			'customSelectorPc' => get_theme_mod( 'contentpilot_fixed_header_selector_pc', '' ),
+			'customSelectorSp' => get_theme_mod( 'contentpilot_fixed_header_selector_sp', '' ),
 		);
 	}
 

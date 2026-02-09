@@ -47,6 +47,9 @@ class ContentPilot_Main {
 		}
 
 		$position = get_theme_mod( 'contentpilot_position', 'top' );
+		if ( ! in_array( $position, array( 'top', 'bottom' ), true ) ) {
+			$position = 'top';
+		}
 		$classes[] = 'contentpilot-pos-' . $position;
 
 		return $classes;
@@ -235,11 +238,8 @@ class ContentPilot_Main {
 			// 文字数・H2数チェックは引き続き実行
 		}
 
-		// 最小文字数チェック
+		// 最小文字数チェック（Customizer theme_mod に統一 — #3 Data）
 		$min_word_count = get_theme_mod( 'contentpilot_min_word_count', 3000 );
-		if ( ! $min_word_count ) {
-			$min_word_count = get_option( 'contentpilot_min_word_count', 3000 );
-		}
 		$word_count = $this->get_word_count( $content );
 		if ( $word_count < $min_word_count ) {
 			return false;

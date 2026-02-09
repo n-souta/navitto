@@ -1,0 +1,88 @@
+/**
+ * ContentPilot - メタボックス管理画面スタイル
+ *
+ * @package ContentPilot
+ * @since   1.0.1
+ */
+
+.cp-radio-group {
+	margin-bottom: 8px;
+}
+.cp-radio-group label {
+	display: block;
+	margin-bottom: 6px;
+	cursor: pointer;
+}
+.cp-radio-group label:last-child {
+	margin-bottom: 0;
+}
+#cp-h2-select-area {
+	margin: 8px 0;
+	padding: 8px;
+	background: #f9f9f9;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+.cp-h2-item {
+	margin-bottom: 6px;
+}
+.cp-h2-item label {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 13px;
+}
+.cp-h2-text-input {
+	width: 100%;
+	margin-top: 4px;
+	font-size: 12px;
+}
+.cp-h2-text-input:disabled {
+	opacity: 0.4;
+	pointer-events: none;
+}
+.cp-trigger-settings {
+	margin: 8px 0;
+	padding: 8px;
+	background: #f0f6fc;
+	border: 1px solid #c3d4e0;
+	border-radius: 4px;
+}
+.cp-trigger-settings h4 {
+	margin: 0 0 8px;
+	font-size: 13px;
+}
+.cp-trigger-settings label {
+	display: block;
+	margin-bottom: 6px;
+	cursor: pointer;
+	font-size: 13px;
+}
+.cp-trigger-settings label:last-child {
+	margin-bottom: 0;
+}
+.cp-trigger-settings .cp-trigger-inline {
+	display: inline-block;
+	vertical-align: middle;
+}
+.cp-trigger-settings input[type="number"] {
+	width: 60px;
+	vertical-align: middle;
+}
+.cp-trigger-settings .description {
+	font-size: 11px;
+	color: #666;
+	margin: 2px 0 0 22px;
+}
+.cp-select-row {
+	margin-top: 10px;
+}
+.cp-select-row label {
+	font-weight: 600;
+	font-size: 12px;
+	display: block;
+	margin-bottom: 4px;
+}
+.cp-select-row select {
+	width: 100%;
+}

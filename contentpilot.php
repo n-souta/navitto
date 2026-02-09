@@ -3,7 +3,7 @@
  * Plugin Name:       ContentPilot
  * Plugin URI:        https://example.com/contentpilot
  * Description:       長文記事の離脱を防ぐ、目次連携型の固定ナビゲーション
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Your Name
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * プラグインバージョン
  */
-define( 'CONTENTPILOT_VERSION', '1.0.0' );
+define( 'CONTENTPILOT_VERSION', '1.0.1' );
 
 /**
  * プラグインディレクトリパス
@@ -43,11 +43,11 @@ define( 'CONTENTPILOT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 /**
  * クラスファイルの読み込み
+ * 管理画面専用クラスは is_admin() 内で遅延読込（#7 Structure）
  */
 require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot.php';
 require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot-admin.php';
 require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot-detector.php';
-require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot-settings.php';
 
 /**
  * プラグインを初期化する
@@ -75,12 +75,42 @@ function contentpilot_init() {
 	if ( is_admin() ) {
 		$admin->init();
 
-		// 設定ページ初期化
+		// 設定ページ初期化（管理画面でのみ読込 — #7 Structure）
+		require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot-settings.php';
 		$settings = ContentPilot_Settings::get_instance();
 		$settings->init();
 	}
+
+	// バージョンベースのアップグレードチェック（#9 Data）
+	contentpilot_maybe_upgrade();
 }
 add_action( 'plugins_loaded', 'contentpilot_init' );
+
+/**
+ * バージョンベースのアップグレード処理
+ *
+ * DBバージョンと現在バージョンを比較し、必要に応じてマイグレーションを実行
+ *
+ * @since 1.0.1
+ * @return void
+ */
+function contentpilot_maybe_upgrade() {
+	$db_version = get_option( 'contentpilot_db_version', '0' );
+
+	if ( version_compare( $db_version, CONTENTPILOT_VERSION, '>=' ) ) {
+		return;
+	}
+
+	// 1.0.0 → 1.0.1: 旧オプション（activation で作成された孤立データ）を削除
+	if ( version_compare( $db_version, '1.0.1', '<' ) ) {
+		delete_option( 'contentpilot_default_preset' );
+		delete_option( 'contentpilot_position' );
+		delete_option( 'contentpilot_min_word_count' );
+	}
+
+	// 現在のバージョンを保存
+	update_option( 'contentpilot_db_version', CONTENTPILOT_VERSION );
+}
 
 /**
  * プラグインアクティベーション時の処理
@@ -89,12 +119,11 @@ add_action( 'plugins_loaded', 'contentpilot_init' );
  * @return void
  */
 function contentpilot_activate() {
-	// 初期設定を保存
-	add_option( 'contentpilot_default_preset', 'simple' );
-	add_option( 'contentpilot_position', 'top' );
-	add_option( 'contentpilot_min_word_count', 3000 );
+	// DBバージョンを記録（#9 Data — アップグレード機構）
+	add_option( 'contentpilot_db_version', CONTENTPILOT_VERSION );
 
-	flush_rewrite_rules();
+	// デフォルト有効化設定
+	add_option( 'contentpilot_default_enabled', true );
 }
 register_activation_hook( __FILE__, 'contentpilot_activate' );
 
@@ -105,6 +134,6 @@ register_activation_hook( __FILE__, 'contentpilot_activate' );
  * @return void
  */
 function contentpilot_deactivate() {
-	flush_rewrite_rules();
+	// カスタム投稿タイプ/リライトルール未使用のため flush_rewrite_rules() は不要（#2 Lifecycle）
 }
 register_deactivation_hook( __FILE__, 'contentpilot_deactivate' );

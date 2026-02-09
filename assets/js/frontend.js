@@ -217,14 +217,20 @@
 				}
 			}
 
-			// カスタムセレクタ
+			// カスタムセレクタ（PC/SP 分離 — #4 Data）
 			var headerData = this.settings.fixedHeader;
-			if (headerData && headerData.customSelector) {
-				var $custom = $(headerData.customSelector);
-				if ($custom.length > 0 && $custom.is(':visible')) {
-					this.$headerParent = $custom;
-					this.insertMode = 'after';
-					return;
+			if (headerData) {
+				var isMobile = window.innerWidth <= 768;
+				var customSel = isMobile && headerData.customSelectorSp
+					? headerData.customSelectorSp
+					: headerData.customSelectorPc || '';
+				if (customSel) {
+					var $custom = $(customSel);
+					if ($custom.length > 0 && $custom.is(':visible')) {
+						this.$headerParent = $custom;
+						this.insertMode = 'after';
+						return;
+					}
 				}
 			}
 
