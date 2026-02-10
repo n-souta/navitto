@@ -64,13 +64,15 @@ contentpilot/
 ├── assets/                                      # フロントエンドアセット
 │   ├── css/
 │   │   ├── frontend.css                         # フロントエンドCSS（開発用）
-│   │   └── frontend.min.css                     # フロントエンドCSS（本番用・圧縮）
+│   │   ├── frontend.min.css                     # フロントエンドCSS（本番用・圧縮）
+│   │   └── admin-metabox.css                    # メタボックス用CSS（投稿編集画面）
 │   │
 │   └── js/
 │       ├── frontend.js                          # フロントエンドJS（開発用）
 │       ├── frontend.min.js                      # フロントエンドJS（本番用・圧縮）
 │       ├── admin-settings.js                    # 設定ページJS（開発用）
-│       └── admin-settings.min.js               # 設定ページJS（本番用・圧縮）
+│       ├── admin-settings.min.js                # 設定ページJS（本番用・圧縮）
+│       └── admin-metabox.js                     # メタボックス用JS（投稿編集画面）
 │
 ├── tests/                                       # テスト
 │   ├── phpunit/                                 # PHPUnit ユニットテスト
