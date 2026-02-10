@@ -278,6 +278,12 @@
 			this.detectContentWidth();
 			this.updateScrollHint();
 			this.checkOverflow();
+
+			// ナビ作成直後にスクロールオフセットを設定（DOMレンダリング後）
+			var self = this;
+			requestAnimationFrame(function() {
+				self.updateScrollMargin();
+			});
 		},
 
 		/**
@@ -353,11 +359,11 @@
 
 			if (this.insertMode === 'inside' && this.$headerParent) {
 				// ヘッダー内挿入: ヘッダー全体の高さ（テーマヘッダー + プラグインナビ）
-				return this.$headerParent[0].offsetHeight + 20;
+				return this.$headerParent[0].offsetHeight + 40;
 			}
 
 			// body追加: プラグインナビの高さのみ
-			return navH + 20;
+			return navH + 40;
 		},
 
 		/* ==================================================================
@@ -500,28 +506,37 @@
 		},
 
 		/**
-		 * scroll-margin-top のCSS変数を更新
+		 * scroll-padding-top のCSS変数を更新
+		 * html に scroll-padding-top を設定することで
+		 * scrollIntoView / アンカーリンク時に自動でオフセットされる
 		 */
 		updateScrollMargin: function() {
-			var offset = this.getScrollOffset();
+			var navBottom = this.getNavBottom();
+			// ナビが非表示(0)の場合は offsetHeight ベースのフォールバック
+			if (navBottom <= 0) {
+				navBottom = this.getScrollOffset() - 20; // getScrollOffset は +40 しているので -20 で +20 相当
+			}
+			var offset = navBottom + 20;
 			document.documentElement.style.setProperty('--contentpilot-scroll-offset', offset + 'px');
 		},
 
 		onScroll: function() {
 			var scrollTop = $(window).scrollTop();
 
-			if (this.shouldShow(scrollTop)) {
-				if (!this.$nav.hasClass('is-visible')) {
-					this.$nav.addClass('is-visible');
-					this.updateScrollMargin();
-				}
-			} else {
-				if (this.$nav.hasClass('is-visible')) {
-					this.$nav.removeClass('is-visible');
-				}
-			}
-
+			// スクロールアニメーション中はナビの表示/非表示を変更しない
+			// （レイアウトシフトによるオフセットのずれを防止）
 			if (!this.isScrolling) {
+				if (this.shouldShow(scrollTop)) {
+					if (!this.$nav.hasClass('is-visible')) {
+						this.$nav.addClass('is-visible');
+						this.updateScrollMargin();
+					}
+				} else {
+					if (this.$nav.hasClass('is-visible')) {
+						this.$nav.removeClass('is-visible');
+					}
+				}
+
 				this.updateActive(scrollTop);
 			}
 		},
@@ -576,33 +591,71 @@
 			$inner.stop().animate({ scrollLeft: scrollTarget }, 300);
 		},
 
+		/**
+		 * ナビの下端のビューポート位置を取得
+		 */
+		getNavBottom: function() {
+			if (this.insertMode === 'inside' && this.$headerParent) {
+				return this.$headerParent[0].getBoundingClientRect().bottom;
+			} else if (this.$nav && this.$nav[0]) {
+				return this.$nav[0].getBoundingClientRect().bottom;
+			}
+			return 0;
+		},
+
 		scrollTo: function(id) {
 			var self = this;
 			var $target = $('#' + id);
 			if ($target.length === 0) return;
 
 			this.isScrolling = true;
-			this._scrollDone = false;
-			var offset = this.getScrollOffset();
-			var targetTop = $target.offset().top - offset;
 
-			$('html, body').stop().animate({
-				scrollTop: targetTop
-			}, this.settings.animDuration, function() {
-				// html と body で2回呼ばれるので1回だけ実行
-				if (self._scrollDone) return;
-				self._scrollDone = true;
+			// scroll-padding-top を最新の値に更新
+			this.updateScrollMargin();
 
-				// 最終位置を補正
-				var finalTop = $target.offset().top - self.getScrollOffset();
-				if (Math.abs($(window).scrollTop() - finalTop) > 2) {
-					$(window).scrollTop(finalTop);
+			// Step 1: scrollIntoView でざっくり移動
+			$target[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+			// Step 2: スクロール停止を検知 → ナビの高さ分フワッと補正
+			var lastScroll = $(window).scrollTop();
+			var stableCount = 0;
+			var checkCount = 0;
+			var corrected = false;
+			var checkInterval = setInterval(function() {
+				var currentScroll = $(window).scrollTop();
+				if (Math.abs(currentScroll - lastScroll) < 1) {
+					stableCount++;
+				} else {
+					stableCount = 0;
 				}
-				// 遅延してロック解除（スクロールイベントの発火を待つ）
-				setTimeout(function() {
-					self.isScrolling = false;
-				}, 100);
-			});
+				lastScroll = currentScroll;
+				checkCount++;
+
+				// 2回連続で安定 or 60回チェック(3秒)で完了とみなす
+				if ((stableCount >= 2 || checkCount >= 60) && !corrected) {
+					corrected = true;
+					clearInterval(checkInterval);
+
+					// 見出しの現在位置を確認し、ナビに被っていたらフワッと補正
+					requestAnimationFrame(function() {
+						var headingRect = $target[0].getBoundingClientRect();
+						var navBottom = self.getNavBottom();
+						var desiredTop = navBottom + 20;
+
+						if (headingRect.top < desiredTop) {
+							// ナビの高さ分 + 余白をフワッとアニメーションで補正
+							var diff = desiredTop - headingRect.top;
+							$('html, body').stop().animate({
+								scrollTop: $(window).scrollTop() - diff
+							}, 300, 'swing', function() {
+								self.isScrolling = false;
+							});
+						} else {
+							self.isScrolling = false;
+						}
+					});
+				}
+			}, 50);
 		},
 
 		escapeHtml: function(str) {

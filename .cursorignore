@@ -6,9 +6,8 @@ guides/
 README.md
 CHANGELOG.md
 *.md
-!cursorrules.md
 !AGENTS.md
-!.cursor/rules/*.md
+!PROJECT_STRUCTURE.md
 
 # ========================================
 # Agent Skills（必要な時だけ @ で参照）
