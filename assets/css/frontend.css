@@ -13,7 +13,7 @@
 
 :root {
 	--contentpilot-bg: #ffffff;
-	--contentpilot-text: #333333;
+	--contentpilot-text: #999999;  /* 非アクティブの文字色（薄め） */
 	--contentpilot-text-hover: #0073aa;
 	--contentpilot-active-bg: #f5f5f5;
 	--contentpilot-active-text: #0073aa;
@@ -25,6 +25,7 @@
 	--contentpilot-font-size: 14px;
 	--contentpilot-radius: 0px;
 	--contentpilot-adminbar-h: 0px;
+	--contentpilot-nav-transition-duration: 0.3s;
 }
 
 /* 管理バーの高さをCSS変数で管理（SWELL方式） */
@@ -50,10 +51,12 @@
 	z-index: var(--contentpilot-z-index);
 	background: var(--contentpilot-bg);
 	box-shadow: var(--contentpilot-nav-shadow);
-	border-bottom: 1px solid var(--contentpilot-border);
 	height: var(--contentpilot-height);
-	display: none;
+	display: flex;
 	align-items: center;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity var(--contentpilot-nav-transition-duration);
 	/* 管理バー分を下げる（ない場合は0px） */
 	margin-top: var(--contentpilot-adminbar-h);
 }
@@ -70,15 +73,14 @@
 }
 
 .contentpilot-nav.is-visible {
-	display: flex;
+	opacity: 1;
+	pointer-events: auto;
 }
 
 /* 下部固定 */
 .contentpilot-nav.cp-pos-bottom {
 	top: auto;
 	bottom: 0;
-	border-bottom: none;
-	border-top: 1px solid var(--contentpilot-border);
 }
 
 /* ==========================================================================
@@ -145,7 +147,7 @@
 	font-weight: 500;
 	text-decoration: none;
 	white-space: nowrap;
-	border-bottom: 3px solid transparent;
+	border-bottom: none;
 	border-radius: var(--contentpilot-radius);
 	transition: all 0.2s ease;
 }
@@ -158,7 +160,7 @@
 .contentpilot-nav__item--active .contentpilot-nav__link {
 	color: var(--contentpilot-active-text);
 	background: var(--contentpilot-active-bg);
-	border-bottom-color: var(--contentpilot-active-text);
+	border-bottom: 3px solid var(--contentpilot-active-text);
 }
 
 /* ==========================================================================
@@ -211,7 +213,7 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 /* モダン */
 .contentpilot-nav.cp-preset-modern {
 	--contentpilot-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	--contentpilot-text: rgba(255, 255, 255, 0.85);
+	--contentpilot-text: rgba(255, 255, 255, 0.6);   /* 非アクティブ: やや薄い白 */
 	--contentpilot-text-hover: #ffffff;
 	--contentpilot-active-bg: rgba(255, 255, 255, 0.15);
 	--contentpilot-active-text: #ffffff;
@@ -227,7 +229,7 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 /* フラット */
 .contentpilot-nav.cp-preset-flat {
 	--contentpilot-bg: #f8f9fa;
-	--contentpilot-text: #495057;
+	--contentpilot-text: #868e96;   /* 非アクティブ: ミッドグレー */
 	--contentpilot-text-hover: #228be6;
 	--contentpilot-active-bg: #228be6;
 	--contentpilot-active-text: #ffffff;
@@ -243,7 +245,7 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 /* ダーク */
 .contentpilot-nav.cp-preset-dark {
 	--contentpilot-bg: #1a1a2e;
-	--contentpilot-text: rgba(255, 255, 255, 0.7);
+	--contentpilot-text: rgba(255, 255, 255, 0.5);  /* 非アクティブ: 薄い白 */
 	--contentpilot-text-hover: #e94560;
 	--contentpilot-active-bg: rgba(233, 69, 96, 0.15);
 	--contentpilot-active-text: #e94560;
@@ -266,6 +268,15 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 	border-bottom: none;
 }
 
+/* テーマ準拠: 非アクティブは opacity で薄く */
+.contentpilot-nav.cp-preset-theme .contentpilot-nav__item:not(.contentpilot-nav__item--active) .contentpilot-nav__link {
+	opacity: 0.65;
+}
+
+.contentpilot-nav.cp-preset-theme .contentpilot-nav__item--active .contentpilot-nav__link {
+	opacity: 1;
+}
+
 .contentpilot-nav.cp-preset-theme.cp-pos-bottom {
 	border-top: none;
 }
@@ -275,7 +286,7 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 }
 
 .contentpilot-nav.cp-preset-theme .contentpilot-nav__item--active .contentpilot-nav__link {
-	border-bottom-color: var(--contentpilot-theme-color);
+	border-bottom: 3px solid var(--contentpilot-theme-color);
 }
 
 /* ==========================================================================

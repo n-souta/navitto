@@ -27,9 +27,6 @@ foreach ( $options as $option ) {
 $theme_mods = array(
 	'contentpilot_preset',
 	'contentpilot_position',
-	'contentpilot_bg_color',
-	'contentpilot_text_color',
-	'contentpilot_active_color',
 	'contentpilot_font_size',
 	'contentpilot_border_radius',
 	'contentpilot_shadow',

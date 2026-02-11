@@ -122,17 +122,14 @@ class ContentPilot_Main {
 			$trigger_data['scrollPx'] = absint( get_post_meta( $post_id, '_contentpilot_trigger_scroll_px', true ) ) ?: 300;
 		}
 
-		// プリセット（投稿メタ優先 → カスタマイザー）
-		$preset = get_post_meta( $post_id, '_contentpilot_preset', true );
-		if ( empty( $preset ) ) {
-			$preset = get_theme_mod( 'contentpilot_preset', 'simple' );
-		}
+		// プリセット（カスタマイザーで一括設定）
+		$preset = get_theme_mod( 'contentpilot_preset', 'simple' );
 
-		// 固定ナビの表示方法（投稿メタ優先 → カスタマイザー）
-		$post_nav_width = get_post_meta( $post_id, '_contentpilot_nav_width', true );
-		$nav_width = ! empty( $post_nav_width )
-			? $post_nav_width
-			: get_theme_mod( 'contentpilot_nav_width', 'scroll' );
+		// 固定ナビの表示方法（投稿編集画面でのみ設定）
+		$nav_width = get_post_meta( $post_id, '_contentpilot_nav_width', true );
+		if ( ! in_array( $nav_width, array( 'scroll', 'equal' ), true ) ) {
+			$nav_width = 'scroll';
+		}
 
 		// カスタマイザーの設定
 		$position    = get_theme_mod( 'contentpilot_position', 'top' );
@@ -171,24 +168,11 @@ class ContentPilot_Main {
 	 * カスタマイザー設定からインラインCSSを生成
 	 */
 	private function generate_inline_css() {
-		$bg_color     = get_theme_mod( 'contentpilot_bg_color', '' );
-		$text_color   = get_theme_mod( 'contentpilot_text_color', '' );
-		$active_color = get_theme_mod( 'contentpilot_active_color', '' );
-		$font_size    = get_theme_mod( 'contentpilot_font_size', 14 );
-		$radius       = get_theme_mod( 'contentpilot_border_radius', false );
-		$shadow       = get_theme_mod( 'contentpilot_shadow', true );
+		$font_size = get_theme_mod( 'contentpilot_font_size', 14 );
+		$radius    = get_theme_mod( 'contentpilot_border_radius', false );
+		$shadow    = get_theme_mod( 'contentpilot_shadow', true );
 
 		$css = ':root {';
-		if ( ! empty( $bg_color ) && '#ffffff' !== $bg_color ) {
-			$css .= '--contentpilot-bg:' . esc_attr( $bg_color ) . ';';
-		}
-		if ( ! empty( $text_color ) && '#333333' !== $text_color ) {
-			$css .= '--contentpilot-text:' . esc_attr( $text_color ) . ';';
-		}
-		if ( ! empty( $active_color ) && '#0073aa' !== $active_color ) {
-			$css .= '--contentpilot-active-text:' . esc_attr( $active_color ) . ';';
-			$css .= '--contentpilot-text-hover:' . esc_attr( $active_color ) . ';';
-		}
 		if ( intval( $font_size ) !== 14 ) {
 			$css .= '--contentpilot-font-size:' . intval( $font_size ) . 'px;';
 		}

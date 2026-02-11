@@ -121,8 +121,6 @@ class ContentPilot_Admin {
 		$trigger_scroll_px = get_post_meta( $post->ID, '_contentpilot_trigger_scroll_px', true );
 		$trigger_scroll_px = $trigger_scroll_px ? absint( $trigger_scroll_px ) : 300;
 
-		$preset = get_post_meta( $post->ID, '_contentpilot_preset', true );
-
 		// 投稿内容からH2を取得
 		$content = $post->post_content;
 		if ( function_exists( 'do_blocks' ) ) {
@@ -231,19 +229,6 @@ class ContentPilot_Admin {
 				</label>
 			</div>
 
-			<!-- デザインプリセット -->
-			<div class="cp-select-row">
-				<label><?php esc_html_e( 'デザインプリセット', 'contentpilot' ); ?></label>
-				<select name="contentpilot_preset">
-					<option value=""><?php esc_html_e( 'グローバル設定を使用', 'contentpilot' ); ?></option>
-					<option value="simple" <?php selected( $preset, 'simple' ); ?>><?php esc_html_e( 'シンプル', 'contentpilot' ); ?></option>
-					<option value="modern" <?php selected( $preset, 'modern' ); ?>><?php esc_html_e( 'モダン', 'contentpilot' ); ?></option>
-					<option value="flat" <?php selected( $preset, 'flat' ); ?>><?php esc_html_e( 'フラット', 'contentpilot' ); ?></option>
-					<option value="dark" <?php selected( $preset, 'dark' ); ?>><?php esc_html_e( 'ダーク', 'contentpilot' ); ?></option>
-					<option value="theme" <?php selected( $preset, 'theme' ); ?>><?php esc_html_e( 'テーマ準拠', 'contentpilot' ); ?></option>
-				</select>
-			</div>
-
 			<!-- 固定ナビの表示方法 -->
 			<div class="cp-nav-width-setting" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd;">
 				<label style="font-weight: 600; font-size: 12px; display: block; margin-bottom: 6px;">
@@ -346,10 +331,6 @@ class ContentPilot_Admin {
 			delete_post_meta( $post_id, '_contentpilot_trigger_scroll_px' );
 		}
 
-		// プリセット
-		$preset = isset( $_POST['contentpilot_preset'] ) ? sanitize_text_field( wp_unslash( $_POST['contentpilot_preset'] ) ) : '';
-		update_post_meta( $post_id, '_contentpilot_preset', $preset );
-
 		// 固定ナビの表示方法
 		$nav_width = isset( $_POST['_contentpilot_nav_width'] ) ? sanitize_text_field( wp_unslash( $_POST['_contentpilot_nav_width'] ) ) : '';
 		if ( in_array( $nav_width, array( '', 'scroll', 'equal' ), true ) ) {
@@ -405,36 +386,6 @@ class ContentPilot_Admin {
 			),
 		) );
 
-		// 背景色
-		$wp_customize->add_setting( 'contentpilot_bg_color', array(
-			'default'           => '#ffffff',
-			'sanitize_callback' => 'sanitize_hex_color',
-		) );
-		$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'contentpilot_bg_color', array(
-			'label'   => __( '背景色', 'contentpilot' ),
-			'section' => 'contentpilot_design',
-		) ) );
-
-		// テキスト色
-		$wp_customize->add_setting( 'contentpilot_text_color', array(
-			'default'           => '#333333',
-			'sanitize_callback' => 'sanitize_hex_color',
-		) );
-		$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'contentpilot_text_color', array(
-			'label'   => __( 'テキスト色', 'contentpilot' ),
-			'section' => 'contentpilot_design',
-		) ) );
-
-		// アクティブ色
-		$wp_customize->add_setting( 'contentpilot_active_color', array(
-			'default'           => '#0073aa',
-			'sanitize_callback' => 'sanitize_hex_color',
-		) );
-		$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'contentpilot_active_color', array(
-			'label'   => __( 'アクティブ色', 'contentpilot' ),
-			'section' => 'contentpilot_design',
-		) ) );
-
 		// フォントサイズ
 		$wp_customize->add_setting( 'contentpilot_font_size', array(
 			'default'           => 14,
@@ -467,22 +418,6 @@ class ContentPilot_Admin {
 			'label'   => __( '影を表示する', 'contentpilot' ),
 			'section' => 'contentpilot_design',
 			'type'    => 'checkbox',
-		) );
-
-		// 固定ナビの表示方法
-		$wp_customize->add_setting( 'contentpilot_nav_width', array(
-			'default'           => 'scroll',
-			'sanitize_callback' => array( $this, 'sanitize_nav_width' ),
-		) );
-		$wp_customize->add_control( 'contentpilot_nav_width', array(
-			'label'       => __( '固定ナビの表示方法', 'contentpilot' ),
-			'description' => __( '見出しが多い場合の表示方法を選択します', 'contentpilot' ),
-			'section'     => 'contentpilot_design',
-			'type'        => 'radio',
-			'choices'     => array(
-				'scroll' => __( '横スクロール可能（全て表示）', 'contentpilot' ),
-				'equal'  => __( '均等割（はみ出し非表示）', 'contentpilot' ),
-			),
 		) );
 
 		// --- セクション: 共通設定 ---

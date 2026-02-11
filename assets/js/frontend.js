@@ -171,6 +171,11 @@
 		 * その他: bodyに追加（従来方式）
 		 */
 		findHeaderParent: function() {
+			// 下部固定の場合は常に body に追加（ヘッダー内だと上部に表示されるため）
+			if (this.settings.position === 'bottom') {
+				this.insertMode = 'body';
+				return;
+			}
 			// SWELL: #header が固定ヘッダーの親コンテナ
 			var $swellHeader = $('#header');
 			if ($swellHeader.length > 0) {
@@ -279,14 +284,52 @@
 			this.updateScrollHint();
 			this.checkOverflow();
 
-			// ナビ作成直後にスクロールオフセットを設定（DOMレンダリング後）
+			// ナビ作成直後にスクロールオフセット・テーマ連携を設定（DOMレンダリング後）
 			var self = this;
 			requestAnimationFrame(function() {
 				self.updateScrollMargin();
+				self.syncNavTransition();
 				if (s.preset === 'theme') {
 					self.applyThemeColor();
 				}
 			});
+		},
+
+		/**
+		 * テーマの固定ヘッダーの出現アニメーションに合わせてナビの表示トランジションを設定
+		 * テーマにアニメーションがあればその長さに合わせ、なければプラグイン側のみトランジションを付与
+		 */
+		syncNavTransition: function() {
+			if (!this.$nav || !this.$nav.length) return;
+
+			var duration = 0.3;  // デフォルト（秒）
+			var headerData = this.settings.fixedHeader;
+			if (headerData) {
+				var isSp = window.innerWidth < 768;
+				var sel = isSp
+					? (headerData.customSelectorSp || (headerData.selectors && headerData.selectors.sp))
+					: (headerData.customSelectorPc || (headerData.selectors && headerData.selectors.pc));
+				if (sel) {
+					var headerEl = document.querySelector(sel);
+					if (headerEl) {
+						var cs = getComputedStyle(headerEl);
+						var t = (cs.transitionDuration || '').trim();
+						if (t) {
+							var first = t.split(',')[0].trim();
+							var match = first.match(/^([\d.]+)(s|ms)$/);
+							if (match) {
+								var val = parseFloat(match[1], 10);
+								duration = match[2] === 'ms' ? val / 1000 : val;
+							}
+						}
+						// テーマにトランジションがない（0s）場合はデフォルトのまま
+						if (duration <= 0) {
+							duration = 0.3;
+						}
+					}
+				}
+			}
+			this.$nav[0].style.setProperty('--contentpilot-nav-transition-duration', duration + 's');
 		},
 
 		/**
