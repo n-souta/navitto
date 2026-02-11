@@ -283,7 +283,103 @@
 			var self = this;
 			requestAnimationFrame(function() {
 				self.updateScrollMargin();
+				if (s.preset === 'theme') {
+					self.applyThemeColor();
+				}
 			});
+		},
+
+		/**
+		 * テーマ準拠時: テーマのメインカラー（アクセント）と文字色を取得してナビに反映
+		 */
+		applyThemeColor: function() {
+			if (!this.$nav || !this.$nav.length) return;
+
+			var nav = this.$nav[0];
+			var root = document.documentElement;
+			var cs = getComputedStyle(root);
+
+			/* ----- メインカラー（アクセント色 → border-bottom / active 用）----- */
+			var mainColor = null;
+			var mainVars = [
+				'--color_main',                    // SWELL
+				'--jin-color-primary',             // JIN
+				'--main-color',                    // SANGO
+				'--cocoon-main-color',             // Cocoon
+				'--primary-color',                 // 汎用
+				'--color-primary',                 // 汎用
+				'--accent-color',                  // 汎用
+				'--wp--preset--color--primary',    // WordPress ブロックテーマ
+				'--wp--custom--color--primary',    // WordPress カスタムプリセット
+				'--link-color',                    // 汎用
+				'--e-global-color-primary'         // Elementor
+			];
+			for (var i = 0; i < mainVars.length; i++) {
+				var val = cs.getPropertyValue(mainVars[i]).trim();
+				if (val) { mainColor = val; break; }
+			}
+			if (!mainColor) {
+				var linkSel = ['.entry-content a', '.post-content a', 'main a', '#content a', 'article a', 'a'];
+				for (var j = 0; j < linkSel.length; j++) {
+					var link = document.querySelector(linkSel[j]);
+					if (link) {
+						var c = getComputedStyle(link).color;
+						if (c && c !== 'rgba(0, 0, 0, 0)') { mainColor = c; break; }
+					}
+				}
+			}
+
+			/* ----- テキストカラー（テーマの文字色 → 通常のナビ文字色用）----- */
+			var textColor = null;
+			var textVars = [
+				'--color_text',                    // SWELL
+				'--jin-color-text',                // JIN
+				'--text-color',                    // SANGO / 汎用
+				'--cocoon-text-color',             // Cocoon
+				'--wp--preset--color--contrast',   // WordPress ブロックテーマ
+				'--body-color',                    // 汎用
+				'--e-global-color-text'            // Elementor
+			];
+			for (var k = 0; k < textVars.length; k++) {
+				var tv = cs.getPropertyValue(textVars[k]).trim();
+				if (tv) { textColor = tv; break; }
+			}
+			if (!textColor) {
+				textColor = getComputedStyle(document.body).color;
+			}
+
+			/* ----- 背景色（テーマの背景色 → ナビ背景用）----- */
+			var bgColor = null;
+			var bgVars = [
+				'--color_bg',                      // SWELL
+				'--jin-color-bg',                  // JIN
+				'--bg-color',                      // SANGO / 汎用
+				'--cocoon-bg-color',               // Cocoon
+				'--wp--preset--color--base',       // WordPress ブロックテーマ
+				'--body-bg',                       // 汎用
+				'--e-global-color-bg'              // Elementor
+			];
+			for (var l = 0; l < bgVars.length; l++) {
+				var bv = cs.getPropertyValue(bgVars[l]).trim();
+				if (bv) { bgColor = bv; break; }
+			}
+			if (!bgColor) {
+				bgColor = getComputedStyle(document.body).backgroundColor;
+				if (bgColor === 'rgba(0, 0, 0, 0)' || bgColor === 'transparent') {
+					bgColor = null;
+				}
+			}
+
+			/* ----- CSS変数にセット ----- */
+			if (mainColor) {
+				nav.style.setProperty('--contentpilot-theme-color', mainColor);
+			}
+			if (textColor) {
+				nav.style.setProperty('--contentpilot-theme-text', textColor);
+			}
+			if (bgColor) {
+				nav.style.setProperty('--contentpilot-theme-bg', bgColor);
+			}
 		},
 
 		/**
@@ -647,7 +743,7 @@
 							var diff = desiredTop - headingRect.top;
 							$('html, body').stop().animate({
 								scrollTop: $(window).scrollTop() - diff
-							}, 300, 'swing', function() {
+							}, 100, 'swing', function() {
 								self.isScrolling = false;
 							});
 						} else {

@@ -252,9 +252,30 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 	background: #1a1a2e;
 }
 
-/* テーマ準拠 */
+/* テーマ準拠: JS が --contentpilot-theme-color / --contentpilot-theme-text / --contentpilot-theme-bg を設定 */
 .contentpilot-nav.cp-preset-theme {
+	--contentpilot-theme-color: currentColor;          /* メインカラー: JS 未実行時フォールバック */
+	--contentpilot-theme-text: currentColor;           /* 文字色: JS 未実行時フォールバック */
+	--contentpilot-theme-bg: #ffffff;                  /* 背景色: JS 未実行時フォールバック */
+	--contentpilot-bg: var(--contentpilot-theme-bg);
+	--contentpilot-text: var(--contentpilot-theme-text);
+	--contentpilot-text-hover: var(--contentpilot-theme-text);
+	--contentpilot-active-text: var(--contentpilot-theme-text);
+	--contentpilot-border: var(--contentpilot-theme-color);
 	--contentpilot-nav-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+	border-bottom: none;
+}
+
+.contentpilot-nav.cp-preset-theme.cp-pos-bottom {
+	border-top: none;
+}
+
+.contentpilot-nav.cp-preset-theme .contentpilot-nav__link:hover {
+	opacity: 0.85;
+}
+
+.contentpilot-nav.cp-preset-theme .contentpilot-nav__item--active .contentpilot-nav__link {
+	border-bottom-color: var(--contentpilot-theme-color);
 }
 
 /* ==========================================================================
