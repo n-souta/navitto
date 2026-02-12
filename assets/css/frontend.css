@@ -83,6 +83,17 @@
 	bottom: 0;
 }
 
+/* 下部固定時: アクティブインジケーターは上側（border-top）に表示 */
+.contentpilot-nav.cp-pos-bottom .contentpilot-nav__link {
+	border-bottom: none;
+	border-top: 3px solid transparent;
+}
+
+.contentpilot-nav.cp-pos-bottom .contentpilot-nav__item--active .contentpilot-nav__link {
+	border-bottom: none;
+	border-top: 3px solid var(--contentpilot-active-text);
+}
+
 /* ==========================================================================
    ナビゲーション内部（横スクロール対応）
    ========================================================================== */
@@ -147,7 +158,7 @@
 	font-weight: 500;
 	text-decoration: none;
 	white-space: nowrap;
-	border-bottom: none;
+	border-bottom: 3px solid transparent;  /* アクティブ時も高さを変えず border のみ変化させる */
 	border-radius: var(--contentpilot-radius);
 	transition: all 0.2s ease;
 }
@@ -226,6 +237,10 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 	border-bottom-color: #ffffff;
 }
 
+.contentpilot-nav.cp-preset-modern.cp-pos-bottom .contentpilot-nav__item--active .contentpilot-nav__link {
+	border-top-color: #ffffff;
+}
+
 /* フラット */
 .contentpilot-nav.cp-preset-flat {
 	--contentpilot-bg: #f8f9fa;
@@ -240,6 +255,10 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 .contentpilot-nav.cp-preset-flat .contentpilot-nav__item--active .contentpilot-nav__link {
 	border-bottom-color: transparent;
 	border-radius: 4px;
+}
+
+.contentpilot-nav.cp-preset-flat.cp-pos-bottom .contentpilot-nav__item--active .contentpilot-nav__link {
+	border-top-color: transparent;  /* フラットは背景でアクティブ表現 */
 }
 
 /* ダーク */
@@ -287,6 +306,11 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 
 .contentpilot-nav.cp-preset-theme .contentpilot-nav__item--active .contentpilot-nav__link {
 	border-bottom: 3px solid var(--contentpilot-theme-color);
+}
+
+.contentpilot-nav.cp-preset-theme.cp-pos-bottom .contentpilot-nav__item--active .contentpilot-nav__link {
+	border-bottom: none;
+	border-top: 3px solid var(--contentpilot-theme-color);
 }
 
 /* ==========================================================================
