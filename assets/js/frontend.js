@@ -297,39 +297,68 @@
 
 		/**
 		 * テーマの固定ヘッダーの出現アニメーションに合わせてナビの表示トランジションを設定
-		 * テーマにアニメーションがあればその長さに合わせ、なければプラグイン側のみトランジションを付与
+		 * テーマにアニメーションがあればその長さに合わせ、なければプラグイン側のみトランジションを付与。
+		 * テーマヘッダーが position:sticky の場合はアニメーションなしで最初から表示する。
 		 */
 		syncNavTransition: function() {
 			if (!this.$nav || !this.$nav.length) return;
 
 			var duration = 0.3;  // デフォルト（秒）
-			var headerData = this.settings.fixedHeader;
-			if (headerData) {
-				var isSp = window.innerWidth < 768;
-				var sel = isSp
-					? (headerData.customSelectorSp || (headerData.selectors && headerData.selectors.sp))
-					: (headerData.customSelectorPc || (headerData.selectors && headerData.selectors.pc));
-				if (sel) {
-					var headerEl = document.querySelector(sel);
-					if (headerEl) {
-						var cs = getComputedStyle(headerEl);
-						var t = (cs.transitionDuration || '').trim();
-						if (t) {
-							var first = t.split(',')[0].trim();
-							var match = first.match(/^([\d.]+)(s|ms)$/);
-							if (match) {
-								var val = parseFloat(match[1], 10);
-								duration = match[2] === 'ms' ? val / 1000 : val;
+			var themeHeaderSticky = false;
+
+			// 1. findHeaderParent で見つけた親ヘッダーが sticky かどうか直接チェック
+			if (this.$headerParent && this.$headerParent.length) {
+				var parentPos = getComputedStyle(this.$headerParent[0]).position || '';
+				if (parentPos === 'sticky') {
+					themeHeaderSticky = true;
+					duration = 0;
+				}
+			}
+
+			// 2. sticky でない場合は Detector のセレクタでトランジションを取得
+			if (!themeHeaderSticky) {
+				var headerData = this.settings.fixedHeader;
+				if (headerData) {
+					var isSp = window.innerWidth < 768;
+					var sel = isSp
+						? (headerData.customSelectorSp || (headerData.selectors && headerData.selectors.sp))
+						: (headerData.customSelectorPc || (headerData.selectors && headerData.selectors.pc));
+					if (sel) {
+						var headerEl = document.querySelector(sel);
+						if (headerEl) {
+							// Detector 側のセレクタも sticky かチェック
+							var detPos = getComputedStyle(headerEl).position || '';
+							if (detPos === 'sticky') {
+								themeHeaderSticky = true;
+								duration = 0;
+							} else {
+								var cs = getComputedStyle(headerEl);
+								var t = (cs.transitionDuration || '').trim();
+								if (t) {
+									var first = t.split(',')[0].trim();
+									var match = first.match(/^([\d.]+)(s|ms)$/);
+									if (match) {
+										var val = parseFloat(match[1], 10);
+										duration = match[2] === 'ms' ? val / 1000 : val;
+									}
+								}
+								if (duration <= 0) {
+									duration = 0.3;
+								}
 							}
-						}
-						// テーマにトランジションがない（0s）場合はデフォルトのまま
-						if (duration <= 0) {
-							duration = 0.3;
 						}
 					}
 				}
 			}
+
 			this.$nav[0].style.setProperty('--contentpilot-nav-transition-duration', duration + 's');
+			if (themeHeaderSticky) {
+				this.$nav.addClass('cp-theme-header-sticky');
+				this.$nav.addClass('is-visible');
+				this.updateScrollMargin();
+			} else {
+				this.$nav.removeClass('cp-theme-header-sticky');
+			}
 		},
 
 		/**
@@ -573,6 +602,7 @@
 				clearTimeout(resizeTimer);
 				resizeTimer = setTimeout(function() {
 					self.relocateNav();
+					self.syncNavTransition();
 					self.detectContentWidth();
 					self.updateScrollHint();
 					self.checkOverflow();
@@ -609,6 +639,11 @@
 		 * 表示開始条件を満たしているか判定
 		 */
 		shouldShow: function(scrollTop) {
+			// テーマヘッダーが sticky の場合は常に表示（スクロール不要）
+			if (this.$nav && this.$nav.hasClass('cp-theme-header-sticky')) {
+				return true;
+			}
+
 			var trigger = this.settings.trigger || { type: 'immediate' };
 			var type = trigger.type || 'immediate';
 

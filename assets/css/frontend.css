@@ -77,6 +77,11 @@
 	pointer-events: auto;
 }
 
+/* テーマヘッダーが position:sticky の場合は出現アニメーションなし */
+.contentpilot-nav.cp-theme-header-sticky {
+	transition-duration: 0s;
+}
+
 /* 下部固定 */
 .contentpilot-nav.cp-pos-bottom {
 	top: auto;
