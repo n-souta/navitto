@@ -30,6 +30,7 @@ $theme_mods = array(
 	'contentpilot_font_size',
 	'contentpilot_border_radius',
 	'contentpilot_shadow',
+	'contentpilot_nav_height',
 	'contentpilot_nav_width',
 	'contentpilot_min_word_count',
 	'contentpilot_show_after_scroll',

@@ -260,6 +260,20 @@
 				html += '</a></li>';
 			});
 
+			// カスタム項目（外部リンク等）を末尾に追加
+			var customItems = (typeof contentpilotData !== 'undefined' && contentpilotData.customItems) || [];
+			if (customItems && customItems.length) {
+				customItems.forEach(function(item) {
+					if (!item.label && !item.url) return;
+					var label = item.label || item.url;
+					var target = item.newtab ? ' target="_blank" rel="noopener noreferrer"' : '';
+					html += '<li class="contentpilot-nav__item contentpilot-nav__item--custom">';
+					html += '<a href="' + self.escapeAttr(item.url || '#') + '" class="contentpilot-nav__link contentpilot-nav__link--custom"' + target + '>';
+					html += self.escapeHtml(label);
+					html += '</a></li>';
+				});
+			}
+
 			html += '</ul></div></nav>';
 			this.$nav = $(html);
 
@@ -615,13 +629,19 @@
 			});
 
 			this.$nav.on('click', '.contentpilot-nav__link', function(e) {
-				e.preventDefault();
 				var $link = $(this);
-				var id = $link.attr('href').slice(1);
 				var $item = $link.parent();
+
+				// カスタム項目（外部リンク等）はデフォルト動作（ページ遷移）を許可
+				if ($item.hasClass('contentpilot-nav__item--custom')) {
+					return; // preventDefault しない
+				}
+
+				e.preventDefault();
+				var id = $link.attr('href').slice(1);
 				var idx = $item.index();
 
-				self.$nav.find('.contentpilot-nav__item').removeClass('contentpilot-nav__item--active');
+				self.$nav.find('.contentpilot-nav__item:not(.contentpilot-nav__item--custom)').removeClass('contentpilot-nav__item--active');
 				$item.addClass('contentpilot-nav__item--active');
 				self.lastActiveIndex = idx;
 				self._clickedIndex = idx;
@@ -733,7 +753,7 @@
 				}
 			});
 
-			var $items = this.$nav.find('.contentpilot-nav__item');
+			var $items = this.$nav.find('.contentpilot-nav__item:not(.contentpilot-nav__item--custom)');
 			$items.removeClass('contentpilot-nav__item--active');
 			var $active = $items.eq(activeIndex).addClass('contentpilot-nav__item--active');
 

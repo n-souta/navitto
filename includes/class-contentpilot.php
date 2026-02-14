@@ -141,6 +141,10 @@ class ContentPilot_Main {
 			$js_custom_texts[ strval( $k ) ] = $v;
 		}
 
+		// カスタム項目（外部リンク等）
+		$raw_custom_items = get_post_meta( $post_id, '_contentpilot_custom_items', true );
+		$custom_items     = is_array( $raw_custom_items ) ? $raw_custom_items : array();
+
 		wp_localize_script(
 			'contentpilot-frontend',
 			'contentpilotData',
@@ -157,6 +161,7 @@ class ContentPilot_Main {
 				'navWidth'        => $nav_width,
 				'detection'       => $detection_data,
 				'fixedHeader'     => $header_data,
+				'customItems'     => $custom_items,
 			)
 		);
 
@@ -168,11 +173,26 @@ class ContentPilot_Main {
 	 * カスタマイザー設定からインラインCSSを生成
 	 */
 	private function generate_inline_css() {
-		$font_size = get_theme_mod( 'contentpilot_font_size', 14 );
-		$radius    = get_theme_mod( 'contentpilot_border_radius', false );
-		$shadow    = get_theme_mod( 'contentpilot_shadow', true );
+		$font_size  = get_theme_mod( 'contentpilot_font_size', 14 );
+		$radius     = get_theme_mod( 'contentpilot_border_radius', false );
+		$shadow     = get_theme_mod( 'contentpilot_shadow', true );
+		$nav_height = get_theme_mod( 'contentpilot_nav_height', 'medium' );
 
 		$css = ':root {';
+
+		// ナビの高さとフォントサイズ（medium はデフォルト 56/48px・14px なので出力不要）
+		// 各プリセット: [ PC高さ, モバイル高さ, フォントサイズ(px) ]
+		$height_map = array(
+			'small' => array( '44px', '38px', 12 ),
+			'large' => array( '68px', '56px', 16 ),
+		);
+		if ( isset( $height_map[ $nav_height ] ) ) {
+			$css .= '--contentpilot-height:' . $height_map[ $nav_height ][0] . ';';
+			$css .= '--contentpilot-height-mobile:' . $height_map[ $nav_height ][1] . ';';
+			$css .= '--contentpilot-font-size:' . intval( $height_map[ $nav_height ][2] ) . 'px;';
+		}
+
+		// カスタマイザーでフォントサイズを個別指定している場合は上書き
 		if ( intval( $font_size ) !== 14 ) {
 			$css .= '--contentpilot-font-size:' . intval( $font_size ) . 'px;';
 		}

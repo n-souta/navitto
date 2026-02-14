@@ -254,6 +254,46 @@ class ContentPilot_Admin {
 				<?php endforeach; ?>
 			</div>
 
+			<!-- カスタム項目（外部リンク等） -->
+			<div class="cp-custom-items-setting" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd;">
+				<label style="font-weight: 600; font-size: 12px; display: block; margin-bottom: 6px;">
+					<?php esc_html_e( 'カスタム項目を追加', 'contentpilot' ); ?>
+				</label>
+				<p class="description" style="margin: 0 0 8px; font-size: 12px;">
+					<?php esc_html_e( '外部リンクなど、ナビに独自の項目を追加できます。各項目で「新しいタブで開く」を指定できます。', 'contentpilot' ); ?>
+				</p>
+				<?php
+				$custom_items = get_post_meta( $post->ID, '_contentpilot_custom_items', true );
+				$custom_items = is_array( $custom_items ) ? $custom_items : array();
+				?>
+				<div id="cp-custom-items-list">
+					<?php foreach ( $custom_items as $ci_index => $item ) : ?>
+					<div class="cp-custom-item" data-index="<?php echo esc_attr( $ci_index ); ?>" style="background:#f9f9f9; padding:8px; margin-bottom:6px; border:1px solid #ddd; border-radius:4px;">
+						<input type="text" name="contentpilot_custom_item_label[]"
+							value="<?php echo esc_attr( $item['label'] ); ?>"
+							placeholder="<?php esc_attr_e( 'ラベル（例: お問い合わせ）', 'contentpilot' ); ?>"
+							style="width:100%; margin-bottom:4px;" />
+						<input type="url" name="contentpilot_custom_item_url[]"
+							value="<?php echo esc_url( $item['url'] ); ?>"
+							placeholder="<?php esc_attr_e( 'URL（例: https://example.com）', 'contentpilot' ); ?>"
+							style="width:100%; margin-bottom:4px;" />
+						<label style="font-size:12px;">
+							<input type="checkbox" name="contentpilot_custom_item_newtab[<?php echo esc_attr( $ci_index ); ?>]"
+								value="1" <?php checked( ! empty( $item['newtab'] ) ); ?> />
+							<?php esc_html_e( '新しいタブで開く', 'contentpilot' ); ?>
+						</label>
+						<button type="button" class="cp-remove-custom-item" style="float:right; color:#a00; background:none; border:none; cursor:pointer; font-size:12px;">
+							<?php esc_html_e( '削除', 'contentpilot' ); ?>
+						</button>
+						<div style="clear:both;"></div>
+					</div>
+					<?php endforeach; ?>
+				</div>
+				<button type="button" id="cp-add-custom-item" class="button button-small" style="margin-top:4px;">
+					<?php esc_html_e( '＋ 項目を追加', 'contentpilot' ); ?>
+				</button>
+			</div>
+
 			<p class="description" style="margin-top:8px;">
 				<?php esc_html_e( '文字数・H2数の条件を満たす場合に表示されます（show_all時）。', 'contentpilot' ); ?>
 			</p>
@@ -336,6 +376,28 @@ class ContentPilot_Admin {
 		if ( in_array( $nav_width, array( '', 'scroll', 'equal' ), true ) ) {
 			update_post_meta( $post_id, '_contentpilot_nav_width', $nav_width );
 		}
+
+		// カスタム項目
+		$custom_items = array();
+		if ( isset( $_POST['contentpilot_custom_item_label'] ) && is_array( $_POST['contentpilot_custom_item_label'] ) ) {
+			$labels = wp_unslash( $_POST['contentpilot_custom_item_label'] );
+			$urls   = isset( $_POST['contentpilot_custom_item_url'] ) ? wp_unslash( $_POST['contentpilot_custom_item_url'] ) : array();
+			$newtab = isset( $_POST['contentpilot_custom_item_newtab'] ) ? wp_unslash( $_POST['contentpilot_custom_item_newtab'] ) : array();
+
+			foreach ( $labels as $ci_idx => $label ) {
+				$label = sanitize_text_field( $label );
+				$url   = isset( $urls[ $ci_idx ] ) ? esc_url_raw( $urls[ $ci_idx ] ) : '';
+				if ( '' === $label && '' === $url ) {
+					continue; // 空の項目はスキップ
+				}
+				$custom_items[] = array(
+					'label'  => $label,
+					'url'    => $url,
+					'newtab' => ! empty( $newtab[ $ci_idx ] ),
+				);
+			}
+		}
+		update_post_meta( $post_id, '_contentpilot_custom_items', $custom_items );
 	}
 
 	/* =========================================================================
@@ -383,6 +445,22 @@ class ContentPilot_Admin {
 			'choices' => array(
 				'top'    => __( '上部固定', 'contentpilot' ),
 				'bottom' => __( '下部固定', 'contentpilot' ),
+			),
+		) );
+
+		// ナビの高さ
+		$wp_customize->add_setting( 'contentpilot_nav_height', array(
+			'default'           => 'medium',
+			'sanitize_callback' => array( $this, 'sanitize_nav_height' ),
+		) );
+		$wp_customize->add_control( 'contentpilot_nav_height', array(
+			'label'   => __( 'ナビの高さ', 'contentpilot' ),
+			'section' => 'contentpilot_design',
+			'type'    => 'radio',
+			'choices' => array(
+				'small'  => __( '小', 'contentpilot' ),
+				'medium' => __( '中※デフォルト', 'contentpilot' ),
+				'large'  => __( '大', 'contentpilot' ),
 			),
 		) );
 
@@ -494,5 +572,9 @@ class ContentPilot_Admin {
 
 	public function sanitize_nav_width( $value ) {
 		return in_array( $value, array( 'scroll', 'equal' ), true ) ? $value : 'scroll';
+	}
+
+	public function sanitize_nav_height( $value ) {
+		return in_array( $value, array( 'small', 'medium', 'large' ), true ) ? $value : 'medium';
 	}
 }

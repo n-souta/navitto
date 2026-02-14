@@ -179,6 +179,15 @@
 	border-bottom: 3px solid var(--contentpilot-active-text);
 }
 
+/* ---------- カスタム項目（外部リンク等） ---------- */
+.contentpilot-nav__item--custom .contentpilot-nav__link {
+	border-bottom-color: transparent;
+	opacity: 0.8;
+}
+.contentpilot-nav__item--custom .contentpilot-nav__link:hover {
+	opacity: 1;
+}
+
 /* ==========================================================================
    固定ナビの表示方法
    ========================================================================== */
