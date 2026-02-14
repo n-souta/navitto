@@ -434,26 +434,63 @@
 				textColor = getComputedStyle(document.body).color;
 			}
 
-			/* ----- 背景色（テーマの背景色 → ナビ背景用）----- */
-			var bgColor = null;
-			var bgVars = [
-				'--color_bg',                      // SWELL
-				'--jin-color-bg',                  // JIN
-				'--bg-color',                      // SANGO / 汎用
-				'--cocoon-bg-color',               // Cocoon
-				'--wp--preset--color--base',       // WordPress ブロックテーマ
-				'--body-bg',                       // 汎用
-				'--e-global-color-bg'              // Elementor
-			];
-			for (var l = 0; l < bgVars.length; l++) {
-				var bv = cs.getPropertyValue(bgVars[l]).trim();
-				if (bv) { bgColor = bv; break; }
-			}
-			if (!bgColor) {
-				bgColor = getComputedStyle(document.body).backgroundColor;
-				if (bgColor === 'rgba(0, 0, 0, 0)' || bgColor === 'transparent') {
-					bgColor = null;
+			/* ----- ナビ背景色（テーマのヘッダー色に合わせる）----- */
+			var headerEl = null;
+			if (this.$headerParent && this.$headerParent[0]) {
+				headerEl = this.$headerParent[0];
+			} else {
+				var headerData = this.settings.fixedHeader;
+				if (headerData) {
+					var isSp = window.innerWidth < 768;
+					var sel = isSp
+						? (headerData.customSelectorSp || (headerData.selectors && headerData.selectors.sp))
+						: (headerData.customSelectorPc || (headerData.selectors && headerData.selectors.pc));
+					if (sel) {
+						headerEl = document.querySelector(sel);
+					}
 				}
+			}
+			// 汎用セレクタでヘッダーを探す（$headerParent が未設定のとき）
+			if (!headerEl) {
+				var generic = ['#header', '#fix_header', '.l-fixHeader', '.sticky-header', '.l-header', '#masthead', '.site-header', '#site-header'];
+				for (var g = 0; g < generic.length; g++) {
+					var el = document.querySelector(generic[g]);
+					if (el && el.offsetParent !== null) {
+						var pos = getComputedStyle(el).position;
+						if (pos === 'fixed' || pos === 'sticky') {
+							headerEl = el;
+							break;
+						}
+					}
+				}
+			}
+			var headerBg = null;
+			if (headerEl) {
+				headerBg = this.getElOrPseudoBackground(headerEl);
+			}
+			/* ----- ヘッダーが取れない場合はテーマの背景色をフォールバック ----- */
+			var bgColor = headerBg;
+			if (!bgColor) {
+				var bgVars = [
+					'--color_bg', '--jin-color-bg', '--bg-color', '--cocoon-bg-color',
+					'--wp--preset--color--base', '--body-bg', '--e-global-color-bg'
+				];
+				for (var l = 0; l < bgVars.length; l++) {
+					var bv = cs.getPropertyValue(bgVars[l]).trim();
+					if (bv) { bgColor = bv; break; }
+				}
+				if (!bgColor) {
+					bgColor = getComputedStyle(document.body).backgroundColor;
+					if (bgColor === 'rgba(0, 0, 0, 0)' || bgColor === 'transparent') {
+						bgColor = null;
+					}
+				}
+			}
+
+			/* ----- アクティブ項目の背景（ヘッダー色を少し濃くした色）----- */
+			var activeBg = null;
+			if (bgColor) {
+				activeBg = this.darkenColor(bgColor);
 			}
 
 			/* ----- CSS変数にセット ----- */
@@ -466,6 +503,70 @@
 			if (bgColor) {
 				nav.style.setProperty('--contentpilot-theme-bg', bgColor);
 			}
+			if (activeBg) {
+				nav.style.setProperty('--contentpilot-theme-active-bg', activeBg);
+			}
+		},
+
+		/**
+		 * 要素本体、::before、::after の順で背景色を取得（SWELL 等でヘッダー背景が疑似要素指定の場合に対応）
+		 * @param {Element} el - 対象要素
+		 * @returns {string|null} 取得した背景色、すべて透明なら null
+		 */
+		getElOrPseudoBackground: function(el) {
+			var transparent = ['rgba(0, 0, 0, 0)', 'transparent'];
+			var tryBg = function(bg) {
+				if (!bg || transparent.indexOf(bg) !== -1) return null;
+				return bg;
+			};
+			var bg = getComputedStyle(el).backgroundColor;
+			var out = tryBg(bg);
+			if (out) return out;
+			try {
+				var before = getComputedStyle(el, '::before');
+				if (before) {
+					out = tryBg(before.backgroundColor);
+					if (out) return out;
+				}
+			} catch (e) { /* 未対応ブラウザ */ }
+			try {
+				var after = getComputedStyle(el, '::after');
+				if (after) {
+					out = tryBg(after.backgroundColor);
+					if (out) return out;
+				}
+			} catch (e) { /* 未対応ブラウザ */ }
+			return null;
+		},
+
+		/**
+		 * 色文字列を少し濃くする（係数 0～1、小さいほど暗い）
+		 * @param {string} color - rgb(r,g,b) / rgba(r,g,b,a) / #hex
+		 * @returns {string} rgba(...)
+		 */
+		darkenColor: function(color) {
+			var factor = 0.92;
+			if (!color || color === 'transparent') return 'rgba(0,0,0,0.12)';
+			var rgba = color.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)/);
+			if (rgba) {
+				var r = Math.max(0, Math.floor(parseInt(rgba[1], 10) * factor));
+				var g = Math.max(0, Math.floor(parseInt(rgba[2], 10) * factor));
+				var b = Math.max(0, Math.floor(parseInt(rgba[3], 10) * factor));
+				var a = rgba[4] != null ? parseFloat(rgba[4], 10) : 1;
+				return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+			}
+			var hex = color.match(/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/);
+			if (hex) {
+				var h = hex[1];
+				if (h.length === 3) {
+					h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+				}
+				var r = Math.max(0, Math.floor(parseInt(h.substr(0, 2), 16) * factor));
+				var g = Math.max(0, Math.floor(parseInt(h.substr(2, 2), 16) * factor));
+				var b = Math.max(0, Math.floor(parseInt(h.substr(4, 2), 16) * factor));
+				return 'rgb(' + r + ',' + g + ',' + b + ')';
+			}
+			return 'rgba(0,0,0,0.12)';
 		},
 
 		/**

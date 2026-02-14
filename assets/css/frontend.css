@@ -287,11 +287,12 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 	background: #1a1a2e;
 }
 
-/* テーマ準拠: JS が --contentpilot-theme-color / --contentpilot-theme-text / --contentpilot-theme-bg を設定 */
+/* テーマ準拠: JS が --contentpilot-theme-color / --contentpilot-theme-text / --contentpilot-theme-bg / --contentpilot-theme-active-bg を設定 */
 .contentpilot-nav.cp-preset-theme {
 	--contentpilot-theme-color: currentColor;          /* メインカラー: JS 未実行時フォールバック */
-	--contentpilot-theme-text: currentColor;           /* 文字色: JS 未実行時フォールバック */
-	--contentpilot-theme-bg: #ffffff;                  /* 背景色: JS 未実行時フォールバック */
+	--contentpilot-theme-text: currentColor;            /* 文字色: JS 未実行時フォールバック */
+	--contentpilot-theme-bg: #ffffff;                  /* ナビ背景（ヘッダー色）: JS 未実行時フォールバック */
+	--contentpilot-theme-active-bg: rgba(0, 0, 0, 0.08); /* アクティブ項目背景（ヘッダー色を少し濃く）: JS が設定 */
 	--contentpilot-bg: var(--contentpilot-theme-bg);
 	--contentpilot-text: var(--contentpilot-theme-text);
 	--contentpilot-text-hover: var(--contentpilot-theme-text);
@@ -319,6 +320,7 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 }
 
 .contentpilot-nav.cp-preset-theme .contentpilot-nav__item--active .contentpilot-nav__link {
+	background: var(--contentpilot-theme-active-bg);
 	border-bottom: 3px solid var(--contentpilot-theme-color);
 }
 
