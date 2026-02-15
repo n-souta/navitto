@@ -1,17 +1,17 @@
 /**
- * ContentPilot - メタボックス管理画面スクリプト
+ * Navitto - メタボックス管理画面スクリプト
  *
- * @package ContentPilot
+ * @package Navitto
  * @since   1.0.1
  */
 (function(){
-	var radios      = document.querySelectorAll('input[name="contentpilot_display_mode"]');
+	var radios      = document.querySelectorAll('input[name="navitto_display_mode"]');
 	var h2Area      = document.getElementById('cp-h2-select-area');
-	var triggerArea  = document.querySelector('.contentpilot-trigger-settings');
+	var triggerArea  = document.querySelector('.navitto-trigger-settings');
 
 	// 表示モード切替
 	function onModeChange() {
-		var mode = document.querySelector('input[name="contentpilot_display_mode"]:checked');
+		var mode = document.querySelector('input[name="navitto_display_mode"]:checked');
 		var isSelect = mode && mode.value === 'select';
 		if ( h2Area ) {
 			h2Area.style.display = isSelect ? '' : 'none';
@@ -47,14 +47,14 @@
 			div.setAttribute('data-index', index);
 			div.style.cssText = 'background:#f9f9f9; padding:8px; margin-bottom:6px; border:1px solid #ddd; border-radius:4px;';
 			div.innerHTML =
-				'<input type="text" name="contentpilot_custom_item_label[]"' +
+				'<input type="text" name="navitto_custom_item_label[]"' +
 				' value="" placeholder="ラベル（例: お問い合わせ）"' +
 				' style="width:100%; margin-bottom:4px;" />' +
-				'<input type="url" name="contentpilot_custom_item_url[]"' +
+				'<input type="url" name="navitto_custom_item_url[]"' +
 				' value="" placeholder="URL（例: https://example.com）"' +
 				' style="width:100%; margin-bottom:4px;" />' +
 				'<label style="font-size:12px;">' +
-				'<input type="checkbox" name="contentpilot_custom_item_newtab[' + index + ']" value="1" />' +
+				'<input type="checkbox" name="navitto_custom_item_newtab[' + index + ']" value="1" />' +
 				' 新しいタブで開く</label>' +
 				'<button type="button" class="cp-remove-custom-item"' +
 				' style="float:right; color:#a00; background:none; border:none; cursor:pointer; font-size:12px;">削除</button>' +

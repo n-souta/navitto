@@ -1,10 +1,10 @@
 <?php
 /**
- * ContentPilot 管理画面クラス
+ * Navitto 管理画面クラス
  *
  * 投稿編集画面のメタボックスとカスタマイザーを管理
  *
- * @package ContentPilot
+ * @package Navitto
  * @since   1.0.0
  */
 
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class ContentPilot_Admin {
+class Navitto_Admin {
 
 	private static $instance = null;
 
@@ -50,17 +50,17 @@ class ContentPilot_Admin {
 		}
 
 		wp_enqueue_style(
-			'contentpilot-admin-metabox',
-			CONTENTPILOT_PLUGIN_URL . 'assets/css/admin-metabox.css',
+			'navitto-admin-metabox',
+			NAVITTO_PLUGIN_URL . 'assets/css/admin-metabox.css',
 			array(),
-			CONTENTPILOT_VERSION
+			NAVITTO_VERSION
 		);
 
 		wp_enqueue_script(
-			'contentpilot-admin-metabox',
-			CONTENTPILOT_PLUGIN_URL . 'assets/js/admin-metabox.js',
+			'navitto-admin-metabox',
+			NAVITTO_PLUGIN_URL . 'assets/js/admin-metabox.js',
 			array(),
-			CONTENTPILOT_VERSION,
+			NAVITTO_VERSION,
 			true
 		);
 	}
@@ -78,8 +78,8 @@ class ContentPilot_Admin {
 
 	public function add_meta_boxes() {
 		add_meta_box(
-			'contentpilot_settings',
-			__( 'ContentPilot', 'contentpilot' ),
+			'navitto_settings',
+			__( 'Navitto', 'navitto' ),
 			array( $this, 'render_meta_box' ),
 			'post',
 			'side',
@@ -91,12 +91,12 @@ class ContentPilot_Admin {
 	 * メタボックスの内容を出力
 	 */
 	public function render_meta_box( $post ) {
-		wp_nonce_field( 'contentpilot_save_meta', 'contentpilot_meta_nonce' );
+		wp_nonce_field( 'navitto_save_meta', 'navitto_meta_nonce' );
 
 		// 現在の値を取得
-		$display_mode = get_post_meta( $post->ID, '_contentpilot_display_mode', true );
+		$display_mode = get_post_meta( $post->ID, '_navitto_display_mode', true );
 		if ( '' === $display_mode ) {
-			$old_enabled = get_post_meta( $post->ID, '_contentpilot_enabled', true );
+			$old_enabled = get_post_meta( $post->ID, '_navitto_enabled', true );
 			$display_mode = ( '0' === $old_enabled ) ? 'hide' : 'show_all';
 		}
 		// 後方互換: auto → show_all
@@ -107,18 +107,18 @@ class ContentPilot_Admin {
 		$selected_h2   = array();
 		$custom_texts  = array();
 		if ( 'select' === $display_mode ) {
-			$selected_h2 = get_post_meta( $post->ID, '_contentpilot_selected_h2', true );
+			$selected_h2 = get_post_meta( $post->ID, '_navitto_selected_h2', true );
 			$selected_h2 = is_array( $selected_h2 ) ? $selected_h2 : array();
-			$custom_texts = get_post_meta( $post->ID, '_contentpilot_h2_custom_texts', true );
+			$custom_texts = get_post_meta( $post->ID, '_navitto_h2_custom_texts', true );
 			$custom_texts = is_array( $custom_texts ) ? $custom_texts : array();
 		}
 
 		// トリガー設定
-		$trigger_type      = get_post_meta( $post->ID, '_contentpilot_trigger_type', true );
+		$trigger_type      = get_post_meta( $post->ID, '_navitto_trigger_type', true );
 		$trigger_type      = $trigger_type ? $trigger_type : 'immediate';
-		$trigger_nth       = get_post_meta( $post->ID, '_contentpilot_trigger_nth', true );
+		$trigger_nth       = get_post_meta( $post->ID, '_navitto_trigger_nth', true );
 		$trigger_nth       = $trigger_nth ? absint( $trigger_nth ) : 2;
-		$trigger_scroll_px = get_post_meta( $post->ID, '_contentpilot_trigger_scroll_px', true );
+		$trigger_scroll_px = get_post_meta( $post->ID, '_navitto_trigger_scroll_px', true );
 		$trigger_scroll_px = $trigger_scroll_px ? absint( $trigger_scroll_px ) : 300;
 
 		// 投稿内容からH2を取得
@@ -136,30 +136,30 @@ class ContentPilot_Admin {
 
 		$is_select = ( 'select' === $display_mode );
 		?>
-		<div class="contentpilot-meta-box">
+		<div class="navitto-meta-box">
 			<!-- 表示モード -->
 			<div class="cp-radio-group">
 				<label>
-					<input type="radio" name="contentpilot_display_mode" value="show_all"
+					<input type="radio" name="navitto_display_mode" value="show_all"
 						<?php checked( $display_mode, 'show_all' ); ?> />
-					<?php esc_html_e( '固定ナビを表示（H2タグをそのまま反映）', 'contentpilot' ); ?>
+					<?php esc_html_e( '固定ナビを表示（H2タグをそのまま反映）', 'navitto' ); ?>
 				</label>
 				<label>
-					<input type="radio" name="contentpilot_display_mode" value="select"
+					<input type="radio" name="navitto_display_mode" value="select"
 						<?php checked( $display_mode, 'select' ); ?> />
-					<?php esc_html_e( '表示する見出しを選択', 'contentpilot' ); ?>
+					<?php esc_html_e( '表示する見出しを選択', 'navitto' ); ?>
 				</label>
 				<label>
-					<input type="radio" name="contentpilot_display_mode" value="hide"
+					<input type="radio" name="navitto_display_mode" value="hide"
 						<?php checked( $display_mode, 'hide' ); ?> />
-					<?php esc_html_e( '固定ナビを非表示', 'contentpilot' ); ?>
+					<?php esc_html_e( '固定ナビを非表示', 'navitto' ); ?>
 				</label>
 			</div>
 
 			<!-- 見出し選択（select時のみ表示） -->
 			<div id="cp-h2-select-area" style="<?php echo $is_select ? '' : 'display:none;'; ?>">
 				<?php if ( empty( $h2_list ) ) : ?>
-					<p class="description"><?php esc_html_e( 'H2見出しが見つかりません。', 'contentpilot' ); ?></p>
+					<p class="description"><?php esc_html_e( 'H2見出しが見つかりません。', 'navitto' ); ?></p>
 				<?php else : ?>
 					<?php foreach ( $h2_list as $index => $h2_text ) :
 						$is_checked  = in_array( $index, $selected_h2, false );
@@ -168,7 +168,7 @@ class ContentPilot_Admin {
 						<div class="cp-h2-item">
 							<label>
 								<input type="checkbox"
-									name="contentpilot_selected_h2[]"
+									name="navitto_selected_h2[]"
 									value="<?php echo esc_attr( $index ); ?>"
 									class="cp-h2-checkbox"
 									data-index="<?php echo esc_attr( $index ); ?>"
@@ -176,7 +176,7 @@ class ContentPilot_Admin {
 								<?php echo esc_html( $h2_text ); ?>
 							</label>
 							<input type="text"
-								name="contentpilot_h2_text_<?php echo esc_attr( $index ); ?>"
+								name="navitto_h2_text_<?php echo esc_attr( $index ); ?>"
 								class="cp-h2-text-input"
 								data-index="<?php echo esc_attr( $index ); ?>"
 								value="<?php echo esc_attr( $custom_text ); ?>"
@@ -188,43 +188,43 @@ class ContentPilot_Admin {
 			</div>
 
 			<!-- 表示開始位置（select時のみ表示） -->
-			<div class="cp-trigger-settings contentpilot-trigger-settings" style="<?php echo $is_select ? '' : 'display:none;'; ?>">
-				<h4><?php esc_html_e( '表示開始位置', 'contentpilot' ); ?></h4>
+			<div class="cp-trigger-settings navitto-trigger-settings" style="<?php echo $is_select ? '' : 'display:none;'; ?>">
+				<h4><?php esc_html_e( '表示開始位置', 'navitto' ); ?></h4>
 
 				<label>
-					<input type="radio" name="_contentpilot_trigger_type" value="immediate"
+					<input type="radio" name="_navitto_trigger_type" value="immediate"
 						<?php checked( $trigger_type, 'immediate' ); ?> />
-					<?php esc_html_e( 'ページ上部から', 'contentpilot' ); ?>
+					<?php esc_html_e( 'ページ上部から', 'navitto' ); ?>
 				</label>
-				<p class="description"><?php esc_html_e( '選択した見出しがページ上部に来たら固定ナビを表示', 'contentpilot' ); ?></p>
+				<p class="description"><?php esc_html_e( '選択した見出しがページ上部に来たら固定ナビを表示', 'navitto' ); ?></p>
 
 				<label>
-					<input type="radio" name="_contentpilot_trigger_type" value="first_selected"
+					<input type="radio" name="_navitto_trigger_type" value="first_selected"
 						<?php checked( $trigger_type, 'first_selected' ); ?> />
-					<?php esc_html_e( '選択した最初の見出しを通過後', 'contentpilot' ); ?>
+					<?php esc_html_e( '選択した最初の見出しを通過後', 'navitto' ); ?>
 				</label>
-				<p class="description"><?php esc_html_e( 'チェックを入れた最初の見出しを通過したら表示', 'contentpilot' ); ?></p>
+				<p class="description"><?php esc_html_e( 'チェックを入れた最初の見出しを通過したら表示', 'navitto' ); ?></p>
 
 				<label>
-					<input type="radio" name="_contentpilot_trigger_type" value="nth_selected"
+					<input type="radio" name="_navitto_trigger_type" value="nth_selected"
 						<?php checked( $trigger_type, 'nth_selected' ); ?> />
 					<span class="cp-trigger-inline">
-						<input type="number" name="_contentpilot_trigger_nth"
+						<input type="number" name="_navitto_trigger_nth"
 							value="<?php echo esc_attr( $trigger_nth ); ?>"
 							min="1" max="99" style="width:60px;" />
-						<?php esc_html_e( '番目の見出しを通過後', 'contentpilot' ); ?>
+						<?php esc_html_e( '番目の見出しを通過後', 'navitto' ); ?>
 					</span>
 				</label>
-				<p class="description"><?php esc_html_e( 'チェックを入れたN番目の見出しを通過したら表示', 'contentpilot' ); ?></p>
+				<p class="description"><?php esc_html_e( 'チェックを入れたN番目の見出しを通過したら表示', 'navitto' ); ?></p>
 
 				<label>
-					<input type="radio" name="_contentpilot_trigger_type" value="scroll_px"
+					<input type="radio" name="_navitto_trigger_type" value="scroll_px"
 						<?php checked( $trigger_type, 'scroll_px' ); ?> />
 					<span class="cp-trigger-inline">
-						<input type="number" name="_contentpilot_trigger_scroll_px"
+						<input type="number" name="_navitto_trigger_scroll_px"
 							value="<?php echo esc_attr( $trigger_scroll_px ); ?>"
 							min="0" max="10000" step="50" style="width:80px;" />
-						<?php esc_html_e( 'px スクロール後', 'contentpilot' ); ?>
+						<?php esc_html_e( 'px スクロール後', 'navitto' ); ?>
 					</span>
 				</label>
 			</div>
@@ -232,21 +232,21 @@ class ContentPilot_Admin {
 			<!-- 固定ナビの表示方法 -->
 			<div class="cp-nav-width-setting" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd;">
 				<label style="font-weight: 600; font-size: 12px; display: block; margin-bottom: 6px;">
-					<?php esc_html_e( '固定ナビの表示方法', 'contentpilot' ); ?>
+					<?php esc_html_e( '固定ナビの表示方法', 'navitto' ); ?>
 				</label>
 				<p class="description" style="margin: 0 0 6px; font-size: 12px;">
-					<?php esc_html_e( '見出しが多い場合の表示方法を選択します', 'contentpilot' ); ?>
+					<?php esc_html_e( '見出しが多い場合の表示方法を選択します', 'navitto' ); ?>
 				</p>
 				<?php
-				$nav_width = get_post_meta( $post->ID, '_contentpilot_nav_width', true );
+				$nav_width = get_post_meta( $post->ID, '_navitto_nav_width', true );
 				$nw_options = array(
-					''       => __( 'デフォルト設定を使用（カスタマイザーの設定）', 'contentpilot' ),
-					'scroll' => __( '横スクロール可能（全て表示）', 'contentpilot' ),
-					'equal'  => __( '均等割（はみ出し非表示）', 'contentpilot' ),
+					''       => __( 'デフォルト設定を使用（カスタマイザーの設定）', 'navitto' ),
+					'scroll' => __( '横スクロール可能（全て表示）', 'navitto' ),
+					'equal'  => __( '均等割（はみ出し非表示）', 'navitto' ),
 				);
 				foreach ( $nw_options as $val => $label ) : ?>
 					<label style="display: block; margin-bottom: 4px; font-size: 13px;">
-						<input type="radio" name="_contentpilot_nav_width"
+						<input type="radio" name="_navitto_nav_width"
 							value="<?php echo esc_attr( $val ); ?>"
 							<?php checked( $nav_width, $val ); ?> />
 						<?php echo esc_html( $label ); ?>
@@ -257,45 +257,45 @@ class ContentPilot_Admin {
 			<!-- カスタム項目（外部リンク等） -->
 			<div class="cp-custom-items-setting" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd;">
 				<label style="font-weight: 600; font-size: 12px; display: block; margin-bottom: 6px;">
-					<?php esc_html_e( 'カスタム項目を追加', 'contentpilot' ); ?>
+					<?php esc_html_e( 'カスタム項目を追加', 'navitto' ); ?>
 				</label>
 				<p class="description" style="margin: 0 0 8px; font-size: 12px;">
-					<?php esc_html_e( '外部リンクなど、ナビに独自の項目を追加できます。各項目で「新しいタブで開く」を指定できます。', 'contentpilot' ); ?>
+					<?php esc_html_e( '外部リンクなど、ナビに独自の項目を追加できます。各項目で「新しいタブで開く」を指定できます。', 'navitto' ); ?>
 				</p>
 				<?php
-				$custom_items = get_post_meta( $post->ID, '_contentpilot_custom_items', true );
+				$custom_items = get_post_meta( $post->ID, '_navitto_custom_items', true );
 				$custom_items = is_array( $custom_items ) ? $custom_items : array();
 				?>
 				<div id="cp-custom-items-list">
 					<?php foreach ( $custom_items as $ci_index => $item ) : ?>
 					<div class="cp-custom-item" data-index="<?php echo esc_attr( $ci_index ); ?>" style="background:#f9f9f9; padding:8px; margin-bottom:6px; border:1px solid #ddd; border-radius:4px;">
-						<input type="text" name="contentpilot_custom_item_label[]"
+						<input type="text" name="navitto_custom_item_label[]"
 							value="<?php echo esc_attr( $item['label'] ); ?>"
-							placeholder="<?php esc_attr_e( 'ラベル（例: お問い合わせ）', 'contentpilot' ); ?>"
+							placeholder="<?php esc_attr_e( 'ラベル（例: お問い合わせ）', 'navitto' ); ?>"
 							style="width:100%; margin-bottom:4px;" />
-						<input type="url" name="contentpilot_custom_item_url[]"
+						<input type="url" name="navitto_custom_item_url[]"
 							value="<?php echo esc_url( $item['url'] ); ?>"
-							placeholder="<?php esc_attr_e( 'URL（例: https://example.com）', 'contentpilot' ); ?>"
+							placeholder="<?php esc_attr_e( 'URL（例: https://example.com）', 'navitto' ); ?>"
 							style="width:100%; margin-bottom:4px;" />
 						<label style="font-size:12px;">
-							<input type="checkbox" name="contentpilot_custom_item_newtab[<?php echo esc_attr( $ci_index ); ?>]"
+							<input type="checkbox" name="navitto_custom_item_newtab[<?php echo esc_attr( $ci_index ); ?>]"
 								value="1" <?php checked( ! empty( $item['newtab'] ) ); ?> />
-							<?php esc_html_e( '新しいタブで開く', 'contentpilot' ); ?>
+							<?php esc_html_e( '新しいタブで開く', 'navitto' ); ?>
 						</label>
 						<button type="button" class="cp-remove-custom-item" style="float:right; color:#a00; background:none; border:none; cursor:pointer; font-size:12px;">
-							<?php esc_html_e( '削除', 'contentpilot' ); ?>
+							<?php esc_html_e( '削除', 'navitto' ); ?>
 						</button>
 						<div style="clear:both;"></div>
 					</div>
 					<?php endforeach; ?>
 				</div>
 				<button type="button" id="cp-add-custom-item" class="button button-small" style="margin-top:4px;">
-					<?php esc_html_e( '＋ 項目を追加', 'contentpilot' ); ?>
+					<?php esc_html_e( '＋ 項目を追加', 'navitto' ); ?>
 				</button>
 			</div>
 
 			<p class="description" style="margin-top:8px;">
-				<?php esc_html_e( '文字数・H2数の条件を満たす場合に表示されます（show_all時）。', 'contentpilot' ); ?>
+				<?php esc_html_e( '文字数・H2数の条件を満たす場合に表示されます（show_all時）。', 'navitto' ); ?>
 			</p>
 		</div>
 		<?php
@@ -308,8 +308,8 @@ class ContentPilot_Admin {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
-		if ( ! isset( $_POST['contentpilot_meta_nonce'] ) ||
-			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['contentpilot_meta_nonce'] ) ), 'contentpilot_save_meta' ) ) {
+		if ( ! isset( $_POST['navitto_meta_nonce'] ) ||
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['navitto_meta_nonce'] ) ), 'navitto_save_meta' ) ) {
 			return;
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
@@ -317,72 +317,72 @@ class ContentPilot_Admin {
 		}
 
 		// 表示モード
-		$mode = isset( $_POST['contentpilot_display_mode'] ) ? sanitize_text_field( wp_unslash( $_POST['contentpilot_display_mode'] ) ) : 'show_all';
+		$mode = isset( $_POST['navitto_display_mode'] ) ? sanitize_text_field( wp_unslash( $_POST['navitto_display_mode'] ) ) : 'show_all';
 		if ( ! in_array( $mode, array( 'show_all', 'select', 'hide' ), true ) ) {
 			$mode = 'show_all';
 		}
-		update_post_meta( $post_id, '_contentpilot_display_mode', $mode );
+		update_post_meta( $post_id, '_navitto_display_mode', $mode );
 
-		// 後方互換: _contentpilot_enabled も更新
-		update_post_meta( $post_id, '_contentpilot_enabled', 'hide' === $mode ? '0' : '1' );
+		// 後方互換: _navitto_enabled も更新
+		update_post_meta( $post_id, '_navitto_enabled', 'hide' === $mode ? '0' : '1' );
 
 		// H2選択データ
 		if ( 'select' === $mode ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- array_map('intval') sanitizes
-			$selected = isset( $_POST['contentpilot_selected_h2'] ) ? array_map( 'intval', wp_unslash( $_POST['contentpilot_selected_h2'] ) ) : array();
-			update_post_meta( $post_id, '_contentpilot_selected_h2', $selected );
+			$selected = isset( $_POST['navitto_selected_h2'] ) ? array_map( 'intval', wp_unslash( $_POST['navitto_selected_h2'] ) ) : array();
+			update_post_meta( $post_id, '_navitto_selected_h2', $selected );
 
 			$texts = array();
 			foreach ( $selected as $idx ) {
-				$key = 'contentpilot_h2_text_' . $idx;
+				$key = 'navitto_h2_text_' . $idx;
 				if ( isset( $_POST[ $key ] ) ) {
 					$texts[ $idx ] = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
 				}
 			}
-			update_post_meta( $post_id, '_contentpilot_h2_custom_texts', $texts );
+			update_post_meta( $post_id, '_navitto_h2_custom_texts', $texts );
 
 			// 表示開始位置
-			$trigger_type = isset( $_POST['_contentpilot_trigger_type'] )
-				? sanitize_text_field( wp_unslash( $_POST['_contentpilot_trigger_type'] ) )
+			$trigger_type = isset( $_POST['_navitto_trigger_type'] )
+				? sanitize_text_field( wp_unslash( $_POST['_navitto_trigger_type'] ) )
 				: 'immediate';
 			if ( ! in_array( $trigger_type, array( 'immediate', 'first_selected', 'nth_selected', 'scroll_px' ), true ) ) {
 				$trigger_type = 'immediate';
 			}
-			update_post_meta( $post_id, '_contentpilot_trigger_type', $trigger_type );
+			update_post_meta( $post_id, '_navitto_trigger_type', $trigger_type );
 
 			if ( 'nth_selected' === $trigger_type ) {
-				$nth = isset( $_POST['_contentpilot_trigger_nth'] ) ? absint( wp_unslash( $_POST['_contentpilot_trigger_nth'] ) ) : 2;
-				update_post_meta( $post_id, '_contentpilot_trigger_nth', max( 1, $nth ) );
+				$nth = isset( $_POST['_navitto_trigger_nth'] ) ? absint( wp_unslash( $_POST['_navitto_trigger_nth'] ) ) : 2;
+				update_post_meta( $post_id, '_navitto_trigger_nth', max( 1, $nth ) );
 			} else {
-				delete_post_meta( $post_id, '_contentpilot_trigger_nth' );
+				delete_post_meta( $post_id, '_navitto_trigger_nth' );
 			}
 
 			if ( 'scroll_px' === $trigger_type ) {
-				$scroll = isset( $_POST['_contentpilot_trigger_scroll_px'] ) ? absint( wp_unslash( $_POST['_contentpilot_trigger_scroll_px'] ) ) : 300;
-				update_post_meta( $post_id, '_contentpilot_trigger_scroll_px', $scroll );
+				$scroll = isset( $_POST['_navitto_trigger_scroll_px'] ) ? absint( wp_unslash( $_POST['_navitto_trigger_scroll_px'] ) ) : 300;
+				update_post_meta( $post_id, '_navitto_trigger_scroll_px', $scroll );
 			} else {
-				delete_post_meta( $post_id, '_contentpilot_trigger_scroll_px' );
+				delete_post_meta( $post_id, '_navitto_trigger_scroll_px' );
 			}
 		} else {
-			delete_post_meta( $post_id, '_contentpilot_selected_h2' );
-			delete_post_meta( $post_id, '_contentpilot_h2_custom_texts' );
-			delete_post_meta( $post_id, '_contentpilot_trigger_type' );
-			delete_post_meta( $post_id, '_contentpilot_trigger_nth' );
-			delete_post_meta( $post_id, '_contentpilot_trigger_scroll_px' );
+			delete_post_meta( $post_id, '_navitto_selected_h2' );
+			delete_post_meta( $post_id, '_navitto_h2_custom_texts' );
+			delete_post_meta( $post_id, '_navitto_trigger_type' );
+			delete_post_meta( $post_id, '_navitto_trigger_nth' );
+			delete_post_meta( $post_id, '_navitto_trigger_scroll_px' );
 		}
 
 		// 固定ナビの表示方法
-		$nav_width = isset( $_POST['_contentpilot_nav_width'] ) ? sanitize_text_field( wp_unslash( $_POST['_contentpilot_nav_width'] ) ) : '';
+		$nav_width = isset( $_POST['_navitto_nav_width'] ) ? sanitize_text_field( wp_unslash( $_POST['_navitto_nav_width'] ) ) : '';
 		if ( in_array( $nav_width, array( '', 'scroll', 'equal' ), true ) ) {
-			update_post_meta( $post_id, '_contentpilot_nav_width', $nav_width );
+			update_post_meta( $post_id, '_navitto_nav_width', $nav_width );
 		}
 
 		// カスタム項目
 		$custom_items = array();
-		if ( isset( $_POST['contentpilot_custom_item_label'] ) && is_array( $_POST['contentpilot_custom_item_label'] ) ) {
-			$labels = wp_unslash( $_POST['contentpilot_custom_item_label'] );
-			$urls   = isset( $_POST['contentpilot_custom_item_url'] ) ? wp_unslash( $_POST['contentpilot_custom_item_url'] ) : array();
-			$newtab = isset( $_POST['contentpilot_custom_item_newtab'] ) ? wp_unslash( $_POST['contentpilot_custom_item_newtab'] ) : array();
+		if ( isset( $_POST['navitto_custom_item_label'] ) && is_array( $_POST['navitto_custom_item_label'] ) ) {
+			$labels = wp_unslash( $_POST['navitto_custom_item_label'] );
+			$urls   = isset( $_POST['navitto_custom_item_url'] ) ? wp_unslash( $_POST['navitto_custom_item_url'] ) : array();
+			$newtab = isset( $_POST['navitto_custom_item_newtab'] ) ? wp_unslash( $_POST['navitto_custom_item_newtab'] ) : array();
 
 			foreach ( $labels as $ci_idx => $label ) {
 				$label = sanitize_text_field( $label );
@@ -397,7 +397,7 @@ class ContentPilot_Admin {
 				);
 			}
 		}
-		update_post_meta( $post_id, '_contentpilot_custom_items', $custom_items );
+		update_post_meta( $post_id, '_navitto_custom_items', $custom_items );
 	}
 
 	/* =========================================================================
@@ -410,145 +410,145 @@ class ContentPilot_Admin {
 	public function register_customizer( $wp_customize ) {
 
 		// --- セクション: デザイン ---
-		$wp_customize->add_section( 'contentpilot_design', array(
-			'title'    => __( 'ContentPilot - デザイン', 'contentpilot' ),
+		$wp_customize->add_section( 'navitto_design', array(
+			'title'    => __( 'Navitto - デザイン', 'navitto' ),
 			'priority' => 200,
 		) );
 
 		// プリセット
-		$wp_customize->add_setting( 'contentpilot_preset', array(
+		$wp_customize->add_setting( 'navitto_preset', array(
 			'default'           => 'simple',
 			'sanitize_callback' => array( $this, 'sanitize_preset' ),
 		) );
-		$wp_customize->add_control( 'contentpilot_preset', array(
-			'label'   => __( 'デザインプリセット', 'contentpilot' ),
-			'section' => 'contentpilot_design',
+		$wp_customize->add_control( 'navitto_preset', array(
+			'label'   => __( 'デザインプリセット', 'navitto' ),
+			'section' => 'navitto_design',
 			'type'    => 'select',
 			'choices' => array(
-				'simple' => __( 'シンプル', 'contentpilot' ),
-				'modern' => __( 'モダン', 'contentpilot' ),
-				'flat'   => __( 'フラット', 'contentpilot' ),
-				'dark'   => __( 'ダーク', 'contentpilot' ),
-				'theme'  => __( 'テーマ準拠', 'contentpilot' ),
+				'simple' => __( 'シンプル', 'navitto' ),
+				'modern' => __( 'モダン', 'navitto' ),
+				'flat'   => __( 'フラット', 'navitto' ),
+				'dark'   => __( 'ダーク', 'navitto' ),
+				'theme'  => __( 'テーマ準拠', 'navitto' ),
 			),
 		) );
 
 		// 配置位置
-		$wp_customize->add_setting( 'contentpilot_position', array(
+		$wp_customize->add_setting( 'navitto_position', array(
 			'default'           => 'top',
 			'sanitize_callback' => array( $this, 'sanitize_position' ),
 		) );
-		$wp_customize->add_control( 'contentpilot_position', array(
-			'label'   => __( '配置位置', 'contentpilot' ),
-			'section' => 'contentpilot_design',
+		$wp_customize->add_control( 'navitto_position', array(
+			'label'   => __( '配置位置', 'navitto' ),
+			'section' => 'navitto_design',
 			'type'    => 'radio',
 			'choices' => array(
-				'top'    => __( '上部固定', 'contentpilot' ),
-				'bottom' => __( '下部固定', 'contentpilot' ),
+				'top'    => __( '上部固定', 'navitto' ),
+				'bottom' => __( '下部固定', 'navitto' ),
 			),
 		) );
 
 		// ナビの高さ
-		$wp_customize->add_setting( 'contentpilot_nav_height', array(
+		$wp_customize->add_setting( 'navitto_nav_height', array(
 			'default'           => 'medium',
 			'sanitize_callback' => array( $this, 'sanitize_nav_height' ),
 		) );
-		$wp_customize->add_control( 'contentpilot_nav_height', array(
-			'label'   => __( 'ナビの高さ', 'contentpilot' ),
-			'section' => 'contentpilot_design',
+		$wp_customize->add_control( 'navitto_nav_height', array(
+			'label'   => __( 'ナビの高さ', 'navitto' ),
+			'section' => 'navitto_design',
 			'type'    => 'radio',
 			'choices' => array(
-				'small'  => __( '小', 'contentpilot' ),
-				'medium' => __( '中※デフォルト', 'contentpilot' ),
-				'large'  => __( '大', 'contentpilot' ),
+				'small'  => __( '小', 'navitto' ),
+				'medium' => __( '中※デフォルト', 'navitto' ),
+				'large'  => __( '大', 'navitto' ),
 			),
 		) );
 
 		// フォントサイズ
-		$wp_customize->add_setting( 'contentpilot_font_size', array(
+		$wp_customize->add_setting( 'navitto_font_size', array(
 			'default'           => 14,
 			'sanitize_callback' => 'absint',
 		) );
-		$wp_customize->add_control( 'contentpilot_font_size', array(
-			'label'       => __( 'フォントサイズ (px)', 'contentpilot' ),
-			'section'     => 'contentpilot_design',
+		$wp_customize->add_control( 'navitto_font_size', array(
+			'label'       => __( 'フォントサイズ (px)', 'navitto' ),
+			'section'     => 'navitto_design',
 			'type'        => 'number',
 			'input_attrs' => array( 'min' => 10, 'max' => 20, 'step' => 1 ),
 		) );
 
 		// 角丸
-		$wp_customize->add_setting( 'contentpilot_border_radius', array(
+		$wp_customize->add_setting( 'navitto_border_radius', array(
 			'default'           => false,
 			'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
 		) );
-		$wp_customize->add_control( 'contentpilot_border_radius', array(
-			'label'   => __( '角丸にする', 'contentpilot' ),
-			'section' => 'contentpilot_design',
+		$wp_customize->add_control( 'navitto_border_radius', array(
+			'label'   => __( '角丸にする', 'navitto' ),
+			'section' => 'navitto_design',
 			'type'    => 'checkbox',
 		) );
 
 		// 影
-		$wp_customize->add_setting( 'contentpilot_shadow', array(
+		$wp_customize->add_setting( 'navitto_shadow', array(
 			'default'           => true,
 			'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
 		) );
-		$wp_customize->add_control( 'contentpilot_shadow', array(
-			'label'   => __( '影を表示する', 'contentpilot' ),
-			'section' => 'contentpilot_design',
+		$wp_customize->add_control( 'navitto_shadow', array(
+			'label'   => __( '影を表示する', 'navitto' ),
+			'section' => 'navitto_design',
 			'type'    => 'checkbox',
 		) );
 
 		// --- セクション: 共通設定 ---
-		$wp_customize->add_section( 'contentpilot_common', array(
-			'title'    => __( 'ContentPilot - 共通設定', 'contentpilot' ),
+		$wp_customize->add_section( 'navitto_common', array(
+			'title'    => __( 'Navitto - 共通設定', 'navitto' ),
 			'priority' => 201,
 		) );
 
 		// 最小文字数
-		$wp_customize->add_setting( 'contentpilot_min_word_count', array(
+		$wp_customize->add_setting( 'navitto_min_word_count', array(
 			'default'           => 3000,
 			'sanitize_callback' => 'absint',
 		) );
-		$wp_customize->add_control( 'contentpilot_min_word_count', array(
-			'label'       => __( '最小文字数', 'contentpilot' ),
-			'section'     => 'contentpilot_common',
+		$wp_customize->add_control( 'navitto_min_word_count', array(
+			'label'       => __( '最小文字数', 'navitto' ),
+			'section'     => 'navitto_common',
 			'type'        => 'number',
 			'input_attrs' => array( 'min' => 0, 'max' => 20000, 'step' => 100 ),
 		) );
 
 		// スクロール表示開始
-		$wp_customize->add_setting( 'contentpilot_show_after_scroll', array(
+		$wp_customize->add_setting( 'navitto_show_after_scroll', array(
 			'default'           => 100,
 			'sanitize_callback' => 'absint',
 		) );
-		$wp_customize->add_control( 'contentpilot_show_after_scroll', array(
-			'label'       => __( 'スクロール表示開始位置 (px)', 'contentpilot' ),
-			'section'     => 'contentpilot_common',
+		$wp_customize->add_control( 'navitto_show_after_scroll', array(
+			'label'       => __( 'スクロール表示開始位置 (px)', 'navitto' ),
+			'section'     => 'navitto_common',
 			'type'        => 'number',
 			'input_attrs' => array( 'min' => 0, 'max' => 1000, 'step' => 10 ),
 		) );
 
 		// 固定ヘッダーセレクタ PC
-		$wp_customize->add_setting( 'contentpilot_fixed_header_selector_pc', array(
+		$wp_customize->add_setting( 'navitto_fixed_header_selector_pc', array(
 			'default'           => '',
 			'sanitize_callback' => 'sanitize_text_field',
 		) );
-		$wp_customize->add_control( 'contentpilot_fixed_header_selector_pc', array(
-			'label'       => __( 'テーマ固定ヘッダー セレクタ (PC)', 'contentpilot' ),
-			'description' => __( '例: #fix_header, .site-header', 'contentpilot' ),
-			'section'     => 'contentpilot_common',
+		$wp_customize->add_control( 'navitto_fixed_header_selector_pc', array(
+			'label'       => __( 'テーマ固定ヘッダー セレクタ (PC)', 'navitto' ),
+			'description' => __( '例: #fix_header, .site-header', 'navitto' ),
+			'section'     => 'navitto_common',
 			'type'        => 'text',
 		) );
 
 		// 固定ヘッダーセレクタ SP
-		$wp_customize->add_setting( 'contentpilot_fixed_header_selector_sp', array(
+		$wp_customize->add_setting( 'navitto_fixed_header_selector_sp', array(
 			'default'           => '',
 			'sanitize_callback' => 'sanitize_text_field',
 		) );
-		$wp_customize->add_control( 'contentpilot_fixed_header_selector_sp', array(
-			'label'       => __( 'テーマ固定ヘッダー セレクタ (SP)', 'contentpilot' ),
-			'description' => __( '空欄の場合はPC用セレクタを使用', 'contentpilot' ),
-			'section'     => 'contentpilot_common',
+		$wp_customize->add_control( 'navitto_fixed_header_selector_sp', array(
+			'label'       => __( 'テーマ固定ヘッダー セレクタ (SP)', 'navitto' ),
+			'description' => __( '空欄の場合はPC用セレクタを使用', 'navitto' ),
+			'section'     => 'navitto_common',
 			'type'        => 'text',
 		) );
 	}

@@ -1,10 +1,10 @@
 <?php
 /**
- * ContentPilot メインクラス
+ * Navitto メインクラス
  *
  * フロントエンドの表示を管理するシングルトンクラス
  *
- * @package ContentPilot
+ * @package Navitto
  * @since   1.0.0
  */
 
@@ -12,13 +12,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class ContentPilot_Main {
+class Navitto_Main {
 
 	private static $instance = null;
 	private $version;
 
 	private function __construct() {
-		$this->version = CONTENTPILOT_VERSION;
+		$this->version = NAVITTO_VERSION;
 	}
 
 	public static function get_instance() {
@@ -46,11 +46,11 @@ class ContentPilot_Main {
 			return $classes;
 		}
 
-		$position = get_theme_mod( 'contentpilot_position', 'top' );
+		$position = get_theme_mod( 'navitto_position', 'top' );
 		if ( ! in_array( $position, array( 'top', 'bottom' ), true ) ) {
 			$position = 'top';
 		}
-		$classes[] = 'contentpilot-pos-' . $position;
+		$classes[] = 'navitto-pos-' . $position;
 
 		return $classes;
 	}
@@ -71,28 +71,28 @@ class ContentPilot_Main {
 
 		// CSS
 		wp_enqueue_style(
-			'contentpilot-frontend',
-			CONTENTPILOT_PLUGIN_URL . 'assets/css/frontend.css',
+			'navitto-frontend',
+			NAVITTO_PLUGIN_URL . 'assets/css/frontend.css',
 			array(),
 			$this->version
 		);
 
 		// JavaScript
 		wp_enqueue_script(
-			'contentpilot-frontend',
-			CONTENTPILOT_PLUGIN_URL . 'assets/js/frontend.js',
+			'navitto-frontend',
+			NAVITTO_PLUGIN_URL . 'assets/js/frontend.js',
 			array( 'jquery' ),
 			$this->version,
 			true
 		);
 
 		// 検出データ
-		$detector       = ContentPilot_Detector::get_instance();
+		$detector       = Navitto_Detector::get_instance();
 		$detection_data = $detector->get_detection_data();
 		$header_data    = $detector->get_fixed_header_data();
 
 		// 表示モード・H2選択データ
-		$display_mode = get_post_meta( $post_id, '_contentpilot_display_mode', true );
+		$display_mode = get_post_meta( $post_id, '_navitto_display_mode', true );
 		if ( '' === $display_mode ) {
 			$display_mode = 'show_all';
 		}
@@ -104,36 +104,36 @@ class ContentPilot_Main {
 		$selected_h2  = array();
 		$custom_texts  = array();
 		if ( 'select' === $display_mode ) {
-			$raw = get_post_meta( $post_id, '_contentpilot_selected_h2', true );
+			$raw = get_post_meta( $post_id, '_navitto_selected_h2', true );
 			$selected_h2 = is_array( $raw ) ? $raw : array();
-			$raw_texts = get_post_meta( $post_id, '_contentpilot_h2_custom_texts', true );
+			$raw_texts = get_post_meta( $post_id, '_navitto_h2_custom_texts', true );
 			$custom_texts = is_array( $raw_texts ) ? $raw_texts : array();
 		}
 
 		// 表示開始位置の設定
-		$trigger_type = get_post_meta( $post_id, '_contentpilot_trigger_type', true );
+		$trigger_type = get_post_meta( $post_id, '_navitto_trigger_type', true );
 		$trigger_data = array(
 			'type' => $trigger_type ? $trigger_type : 'immediate',
 		);
 		if ( 'nth_selected' === $trigger_type ) {
-			$trigger_data['nth'] = absint( get_post_meta( $post_id, '_contentpilot_trigger_nth', true ) ) ?: 2;
+			$trigger_data['nth'] = absint( get_post_meta( $post_id, '_navitto_trigger_nth', true ) ) ?: 2;
 		}
 		if ( 'scroll_px' === $trigger_type ) {
-			$trigger_data['scrollPx'] = absint( get_post_meta( $post_id, '_contentpilot_trigger_scroll_px', true ) ) ?: 300;
+			$trigger_data['scrollPx'] = absint( get_post_meta( $post_id, '_navitto_trigger_scroll_px', true ) ) ?: 300;
 		}
 
 		// プリセット（カスタマイザーで一括設定）
-		$preset = get_theme_mod( 'contentpilot_preset', 'simple' );
+		$preset = get_theme_mod( 'navitto_preset', 'simple' );
 
 		// 固定ナビの表示方法（投稿編集画面でのみ設定）
-		$nav_width = get_post_meta( $post_id, '_contentpilot_nav_width', true );
+		$nav_width = get_post_meta( $post_id, '_navitto_nav_width', true );
 		if ( ! in_array( $nav_width, array( 'scroll', 'equal' ), true ) ) {
 			$nav_width = 'scroll';
 		}
 
 		// カスタマイザーの設定
-		$position    = get_theme_mod( 'contentpilot_position', 'top' );
-		$show_after  = get_theme_mod( 'contentpilot_show_after_scroll', 100 );
+		$position    = get_theme_mod( 'navitto_position', 'top' );
+		$show_after  = get_theme_mod( 'navitto_show_after_scroll', 100 );
 
 		// JS用テキストデータ（intキーをstringに変換）
 		$js_custom_texts = array();
@@ -142,12 +142,12 @@ class ContentPilot_Main {
 		}
 
 		// カスタム項目（外部リンク等）
-		$raw_custom_items = get_post_meta( $post_id, '_contentpilot_custom_items', true );
+		$raw_custom_items = get_post_meta( $post_id, '_navitto_custom_items', true );
 		$custom_items     = is_array( $raw_custom_items ) ? $raw_custom_items : array();
 
 		wp_localize_script(
-			'contentpilot-frontend',
-			'contentpilotData',
+			'navitto-frontend',
+			'navittoData',
 			array(
 				'scrollOffset'    => 80,
 				'animDuration'    => 500,
@@ -173,10 +173,10 @@ class ContentPilot_Main {
 	 * カスタマイザー設定からインラインCSSを生成
 	 */
 	private function generate_inline_css() {
-		$font_size  = get_theme_mod( 'contentpilot_font_size', 14 );
-		$radius     = get_theme_mod( 'contentpilot_border_radius', false );
-		$shadow     = get_theme_mod( 'contentpilot_shadow', true );
-		$nav_height = get_theme_mod( 'contentpilot_nav_height', 'medium' );
+		$font_size  = get_theme_mod( 'navitto_font_size', 14 );
+		$radius     = get_theme_mod( 'navitto_border_radius', false );
+		$shadow     = get_theme_mod( 'navitto_shadow', true );
+		$nav_height = get_theme_mod( 'navitto_nav_height', 'medium' );
 
 		$css = ':root {';
 
@@ -187,26 +187,26 @@ class ContentPilot_Main {
 			'large' => array( '68px', '56px', 16 ),
 		);
 		if ( isset( $height_map[ $nav_height ] ) ) {
-			$css .= '--contentpilot-height:' . $height_map[ $nav_height ][0] . ';';
-			$css .= '--contentpilot-height-mobile:' . $height_map[ $nav_height ][1] . ';';
-			$css .= '--contentpilot-font-size:' . intval( $height_map[ $nav_height ][2] ) . 'px;';
+			$css .= '--navitto-height:' . $height_map[ $nav_height ][0] . ';';
+			$css .= '--navitto-height-mobile:' . $height_map[ $nav_height ][1] . ';';
+			$css .= '--navitto-font-size:' . intval( $height_map[ $nav_height ][2] ) . 'px;';
 		}
 
 		// カスタマイザーでフォントサイズを個別指定している場合は上書き
 		if ( intval( $font_size ) !== 14 ) {
-			$css .= '--contentpilot-font-size:' . intval( $font_size ) . 'px;';
+			$css .= '--navitto-font-size:' . intval( $font_size ) . 'px;';
 		}
 		if ( $radius ) {
-			$css .= '--contentpilot-radius:4px;';
+			$css .= '--navitto-radius:4px;';
 		}
 		if ( ! $shadow ) {
-			$css .= '--contentpilot-nav-shadow:none;';
+			$css .= '--navitto-nav-shadow:none;';
 		}
 		$css .= '}';
 
 		// デフォルト値のみの場合はインラインCSS不要
 		if ( ':root {}' !== $css ) {
-			wp_add_inline_style( 'contentpilot-frontend', $css );
+			wp_add_inline_style( 'navitto-frontend', $css );
 		}
 	}
 
@@ -215,7 +215,7 @@ class ContentPilot_Main {
 	 */
 	public function should_display( $post_id ) {
 		// 新しい表示モードを確認
-		$display_mode = get_post_meta( $post_id, '_contentpilot_display_mode', true );
+		$display_mode = get_post_meta( $post_id, '_navitto_display_mode', true );
 
 		if ( 'hide' === $display_mode ) {
 			return false;
@@ -223,7 +223,7 @@ class ContentPilot_Main {
 
 		// 後方互換
 		if ( '' === $display_mode || 'auto' === $display_mode ) {
-			$enabled = get_post_meta( $post_id, '_contentpilot_enabled', true );
+			$enabled = get_post_meta( $post_id, '_navitto_enabled', true );
 			if ( '0' === $enabled ) {
 				return false;
 			}
@@ -243,7 +243,7 @@ class ContentPilot_Main {
 		}
 
 		// 最小文字数チェック（Customizer theme_mod に統一 — #3 Data）
-		$min_word_count = get_theme_mod( 'contentpilot_min_word_count', 3000 );
+		$min_word_count = get_theme_mod( 'navitto_min_word_count', 3000 );
 		$word_count = $this->get_word_count( $content );
 		if ( $word_count < $min_word_count ) {
 			return false;

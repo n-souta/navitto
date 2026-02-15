@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name:       ContentPilot
- * Plugin URI:        https://example.com/contentpilot
- * Description:       長文記事の離脱を防ぐ、目次連携型の固定ナビゲーション
+ * Plugin Name:       Navitto（ナビット）
+ * Plugin URI:        https://example.com/navitto
+ * Description:       設定ゼロで始める固定ナビゲーション。ナビっと表示、サクッと移動。
  * Version:           1.0.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
@@ -10,10 +10,10 @@
  * Author URI:        https://example.com
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       contentpilot
+ * Text Domain:       navitto
  * Domain Path:       /languages
  *
- * @package ContentPilot
+ * @package Navitto
  */
 
 // 直接アクセスを防ぐ
@@ -24,30 +24,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * プラグインバージョン
  */
-define( 'CONTENTPILOT_VERSION', '1.0.0' );
+define( 'NAVITTO_VERSION', '1.0.0' );
 
 /**
  * プラグインディレクトリパス
  */
-define( 'CONTENTPILOT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'NAVITTO_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
  * プラグインURL
  */
-define( 'CONTENTPILOT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'NAVITTO_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 /**
  * プラグインベースネーム
  */
-define( 'CONTENTPILOT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+define( 'NAVITTO_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 /**
  * クラスファイルの読み込み
  * 管理画面専用クラスは is_admin() 内で遅延読込（#7 Structure）
  */
-require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot.php';
-require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot-admin.php';
-require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot-detector.php';
+require_once NAVITTO_PLUGIN_DIR . 'includes/class-navitto.php';
+require_once NAVITTO_PLUGIN_DIR . 'includes/class-navitto-admin.php';
+require_once NAVITTO_PLUGIN_DIR . 'includes/class-navitto-detector.php';
 
 /**
  * プラグインを初期化する
@@ -55,20 +55,20 @@ require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot-detector.php
  * @since 1.0.0
  * @return void
  */
-function contentpilot_init() {
+function navitto_init() {
 	// テキストドメインを読み込む
 	load_plugin_textdomain(
-		'contentpilot',
+		'navitto',
 		false,
 		dirname( plugin_basename( __FILE__ ) ) . '/languages'
 	);
 
 	// フロントエンド初期化
-	$plugin = ContentPilot_Main::get_instance();
+	$plugin = Navitto_Main::get_instance();
 	$plugin->init();
 
 	// カスタマイザー登録（管理画面・プレビュー両方で必要）
-	$admin = ContentPilot_Admin::get_instance();
+	$admin = Navitto_Admin::get_instance();
 	$admin->init_customizer();
 
 	// 管理画面初期化
@@ -76,15 +76,15 @@ function contentpilot_init() {
 		$admin->init();
 
 		// 設定ページ初期化（管理画面でのみ読込 — #7 Structure）
-		require_once CONTENTPILOT_PLUGIN_DIR . 'includes/class-contentpilot-settings.php';
-		$settings = ContentPilot_Settings::get_instance();
+		require_once NAVITTO_PLUGIN_DIR . 'includes/class-navitto-settings.php';
+		$settings = Navitto_Settings::get_instance();
 		$settings->init();
 	}
 
 	// バージョンベースのアップグレードチェック（#9 Data）
-	contentpilot_maybe_upgrade();
+	navitto_maybe_upgrade();
 }
-add_action( 'plugins_loaded', 'contentpilot_init' );
+add_action( 'plugins_loaded', 'navitto_init' );
 
 /**
  * バージョンベースのアップグレード処理
@@ -94,22 +94,22 @@ add_action( 'plugins_loaded', 'contentpilot_init' );
  * @since 1.0.1
  * @return void
  */
-function contentpilot_maybe_upgrade() {
-	$db_version = get_option( 'contentpilot_db_version', '0' );
+function navitto_maybe_upgrade() {
+	$db_version = get_option( 'navitto_db_version', '0' );
 
-	if ( version_compare( $db_version, CONTENTPILOT_VERSION, '>=' ) ) {
+	if ( version_compare( $db_version, NAVITTO_VERSION, '>=' ) ) {
 		return;
 	}
 
 	// 1.0.0 → 1.0.1: 旧オプション（activation で作成された孤立データ）を削除
 	if ( version_compare( $db_version, '1.0.1', '<' ) ) {
-		delete_option( 'contentpilot_default_preset' );
-		delete_option( 'contentpilot_position' );
-		delete_option( 'contentpilot_min_word_count' );
+		delete_option( 'navitto_default_preset' );
+		delete_option( 'navitto_position' );
+		delete_option( 'navitto_min_word_count' );
 	}
 
 	// 現在のバージョンを保存
-	update_option( 'contentpilot_db_version', CONTENTPILOT_VERSION );
+	update_option( 'navitto_db_version', NAVITTO_VERSION );
 }
 
 /**
@@ -118,14 +118,14 @@ function contentpilot_maybe_upgrade() {
  * @since 1.0.0
  * @return void
  */
-function contentpilot_activate() {
+function navitto_activate() {
 	// DBバージョンを記録（#9 Data — アップグレード機構）
-	add_option( 'contentpilot_db_version', CONTENTPILOT_VERSION );
+	add_option( 'navitto_db_version', NAVITTO_VERSION );
 
 	// デフォルト有効化設定
-	add_option( 'contentpilot_default_enabled', true );
+	add_option( 'navitto_default_enabled', true );
 }
-register_activation_hook( __FILE__, 'contentpilot_activate' );
+register_activation_hook( __FILE__, 'navitto_activate' );
 
 /**
  * プラグインディアクティベーション時の処理
@@ -133,7 +133,7 @@ register_activation_hook( __FILE__, 'contentpilot_activate' );
  * @since 1.0.0
  * @return void
  */
-function contentpilot_deactivate() {
+function navitto_deactivate() {
 	// カスタム投稿タイプ/リライトルール未使用のため flush_rewrite_rules() は不要（#2 Lifecycle）
 }
-register_deactivation_hook( __FILE__, 'contentpilot_deactivate' );
+register_deactivation_hook( __FILE__, 'navitto_deactivate' );

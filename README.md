@@ -1,10 +1,10 @@
-# ContentPilot v1.0.0
+# Navitto v1.0.0
 
-長文記事の離脱を防ぐ、目次連携型の固定ナビゲーションプラグイン
+設定ゼロで始める固定ナビゲーション。ナビっと表示、サクッと移動。
 
 ## 概要
 
-ContentPilot は WordPress プラグインで、長文記事の読者体験を向上させます。
+Navitto は WordPress プラグインで、長文記事の読者体験を向上させます。
 
 ## 主な機能
 
@@ -37,7 +37,7 @@ GPL v2 or later
 #### 1. WordPressローカル環境を作成
 
 1. Local by Flywheel を起動
-2. 新しいサイトを作成（例: contentpilot-dev）
+2. 新しいサイトを作成（例: navitto-dev）
 3. サイトの作成が完了するまで待機
 
 #### 2. リポジトリをクローン
@@ -46,11 +46,11 @@ GPL v2 or later
 
 - Windows: `cd "C:\Users\[ユーザー名]\Local Sites\[サイト名]\app\public\wp-content\plugins"`
 - macOS: `cd ~/Local Sites/[サイト名]/app/public/wp-content/plugins`
-- 実行: `git clone https://github.com/n-souta/contentpilot.git`
+- 実行: `git clone https://github.com/n-souta/navitto.git`
 
 #### 3. ブランチの切り替えと最新取得
 
-`cd contentpilot` のあと `git checkout develop` および `git pull origin develop`
+`cd navitto` のあと `git checkout develop` および `git pull origin develop`
 
 #### 4. プラグインを有効化
 

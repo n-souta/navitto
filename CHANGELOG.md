@@ -31,4 +31,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/ja/).
 
 - （初回リリースのため特になし）
 
-[1.0.0]: https://github.com/n-souta/contentpilot/releases/tag/v1.0.0
+[1.0.0]: https://github.com/n-souta/navitto/releases/tag/v1.0.0

@@ -1,11 +1,11 @@
 <?php
 /**
- * ContentPilot 目次検出クラス
+ * Navitto 目次検出クラス
  *
  * テーマ内蔵目次・目次プラグインを検出し、
  * 検出優先順位に基づいてフロントエンドに情報を渡す
  *
- * @package ContentPilot
+ * @package Navitto
  * @since   1.1.0
  */
 
@@ -14,18 +14,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class ContentPilot_Detector
+ * Class Navitto_Detector
  *
  * 目次ソースの検出と優先順位管理
  *
  * @since 1.1.0
  */
-class ContentPilot_Detector {
+class Navitto_Detector {
 
 	/**
 	 * シングルトンインスタンス
 	 *
-	 * @var ContentPilot_Detector|null
+	 * @var Navitto_Detector|null
 	 */
 	private static $instance = null;
 
@@ -117,7 +117,7 @@ class ContentPilot_Detector {
 	/**
 	 * シングルトンインスタンスを取得
 	 *
-	 * @return ContentPilot_Detector
+	 * @return Navitto_Detector
 	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
@@ -294,8 +294,8 @@ class ContentPilot_Detector {
 	public function get_fixed_header_data() {
 		return array(
 			'selectors'        => $this->get_fixed_header_selector() ?: array(),
-			'customSelectorPc' => get_theme_mod( 'contentpilot_fixed_header_selector_pc', '' ),
-			'customSelectorSp' => get_theme_mod( 'contentpilot_fixed_header_selector_sp', '' ),
+			'customSelectorPc' => get_theme_mod( 'navitto_fixed_header_selector_pc', '' ),
+			'customSelectorSp' => get_theme_mod( 'navitto_fixed_header_selector_sp', '' ),
 		);
 	}
 

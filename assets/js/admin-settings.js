@@ -1,9 +1,9 @@
 /**
- * ContentPilot 設定画面 JavaScript
+ * Navitto 設定画面 JavaScript
  *
  * 一括適用ボタンの Ajax 処理
  *
- * @package ContentPilot
+ * @package Navitto
  * @since   1.3.0
  */
 
@@ -12,22 +12,22 @@
 
 	$(document).ready(function() {
 
-		var config = window.contentpilotAdmin || {};
+		var config = window.navittoAdmin || {};
 		var i18n   = config.i18n || {};
 
 		// 確認メッセージのマッピング
 		var confirmMessages = {
-			contentpilot_enable_all:  i18n.confirmEnableAll  || 'Are you sure?',
-			contentpilot_disable_all: i18n.confirmDisableAll || 'Are you sure?',
-			contentpilot_enable_long: i18n.confirmEnableLong || 'Are you sure?'
+			navitto_enable_all:  i18n.confirmEnableAll  || 'Are you sure?',
+			navitto_disable_all: i18n.confirmDisableAll || 'Are you sure?',
+			navitto_enable_long: i18n.confirmEnableLong || 'Are you sure?'
 		};
 
 		// 一括適用ボタンのクリック処理
-		$('.contentpilot-bulk-btn').on('click', function() {
+		$('.navitto-bulk-btn').on('click', function() {
 
 			var $btn    = $(this);
 			var action  = $btn.data('action');
-			var $result = $('.contentpilot-bulk-result[data-for="' + action + '"]');
+			var $result = $('.navitto-bulk-result[data-for="' + action + '"]');
 
 			// 確認ダイアログ
 			if ( ! confirm( confirmMessages[action] ) ) {

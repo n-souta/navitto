@@ -1,9 +1,9 @@
 /**
- * ContentPilot フロントエンド CSS
+ * Navitto フロントエンド CSS
  *
  * テーマヘッダー内挿入方式対応
  *
- * @package ContentPilot
+ * @package Navitto
  * @since   1.2.0
  */
 
@@ -12,30 +12,30 @@
    ========================================================================== */
 
 :root {
-	--contentpilot-bg: #ffffff;
-	--contentpilot-text: #999999;  /* 非アクティブの文字色（薄め） */
-	--contentpilot-text-hover: #0073aa;
-	--contentpilot-active-bg: #f5f5f5;
-	--contentpilot-active-text: #0073aa;
-	--contentpilot-border: #e0e0e0;
-	--contentpilot-nav-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* 下方向のみ */
-	--contentpilot-height: 56px;
-	--contentpilot-height-mobile: 48px;
-	--contentpilot-z-index: 99;
-	--contentpilot-font-size: 14px;
-	--contentpilot-radius: 0px;
-	--contentpilot-adminbar-h: 0px;
-	--contentpilot-nav-transition-duration: 0.3s;
+	--navitto-bg: #ffffff;
+	--navitto-text: #999999;  /* 非アクティブの文字色（薄め） */
+	--navitto-text-hover: #0073aa;
+	--navitto-active-bg: #f5f5f5;
+	--navitto-active-text: #0073aa;
+	--navitto-border: #e0e0e0;
+	--navitto-nav-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* 下方向のみ */
+	--navitto-height: 56px;
+	--navitto-height-mobile: 48px;
+	--navitto-z-index: 99;
+	--navitto-font-size: 14px;
+	--navitto-radius: 0px;
+	--navitto-adminbar-h: 0px;
+	--navitto-nav-transition-duration: 0.3s;
 }
 
 /* 管理バーの高さをCSS変数で管理（SWELL方式） */
 .admin-bar {
-	--contentpilot-adminbar-h: var(--wp-admin--admin-bar--height, 32px);
+	--navitto-adminbar-h: var(--wp-admin--admin-bar--height, 32px);
 }
 
 @media screen and (max-width: 782px) {
 	.admin-bar {
-		--contentpilot-adminbar-h: var(--wp-admin--admin-bar--height, 46px);
+		--navitto-adminbar-h: var(--wp-admin--admin-bar--height, 46px);
 	}
 }
 
@@ -43,26 +43,26 @@
    固定ナビゲーション（デフォルト: body追加時のfixed方式）
    ========================================================================== */
 
-.contentpilot-nav {
+.navitto-nav {
 	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
-	z-index: var(--contentpilot-z-index);
-	background: var(--contentpilot-bg);
-	box-shadow: var(--contentpilot-nav-shadow);
-	height: var(--contentpilot-height);
+	z-index: var(--navitto-z-index);
+	background: var(--navitto-bg);
+	box-shadow: var(--navitto-nav-shadow);
+	height: var(--navitto-height);
 	display: flex;
 	align-items: center;
 	opacity: 0;
 	pointer-events: none;
-	transition: opacity var(--contentpilot-nav-transition-duration);
+	transition: opacity var(--navitto-nav-transition-duration);
 	/* 管理バー分を下げる（ない場合は0px） */
-	margin-top: var(--contentpilot-adminbar-h);
+	margin-top: var(--navitto-adminbar-h);
 }
 
 /* ヘッダー内に挿入された場合: fixed解除、相対配置にする */
-.contentpilot-nav.cp-inside-header {
+.navitto-nav.cp-inside-header {
 	position: relative;
 	top: auto;
 	left: auto;
@@ -72,35 +72,35 @@
 	margin-top: 0;
 }
 
-.contentpilot-nav.is-visible {
+.navitto-nav.is-visible {
 	opacity: 1;
 	pointer-events: auto;
 }
 
 /* テーマヘッダーが position:sticky の場合は出現アニメーションなし */
-.contentpilot-nav.cp-theme-header-sticky {
+.navitto-nav.cp-theme-header-sticky {
 	transition-duration: 0s;
 }
 
 /* 下部固定 */
-.contentpilot-nav.cp-pos-bottom {
+.navitto-nav.cp-pos-bottom {
 	top: auto;
 	bottom: 0;
 }
 
 /* 下部固定時: アクティブインジケーターは上側（border-top）に表示 */
-.contentpilot-nav.cp-pos-bottom .contentpilot-nav__link {
+.navitto-nav.cp-pos-bottom .navitto-nav__link {
 	border-bottom: none;
 	border-top: 3px solid transparent;
 }
 
-.contentpilot-nav.cp-pos-bottom .contentpilot-nav__item--active .contentpilot-nav__link {
+.navitto-nav.cp-pos-bottom .navitto-nav__item--active .navitto-nav__link {
 	border-bottom: none;
-	border-top: 3px solid var(--contentpilot-active-text);
+	border-top: 3px solid var(--navitto-active-text);
 }
 
 /* 下部固定時は影を上方向のみに */
-.contentpilot-nav.cp-pos-bottom {
+.navitto-nav.cp-pos-bottom {
 	box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -108,10 +108,10 @@
    ナビゲーション内部（横スクロール対応）
    ========================================================================== */
 
-.contentpilot-nav__inner {
+.navitto-nav__inner {
 	position: relative;
 	width: 100%;
-	max-width: var(--contentpilot-content-width, 100%);
+	max-width: var(--navitto-content-width, 100%);
 	margin: 0 auto;
 	padding: 0 16px;
 	overflow-x: auto;
@@ -121,12 +121,12 @@
 	text-align: center;
 }
 
-.contentpilot-nav__inner::-webkit-scrollbar {
+.navitto-nav__inner::-webkit-scrollbar {
 	display: none;
 }
 
 /* スクロールヒント（左側のみ） */
-.contentpilot-nav__inner.has-scroll-left::before {
+.navitto-nav__inner.has-scroll-left::before {
 	content: '';
 	position: absolute;
 	top: 0;
@@ -135,10 +135,10 @@
 	width: 32px;
 	pointer-events: none;
 	z-index: 2;
-	background: linear-gradient(to right, var(--contentpilot-bg), transparent);
+	background: linear-gradient(to right, var(--navitto-bg), transparent);
 }
 
-.contentpilot-nav__list {
+.navitto-nav__list {
 	display: inline-flex;
 	align-items: center;
 	flex-wrap: nowrap;
@@ -151,45 +151,45 @@
    ナビゲーション項目
    ========================================================================== */
 
-.contentpilot-nav__item {
+.navitto-nav__item {
 	flex-shrink: 0;
 	margin: 0;
 	padding: 0;
 }
 
-.contentpilot-nav__link {
+.navitto-nav__link {
 	display: flex;
 	align-items: center;
-	height: var(--contentpilot-height);
+	height: var(--navitto-height);
 	padding: 0 16px;
-	color: var(--contentpilot-text);
+	color: var(--navitto-text);
 	font-family: inherit;
-	font-size: var(--contentpilot-font-size);
+	font-size: var(--navitto-font-size);
 	font-weight: 500;
 	text-decoration: none;
 	white-space: nowrap;
 	border-bottom: 3px solid transparent;  /* アクティブ時も高さを変えず border のみ変化させる */
-	border-radius: var(--contentpilot-radius);
+	border-radius: var(--navitto-radius);
 	transition: all 0.2s ease;
 }
 
-.contentpilot-nav__link:hover {
-	color: var(--contentpilot-text-hover);
+.navitto-nav__link:hover {
+	color: var(--navitto-text-hover);
 	text-decoration: none;
 }
 
-.contentpilot-nav__item--active .contentpilot-nav__link {
-	color: var(--contentpilot-active-text);
-	background: var(--contentpilot-active-bg);
-	border-bottom: 3px solid var(--contentpilot-active-text);
+.navitto-nav__item--active .navitto-nav__link {
+	color: var(--navitto-active-text);
+	background: var(--navitto-active-bg);
+	border-bottom: 3px solid var(--navitto-active-text);
 }
 
 /* ---------- カスタム項目（外部リンク等） ---------- */
-.contentpilot-nav__item--custom .contentpilot-nav__link {
+.navitto-nav__item--custom .navitto-nav__link {
 	border-bottom-color: transparent;
 	opacity: 0.8;
 }
-.contentpilot-nav__item--custom .contentpilot-nav__link:hover {
+.navitto-nav__item--custom .navitto-nav__link:hover {
 	opacity: 1;
 }
 
@@ -201,38 +201,38 @@
 /* 既存の __inner / __list / __item のスタイルがそのまま適用される */
 
 /* --- 均等割（nav-equal） --- */
-nav.contentpilot-nav.nav-equal .contentpilot-nav__inner {
+nav.navitto-nav.nav-equal .navitto-nav__inner {
 	overflow-x: hidden;
 	overflow-y: hidden;
 }
 
-nav.contentpilot-nav.nav-equal .contentpilot-nav__list {
+nav.navitto-nav.nav-equal .navitto-nav__list {
 	display: flex;
 	flex-wrap: nowrap;
 	width: 100%;
 }
 
-nav.contentpilot-nav.nav-equal .contentpilot-nav__item {
+nav.navitto-nav.nav-equal .navitto-nav__item {
 	flex: 1 1 0%;
 	flex-shrink: 1;
 	min-width: 0;
 	overflow: hidden;
 }
 
-nav.contentpilot-nav.nav-equal .contentpilot-nav__link {
+nav.navitto-nav.nav-equal .navitto-nav__link {
 	display: block;
 	width: 100%;
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: clip;
 	text-align: center;
-	line-height: var(--contentpilot-height);
+	line-height: var(--navitto-height);
 	padding: 0 8px;
 	height: auto;
 }
 
 /* はみ出している場合は左揃え */
-nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
+nav.navitto-nav.nav-equal .navitto-nav__link.is-overflow {
 	text-align: left;
 }
 
@@ -241,97 +241,97 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
    ========================================================================== */
 
 /* モダン */
-.contentpilot-nav.cp-preset-modern {
-	--contentpilot-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	--contentpilot-text: rgba(255, 255, 255, 0.6);   /* 非アクティブ: やや薄い白 */
-	--contentpilot-text-hover: #ffffff;
-	--contentpilot-active-bg: rgba(255, 255, 255, 0.15);
-	--contentpilot-active-text: #ffffff;
-	--contentpilot-border: transparent;
-	--contentpilot-nav-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);  /* 下方向のみ */
+.navitto-nav.cp-preset-modern {
+	--navitto-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	--navitto-text: rgba(255, 255, 255, 0.6);   /* 非アクティブ: やや薄い白 */
+	--navitto-text-hover: #ffffff;
+	--navitto-active-bg: rgba(255, 255, 255, 0.15);
+	--navitto-active-text: #ffffff;
+	--navitto-border: transparent;
+	--navitto-nav-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);  /* 下方向のみ */
 	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.contentpilot-nav.cp-preset-modern .contentpilot-nav__item--active .contentpilot-nav__link {
+.navitto-nav.cp-preset-modern .navitto-nav__item--active .navitto-nav__link {
 	border-bottom-color: #ffffff;
 }
 
-.contentpilot-nav.cp-preset-modern.cp-pos-bottom .contentpilot-nav__item--active .contentpilot-nav__link {
+.navitto-nav.cp-preset-modern.cp-pos-bottom .navitto-nav__item--active .navitto-nav__link {
 	border-top-color: #ffffff;
 }
 
 /* フラット */
-.contentpilot-nav.cp-preset-flat {
-	--contentpilot-bg: #f8f9fa;
-	--contentpilot-text: #868e96;   /* 非アクティブ: ミッドグレー */
-	--contentpilot-text-hover: #228be6;
-	--contentpilot-active-bg: #228be6;
-	--contentpilot-active-text: #ffffff;
-	--contentpilot-border: #dee2e6;
-	--contentpilot-nav-shadow: none;
+.navitto-nav.cp-preset-flat {
+	--navitto-bg: #f8f9fa;
+	--navitto-text: #868e96;   /* 非アクティブ: ミッドグレー */
+	--navitto-text-hover: #228be6;
+	--navitto-active-bg: #228be6;
+	--navitto-active-text: #ffffff;
+	--navitto-border: #dee2e6;
+	--navitto-nav-shadow: none;
 }
 
-.contentpilot-nav.cp-preset-flat .contentpilot-nav__item--active .contentpilot-nav__link {
+.navitto-nav.cp-preset-flat .navitto-nav__item--active .navitto-nav__link {
 	border-bottom-color: transparent;
 	border-radius: 4px;
 }
 
-.contentpilot-nav.cp-preset-flat.cp-pos-bottom .contentpilot-nav__item--active .contentpilot-nav__link {
+.navitto-nav.cp-preset-flat.cp-pos-bottom .navitto-nav__item--active .navitto-nav__link {
 	border-top-color: transparent;  /* フラットは背景でアクティブ表現 */
 }
 
 /* ダーク */
-.contentpilot-nav.cp-preset-dark {
-	--contentpilot-bg: #1a1a2e;
-	--contentpilot-text: rgba(255, 255, 255, 0.5);  /* 非アクティブ: 薄い白 */
-	--contentpilot-text-hover: #e94560;
-	--contentpilot-active-bg: rgba(233, 69, 96, 0.15);
-	--contentpilot-active-text: #e94560;
-	--contentpilot-border: #16213e;
-	--contentpilot-nav-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);  /* 下方向のみ */
+.navitto-nav.cp-preset-dark {
+	--navitto-bg: #1a1a2e;
+	--navitto-text: rgba(255, 255, 255, 0.5);  /* 非アクティブ: 薄い白 */
+	--navitto-text-hover: #e94560;
+	--navitto-active-bg: rgba(233, 69, 96, 0.15);
+	--navitto-active-text: #e94560;
+	--navitto-border: #16213e;
+	--navitto-nav-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);  /* 下方向のみ */
 	background: #1a1a2e;
 }
 
-/* テーマ準拠: JS が --contentpilot-theme-color / --contentpilot-theme-text / --contentpilot-theme-bg / --contentpilot-theme-active-bg を設定 */
-.contentpilot-nav.cp-preset-theme {
-	--contentpilot-theme-color: currentColor;          /* メインカラー: JS 未実行時フォールバック */
-	--contentpilot-theme-text: currentColor;            /* 文字色: JS 未実行時フォールバック */
-	--contentpilot-theme-bg: #ffffff;                  /* ナビ背景（ヘッダー色）: JS 未実行時フォールバック */
-	--contentpilot-theme-active-bg: rgba(0, 0, 0, 0.08); /* アクティブ項目背景（ヘッダー色を少し濃く）: JS が設定 */
-	--contentpilot-bg: var(--contentpilot-theme-bg);
-	--contentpilot-text: var(--contentpilot-theme-text);
-	--contentpilot-text-hover: var(--contentpilot-theme-text);
-	--contentpilot-active-text: var(--contentpilot-theme-text);
-	--contentpilot-border: var(--contentpilot-theme-color);
-	--contentpilot-nav-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);  /* 下方向のみ */
+/* テーマ準拠: JS が --navitto-theme-color / --navitto-theme-text / --navitto-theme-bg / --navitto-theme-active-bg を設定 */
+.navitto-nav.cp-preset-theme {
+	--navitto-theme-color: currentColor;          /* メインカラー: JS 未実行時フォールバック */
+	--navitto-theme-text: currentColor;            /* 文字色: JS 未実行時フォールバック */
+	--navitto-theme-bg: #ffffff;                  /* ナビ背景（ヘッダー色）: JS 未実行時フォールバック */
+	--navitto-theme-active-bg: rgba(0, 0, 0, 0.08); /* アクティブ項目背景（ヘッダー色を少し濃く）: JS が設定 */
+	--navitto-bg: var(--navitto-theme-bg);
+	--navitto-text: var(--navitto-theme-text);
+	--navitto-text-hover: var(--navitto-theme-text);
+	--navitto-active-text: var(--navitto-theme-text);
+	--navitto-border: var(--navitto-theme-color);
+	--navitto-nav-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);  /* 下方向のみ */
 	border-bottom: none;
 }
 
 /* テーマ準拠: 非アクティブは opacity で薄く */
-.contentpilot-nav.cp-preset-theme .contentpilot-nav__item:not(.contentpilot-nav__item--active) .contentpilot-nav__link {
+.navitto-nav.cp-preset-theme .navitto-nav__item:not(.navitto-nav__item--active) .navitto-nav__link {
 	opacity: 0.65;
 }
 
-.contentpilot-nav.cp-preset-theme .contentpilot-nav__item--active .contentpilot-nav__link {
+.navitto-nav.cp-preset-theme .navitto-nav__item--active .navitto-nav__link {
 	opacity: 1;
 }
 
-.contentpilot-nav.cp-preset-theme.cp-pos-bottom {
+.navitto-nav.cp-preset-theme.cp-pos-bottom {
 	border-top: none;
 }
 
-.contentpilot-nav.cp-preset-theme .contentpilot-nav__link:hover {
+.navitto-nav.cp-preset-theme .navitto-nav__link:hover {
 	opacity: 0.85;
 }
 
-.contentpilot-nav.cp-preset-theme .contentpilot-nav__item--active .contentpilot-nav__link {
-	background: var(--contentpilot-theme-active-bg);
-	border-bottom: 3px solid var(--contentpilot-theme-color);
+.navitto-nav.cp-preset-theme .navitto-nav__item--active .navitto-nav__link {
+	background: var(--navitto-theme-active-bg);
+	border-bottom: 3px solid var(--navitto-theme-color);
 }
 
-.contentpilot-nav.cp-preset-theme.cp-pos-bottom .contentpilot-nav__item--active .contentpilot-nav__link {
+.navitto-nav.cp-preset-theme.cp-pos-bottom .navitto-nav__item--active .navitto-nav__link {
 	border-bottom: none;
-	border-top: 3px solid var(--contentpilot-theme-color);
+	border-top: 3px solid var(--navitto-theme-color);
 }
 
 /* ==========================================================================
@@ -339,63 +339,63 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
    ========================================================================== */
 
 @media (max-width: 768px) {
-	.contentpilot-nav {
-		height: var(--contentpilot-height-mobile);
+	.navitto-nav {
+		height: var(--navitto-height-mobile);
 	}
 
-	.contentpilot-nav__inner {
+	.navitto-nav__inner {
 		padding: 0 12px;
 	}
 
-	.contentpilot-nav__link {
-		height: var(--contentpilot-height-mobile);
+	.navitto-nav__link {
+		height: var(--navitto-height-mobile);
 		padding: 0 12px;
 		font-size: 13px;
 	}
 
 	/* モバイルでも均等割を維持 */
-	nav.contentpilot-nav.nav-equal .contentpilot-nav__inner {
+	nav.navitto-nav.nav-equal .navitto-nav__inner {
 		overflow-x: hidden;
 	}
 
-	nav.contentpilot-nav.nav-equal .contentpilot-nav__list {
+	nav.navitto-nav.nav-equal .navitto-nav__list {
 		display: flex;
 		width: 100%;
 	}
 
-	nav.contentpilot-nav.nav-equal .contentpilot-nav__item {
+	nav.navitto-nav.nav-equal .navitto-nav__item {
 		flex: 1 1 0%;
 		flex-shrink: 1;
 		min-width: 0;
 	}
 
-	nav.contentpilot-nav.nav-equal .contentpilot-nav__link {
+	nav.navitto-nav.nav-equal .navitto-nav__link {
 		padding: 0 4px;
-		line-height: var(--contentpilot-height-mobile);
+		line-height: var(--navitto-height-mobile);
 	}
 }
 
 /* ==========================================================================
    見出しのスクロールオフセット
-   JS が --contentpilot-scroll-offset を動的に設定
+   JS が --navitto-scroll-offset を動的に設定
    ========================================================================== */
 
 :root {
-	--contentpilot-scroll-offset: 100px;
+	--navitto-scroll-offset: 100px;
 }
 
 /* scroll-padding-top: html に設定するだけで
    scrollIntoView / アンカーリンクのずれを自動補正 */
 html {
-	scroll-padding-top: var(--contentpilot-scroll-offset);
+	scroll-padding-top: var(--navitto-scroll-offset);
 }
 
 /* 下部配置の場合は不要 */
-body.contentpilot-pos-bottom {
+body.navitto-pos-bottom {
 	/* scroll-padding-top を無効化 */
 }
-body.contentpilot-pos-bottom ~ html,
-html:has(body.contentpilot-pos-bottom) {
+body.navitto-pos-bottom ~ html,
+html:has(body.navitto-pos-bottom) {
 	scroll-padding-top: 0;
 }
 
@@ -404,22 +404,22 @@ html:has(body.contentpilot-pos-bottom) {
    ヘッダー内挿入方式ではヘッダー自体が高くなるので不要
    ========================================================================== */
 
-body.contentpilot-active {
-	padding-top: var(--contentpilot-height);
+body.navitto-active {
+	padding-top: var(--navitto-height);
 }
 
-body.contentpilot-active.contentpilot-bottom {
+body.navitto-active.navitto-bottom {
 	padding-top: 0;
-	padding-bottom: var(--contentpilot-height);
+	padding-bottom: var(--navitto-height);
 }
 
 @media (max-width: 768px) {
-	body.contentpilot-active {
-		padding-top: var(--contentpilot-height-mobile);
+	body.navitto-active {
+		padding-top: var(--navitto-height-mobile);
 	}
-	body.contentpilot-active.contentpilot-bottom {
+	body.navitto-active.navitto-bottom {
 		padding-top: 0;
-		padding-bottom: var(--contentpilot-height-mobile);
+		padding-bottom: var(--navitto-height-mobile);
 	}
 }
 
@@ -428,10 +428,10 @@ body.contentpilot-active.contentpilot-bottom {
    ========================================================================== */
 
 @media print {
-	.contentpilot-nav {
+	.navitto-nav {
 		display: none !important;
 	}
-	body.contentpilot-active {
+	body.navitto-active {
 		padding-top: 0 !important;
 		padding-bottom: 0 !important;
 	}

@@ -1,7 +1,7 @@
-# ContentPilot - AI Agent Instructions
+# Navitto - AI Agent Instructions
 
 ## 基本
-- **プラグイン名**: ContentPilot（H2見出しベースの固定ナビゲーション）
+- **プラグイン名**: Navitto（ナビット）— 設定ゼロで始める固定ナビゲーション
 - **WordPress**: 6.0+ / **PHP**: 7.4+
 - 実装時は本ファイルのルールと `@PROJECT_STRUCTURE.md` に従うこと
 
@@ -15,10 +15,10 @@
 5. SQL → `$wpdb->prepare()`
 
 ### 命名規則
-- プレフィックス: `contentpilot_`
-- クラス: `ContentPilot_ClassName`
-- メタキー: `_contentpilot_key_name`
-- CSS: BEM `contentpilot-nav__item--active`
+- プレフィックス: `navitto_`
+- クラス: `Navitto_ClassName`
+- メタキー: `_navitto_key_name`
+- CSS: BEM `navitto-nav__item--active`
 
 ### 禁止
 - `eval()`, `base64`, 直接SQL, プレフィックスなしのグローバル

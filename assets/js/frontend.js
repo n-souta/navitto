@@ -1,16 +1,16 @@
 /**
- * ContentPilot フロントエンド JavaScript
+ * Navitto フロントエンド JavaScript
  *
  * テーマのヘッダー構造に挿入する方式
  *
- * @package ContentPilot
+ * @package Navitto
  * @since   1.2.0
  */
 
 (function($) {
 	'use strict';
 
-	var ContentPilot = {
+	var Navitto = {
 
 		headings: [],
 		$nav: null,
@@ -40,8 +40,8 @@
 		init: function() {
 			var self = this;
 
-			if (typeof contentpilotData !== 'undefined') {
-				$.extend(this.settings, contentpilotData);
+			if (typeof navittoData !== 'undefined') {
+				$.extend(this.settings, navittoData);
 			}
 
 			$(document).ready(function() {
@@ -153,7 +153,7 @@
 		assignIds: function() {
 			this.headings.forEach(function(heading, index) {
 				if (!heading.id) {
-					heading.id = 'contentpilot-h2-' + index;
+					heading.id = 'navitto-h2-' + index;
 					heading.element.setAttribute('id', heading.id);
 				}
 			});
@@ -245,30 +245,30 @@
 			var s = this.settings;
 			var presetClass = s.preset ? ' cp-preset-' + s.preset : '';
 			var posClass = s.position === 'bottom' ? ' cp-pos-bottom' : '';
-			var navWidth = (typeof contentpilotData !== 'undefined' && contentpilotData.navWidth) || 'scroll';
+			var navWidth = (typeof navittoData !== 'undefined' && navittoData.navWidth) || 'scroll';
 			var widthClass = ' nav-' + navWidth;
 
-			var html = '<nav class="contentpilot-nav' + presetClass + posClass + widthClass + '" role="navigation">';
-			html += '<div class="contentpilot-nav__inner">';
-			html += '<ul class="contentpilot-nav__list">';
+			var html = '<nav class="navitto-nav' + presetClass + posClass + widthClass + '" role="navigation">';
+			html += '<div class="navitto-nav__inner">';
+			html += '<ul class="navitto-nav__list">';
 
 			this.headings.forEach(function(heading, index) {
-				var activeClass = index === 0 ? ' contentpilot-nav__item--active' : '';
-				html += '<li class="contentpilot-nav__item' + activeClass + '">';
-				html += '<a href="#' + self.escapeAttr(heading.id) + '" class="contentpilot-nav__link">';
+				var activeClass = index === 0 ? ' navitto-nav__item--active' : '';
+				html += '<li class="navitto-nav__item' + activeClass + '">';
+				html += '<a href="#' + self.escapeAttr(heading.id) + '" class="navitto-nav__link">';
 				html += self.escapeHtml(heading.text);
 				html += '</a></li>';
 			});
 
 			// カスタム項目（外部リンク等）を末尾に追加
-			var customItems = (typeof contentpilotData !== 'undefined' && contentpilotData.customItems) || [];
+			var customItems = (typeof navittoData !== 'undefined' && navittoData.customItems) || [];
 			if (customItems && customItems.length) {
 				customItems.forEach(function(item) {
 					if (!item.label && !item.url) return;
 					var label = item.label || item.url;
 					var target = item.newtab ? ' target="_blank" rel="noopener noreferrer"' : '';
-					html += '<li class="contentpilot-nav__item contentpilot-nav__item--custom">';
-					html += '<a href="' + self.escapeAttr(item.url || '#') + '" class="contentpilot-nav__link contentpilot-nav__link--custom"' + target + '>';
+					html += '<li class="navitto-nav__item navitto-nav__item--custom">';
+					html += '<a href="' + self.escapeAttr(item.url || '#') + '" class="navitto-nav__link navitto-nav__link--custom"' + target + '>';
 					html += self.escapeHtml(label);
 					html += '</a></li>';
 				});
@@ -285,13 +285,15 @@
 			} else if (this.insertMode === 'after' && this.$headerParent) {
 				// ヘッダーの直後に追加
 				this.$headerParent.after(this.$nav);
+				$('body').addClass('navitto-active');
 			} else {
 				// bodyに追加（従来方式）
 				$('body').append(this.$nav);
+				$('body').addClass('navitto-active');
 			}
 
 			if (s.position === 'bottom') {
-				$('body').addClass('contentpilot-bottom');
+				$('body').addClass('navitto-bottom');
 			}
 
 			this.detectContentWidth();
@@ -365,7 +367,7 @@
 				}
 			}
 
-			this.$nav[0].style.setProperty('--contentpilot-nav-transition-duration', duration + 's');
+			this.$nav[0].style.setProperty('--navitto-nav-transition-duration', duration + 's');
 			if (themeHeaderSticky) {
 				this.$nav.addClass('cp-theme-header-sticky');
 				this.$nav.addClass('is-visible');
@@ -495,16 +497,16 @@
 
 			/* ----- CSS変数にセット ----- */
 			if (mainColor) {
-				nav.style.setProperty('--contentpilot-theme-color', mainColor);
+				nav.style.setProperty('--navitto-theme-color', mainColor);
 			}
 			if (textColor) {
-				nav.style.setProperty('--contentpilot-theme-text', textColor);
+				nav.style.setProperty('--navitto-theme-text', textColor);
 			}
 			if (bgColor) {
-				nav.style.setProperty('--contentpilot-theme-bg', bgColor);
+				nav.style.setProperty('--navitto-theme-bg', bgColor);
 			}
 			if (activeBg) {
-				nav.style.setProperty('--contentpilot-theme-active-bg', activeBg);
+				nav.style.setProperty('--navitto-theme-active-bg', activeBg);
 			}
 		},
 
@@ -591,7 +593,7 @@
 				if ($el.length > 0 && $el.is(':visible')) {
 					var width = $el.outerWidth();
 					if (width > 0) {
-						this.$nav[0].style.setProperty('--contentpilot-content-width', width + 'px');
+						this.$nav[0].style.setProperty('--navitto-content-width', width + 'px');
 						this.$nav[0].style.setProperty('--content-width', width + 'px');
 						return;
 					}
@@ -604,13 +606,13 @@
 		 * 均等割モード: テキストがはみ出しているアイテムを検出
 		 */
 		checkOverflow: function() {
-			var navWidth = (typeof contentpilotData !== 'undefined' && contentpilotData.navWidth) || 'scroll';
+			var navWidth = (typeof navittoData !== 'undefined' && navittoData.navWidth) || 'scroll';
 			if (navWidth !== 'equal') return;
 
 			// レイアウト確定後に実行
 			var self = this;
 			requestAnimationFrame(function() {
-				self.$nav.find('.contentpilot-nav__link').each(function() {
+				self.$nav.find('.navitto-nav__link').each(function() {
 					var el = this;
 					// scrollWidth > clientWidth ではみ出し判定
 					if (el.scrollWidth > el.clientWidth) {
@@ -655,7 +657,7 @@
 
 		updateScrollHint: function() {
 			if (!this.$nav) return;
-			var $inner = this.$nav.find('.contentpilot-nav__inner');
+			var $inner = this.$nav.find('.navitto-nav__inner');
 			if ($inner.length === 0) return;
 
 			var el = $inner[0];
@@ -708,11 +710,11 @@
 			var self = this;
 			var resizeTimer = null;
 
-			$(window).on('scroll.contentpilot', function() {
+			$(window).on('scroll.navitto', function() {
 				self.onScroll();
 			});
 
-			$(window).on('resize.contentpilot', function() {
+			$(window).on('resize.navitto', function() {
 				// デバウンス: リサイズ完了後に再配置
 				clearTimeout(resizeTimer);
 				resizeTimer = setTimeout(function() {
@@ -725,16 +727,16 @@
 				}, 150);
 			});
 
-			this.$nav.find('.contentpilot-nav__inner').on('scroll', function() {
+			this.$nav.find('.navitto-nav__inner').on('scroll', function() {
 				self.updateScrollHint();
 			});
 
-			this.$nav.on('click', '.contentpilot-nav__link', function(e) {
+			this.$nav.on('click', '.navitto-nav__link', function(e) {
 				var $link = $(this);
 				var $item = $link.parent();
 
 				// カスタム項目（外部リンク等）はデフォルト動作（ページ遷移）を許可
-				if ($item.hasClass('contentpilot-nav__item--custom')) {
+				if ($item.hasClass('navitto-nav__item--custom')) {
 					return; // preventDefault しない
 				}
 
@@ -742,8 +744,8 @@
 				var id = $link.attr('href').slice(1);
 				var idx = $item.index();
 
-				self.$nav.find('.contentpilot-nav__item:not(.contentpilot-nav__item--custom)').removeClass('contentpilot-nav__item--active');
-				$item.addClass('contentpilot-nav__item--active');
+				self.$nav.find('.navitto-nav__item:not(.navitto-nav__item--custom)').removeClass('navitto-nav__item--active');
+				$item.addClass('navitto-nav__item--active');
 				self.lastActiveIndex = idx;
 				self._clickedIndex = idx;
 				self._clickedTime = Date.now();
@@ -812,7 +814,7 @@
 				navBottom = this.getScrollOffset() - 20; // getScrollOffset は +40 しているので -20 で +20 相当
 			}
 			var offset = navBottom + 20;
-			document.documentElement.style.setProperty('--contentpilot-scroll-offset', offset + 'px');
+			document.documentElement.style.setProperty('--navitto-scroll-offset', offset + 'px');
 		},
 
 		onScroll: function() {
@@ -854,9 +856,9 @@
 				}
 			});
 
-			var $items = this.$nav.find('.contentpilot-nav__item:not(.contentpilot-nav__item--custom)');
-			$items.removeClass('contentpilot-nav__item--active');
-			var $active = $items.eq(activeIndex).addClass('contentpilot-nav__item--active');
+			var $items = this.$nav.find('.navitto-nav__item:not(.navitto-nav__item--custom)');
+			$items.removeClass('navitto-nav__item--active');
+			var $active = $items.eq(activeIndex).addClass('navitto-nav__item--active');
 
 			// カレントが変わったらセンタリング
 			if (activeIndex !== this.lastActiveIndex) {
@@ -871,7 +873,7 @@
 		centerActiveItem: function($activeItem) {
 			if (!$activeItem || $activeItem.length === 0) return;
 
-			var $inner = this.$nav.find('.contentpilot-nav__inner');
+			var $inner = this.$nav.find('.navitto-nav__inner');
 			if ($inner.length === 0) return;
 
 			var innerEl = $inner[0];
@@ -969,6 +971,6 @@
 		}
 	};
 
-	ContentPilot.init();
+	Navitto.init();
 
 })(jQuery);
