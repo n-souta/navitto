@@ -286,10 +286,12 @@
 				// ヘッダーの直後に追加
 				this.$headerParent.after(this.$nav);
 				$('body').addClass('navitto-active');
+				this.updateBodyPaddingClass();
 			} else {
 				// bodyに追加（従来方式）
 				$('body').append(this.$nav);
 				$('body').addClass('navitto-active');
+				this.updateBodyPaddingClass();
 			}
 
 			if (s.position === 'bottom') {
@@ -374,6 +376,45 @@
 				this.updateScrollMargin();
 			} else {
 				this.$nav.removeClass('cp-theme-header-sticky');
+			}
+		},
+
+		/**
+		 * body に padding-top/bottom を付与すべきかどうか。
+		 * ヘッダーが固定されていないテーマでは余白になるため、その場合は false。
+		 */
+		needsBodyPadding: function() {
+			if (this.insertMode === 'after' && this.$headerParent && this.$headerParent.length) {
+				var pos = getComputedStyle(this.$headerParent[0]).position || '';
+				return pos === 'fixed' || pos === 'sticky';
+			}
+			if (this.insertMode === 'body') {
+				// body 直下に固定でないヘッダーがあれば padding を付けない
+				var headerSelectors = ['header', '[role="banner"]', '.site-header', '#masthead', '.l-header', '#header'];
+				for (var i = 0; i < headerSelectors.length; i++) {
+					var el = document.querySelector(headerSelectors[i]);
+					if (el && el.offsetParent !== null) {
+						var pos = getComputedStyle(el).position || '';
+						if (pos !== 'fixed' && pos !== 'sticky') {
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+			return false;
+		},
+
+		/**
+		 * body.navitto-active 時、padding を付与するかは needsBodyPadding に従いクラスを切り替える
+		 */
+		updateBodyPaddingClass: function() {
+			var $body = $('body');
+			if (!$body.hasClass('navitto-active')) return;
+			if (this.needsBodyPadding()) {
+				$body.addClass('navitto-body-padding');
+			} else {
+				$body.removeClass('navitto-body-padding');
 			}
 		},
 
@@ -694,15 +735,21 @@
 			// ナビをDOMから一旦外す
 			this.$nav.detach();
 
+			var $body = $('body');
 			if (this.insertMode === 'inside' && this.$headerParent) {
 				this.$headerParent.append(this.$nav);
 				this.$nav.addClass('cp-inside-header');
+				$body.removeClass('navitto-active navitto-body-padding');
 			} else if (this.insertMode === 'after' && this.$headerParent) {
 				this.$headerParent.after(this.$nav);
 				this.$nav.removeClass('cp-inside-header');
+				$body.addClass('navitto-active');
+				this.updateBodyPaddingClass();
 			} else {
 				$('body').append(this.$nav);
 				this.$nav.removeClass('cp-inside-header');
+				$body.addClass('navitto-active');
+				this.updateBodyPaddingClass();
 			}
 		},
 

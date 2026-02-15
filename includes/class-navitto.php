@@ -122,8 +122,11 @@ class Navitto_Main {
 			$trigger_data['scrollPx'] = absint( get_post_meta( $post_id, '_navitto_trigger_scroll_px', true ) ) ?: 300;
 		}
 
-		// プリセット（カスタマイザーで一括設定）
+		// プリセット（カスタマイザーで一括設定。現在はシンプル・テーマ準拠のみ）
 		$preset = get_theme_mod( 'navitto_preset', 'simple' );
+		if ( ! in_array( $preset, array( 'simple', 'theme' ), true ) ) {
+			$preset = 'simple';
+		}
 
 		// 固定ナビの表示方法（投稿編集画面でのみ設定）
 		$nav_width = get_post_meta( $post_id, '_navitto_nav_width', true );
@@ -174,8 +177,6 @@ class Navitto_Main {
 	 */
 	private function generate_inline_css() {
 		$font_size  = get_theme_mod( 'navitto_font_size', 14 );
-		$radius     = get_theme_mod( 'navitto_border_radius', false );
-		$shadow     = get_theme_mod( 'navitto_shadow', true );
 		$nav_height = get_theme_mod( 'navitto_nav_height', 'medium' );
 
 		$css = ':root {';
@@ -195,12 +196,6 @@ class Navitto_Main {
 		// カスタマイザーでフォントサイズを個別指定している場合は上書き
 		if ( intval( $font_size ) !== 14 ) {
 			$css .= '--navitto-font-size:' . intval( $font_size ) . 'px;';
-		}
-		if ( $radius ) {
-			$css .= '--navitto-radius:4px;';
-		}
-		if ( ! $shadow ) {
-			$css .= '--navitto-nav-shadow:none;';
 		}
 		$css .= '}';
 

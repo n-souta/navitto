@@ -426,9 +426,6 @@ class Navitto_Admin {
 			'type'    => 'select',
 			'choices' => array(
 				'simple' => __( 'シンプル', 'navitto' ),
-				'modern' => __( 'モダン', 'navitto' ),
-				'flat'   => __( 'フラット', 'navitto' ),
-				'dark'   => __( 'ダーク', 'navitto' ),
 				'theme'  => __( 'テーマ準拠', 'navitto' ),
 			),
 		) );
@@ -474,28 +471,6 @@ class Navitto_Admin {
 			'section'     => 'navitto_design',
 			'type'        => 'number',
 			'input_attrs' => array( 'min' => 10, 'max' => 20, 'step' => 1 ),
-		) );
-
-		// 角丸
-		$wp_customize->add_setting( 'navitto_border_radius', array(
-			'default'           => false,
-			'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
-		) );
-		$wp_customize->add_control( 'navitto_border_radius', array(
-			'label'   => __( '角丸にする', 'navitto' ),
-			'section' => 'navitto_design',
-			'type'    => 'checkbox',
-		) );
-
-		// 影
-		$wp_customize->add_setting( 'navitto_shadow', array(
-			'default'           => true,
-			'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
-		) );
-		$wp_customize->add_control( 'navitto_shadow', array(
-			'label'   => __( '影を表示する', 'navitto' ),
-			'section' => 'navitto_design',
-			'type'    => 'checkbox',
 		) );
 
 		// --- セクション: 共通設定 ---
@@ -558,7 +533,7 @@ class Navitto_Admin {
 	   ========================================================================= */
 
 	public function sanitize_preset( $value ) {
-		$valid = array( 'simple', 'modern', 'flat', 'dark', 'theme' );
+		$valid = array( 'simple', 'theme' );
 		return in_array( $value, $valid, true ) ? $value : 'simple';
 	}
 
