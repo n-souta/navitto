@@ -1,15 +1,15 @@
-# WordPress固定ヘッダープラグイン 仕様書
+# Navitto プラグイン仕様書
 
 ## プロジェクト概要
 
 ### プラグイン名
-**ContentPilot**（コンテンツパイロット）
+**Navitto**
 
 ### バージョン
 1.0.0
 
 ### キャッチコピー
-「長文記事の読者を、迷わせない。目次連携型の賢いナビゲーション」
+「設定ゼロで始める固定ナビゲーション」／「ナビっと表示、サクッと移動。」
 
 ### ターゲットユーザー
 - 長文記事（5000文字以上）を書くブロガー
@@ -37,13 +37,13 @@
 4. 豊富なデザインと拡張性
 5. ブロックエディター・クラシックエディタ両対応
 
-### ContentPilotの差別化ポイント
-| 項目 | Unify Navigation | ContentPilot |
+### Navittoの差別化ポイント
+| 項目 | Unify Navigation | Navitto |
 |------|------------------|--------------|
 | **設定の手間** | 手動で項目を設定 | 目次から自動連携 |
 | **対象記事** | 全記事 | 長文記事に特化 |
 | **ターゲット** | デザイン重視 | UX・離脱防止重視 |
-| **コンセプト** | 多機能・高機能 | シンプル・実用性 |
+| **コンセプト** | 多機能・高機能 | Navitto：シンプル・実用性 |
 
 ---
 
@@ -83,7 +83,7 @@
 - ユーザーが選択しない場合、全H2を表示（横スクロール対応）
 
 **選択UI:**
-- 投稿編集画面のサイドバーに「ContentPilot設定」パネルを配置
+- 投稿編集画面のサイドバーに「Navitto」メタボックスを配置
 - チェックボックスで表示するH2を選択
 - 選択された見出しのみ固定ナビに表示
 
@@ -94,13 +94,13 @@
 
 **技術仕様:**
 ```css
-.contentpilot-nav {
+.navitto-nav {
   display: flex;
   overflow-x: auto;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE/Edge */
 }
-.contentpilot-nav::-webkit-scrollbar {
+.navitto-nav::-webkit-scrollbar {
   display: none; /* Chrome/Safari */
 }
 ```
@@ -111,21 +111,17 @@
 **概要:**  
 主要WordPressテーマに馴染むデザインを複数用意し、簡単に切り替え可能
 
-**プリセット一覧（初期版）:**
+**プリセット一覧:**
 1. **シンプル** - 白背景、黒テキスト、ミニマル
-2. **モダン** - グラデーション背景、影付き
-3. **フラット** - フラットデザイン、明るい色
-4. **ダーク** - 黒背景、白テキスト
-5. **テーマ準拠** - SWELL/JIN等のテーマカラーを自動検出
+2. **テーマ準拠** - SWELL/JIN等のテーマカラーを自動検出
+（追加プリセットは追加コンテンツで提供する場合あり）
 
 **カスタマイズ可能な項目:**
-- 背景色
-- テキスト色
-- アクティブ項目の色
-- フォントサイズ
-- 角丸の有無
-- 影の有無
 - 配置位置（上部固定 or 下部固定）
+- ナビの高さ（小・中・大）
+- 最小文字数・スクロール表示開始位置
+- テーマ固定ヘッダーセレクタ（PC/SP）
+- box-shadow はテーマの `--navitto-nav-shadow` に従う（カスタマイザーでのオン/オフはなし）
 
 **設定UI:**
 - WordPress カスタマイザーで設定
@@ -152,44 +148,52 @@
 
 ### ファイル構成
 ```
-contentpilot/
-├── contentpilot.php              # メインファイル
-├── readme.txt                     # WordPress公式用README
-├── LICENSE                        # ライセンス
+navitto/
+├── navitto.php                  # メインファイル
+├── uninstall.php                # アンインストール処理
+├── LICENSE                      # ライセンス
 ├── assets/
 │   ├── css/
-│   │   ├── admin.css             # 管理画面用CSS
-│   │   └── frontend.css          # フロントエンド用CSS
-│   ├── js/
-│   │   ├── admin.js              # 管理画面用JS
-│   │   └── frontend.js           # フロントエンド用JS
-│   └── images/
-│       └── icon.svg              # プラグインアイコン
+│   │   ├── frontend.css        # フロントエンド用CSS
+│   │   └── admin-metabox.css    # メタボックス用CSS
+│   └── js/
+│       ├── frontend.js         # フロントエンド用JS
+│       ├── admin-settings.js    # 設定ページ用JS
+│       └── admin-metabox.js     # メタボックス用JS
 ├── includes/
-│   ├── class-contentpilot.php    # メインクラス
-│   ├── class-detector.php        # 目次検出クラス
-│   ├── class-settings.php        # 設定管理クラス
-│   └── class-renderer.php        # HTML生成クラス
+│   ├── class-navitto.php        # メインクラス
+│   ├── class-navitto-admin.php   # 管理画面・メタボックス・カスタマイザー
+│   ├── class-navitto-settings.php # 設定ページ
+│   └── class-navitto-detector.php # 目次検出クラス
 └── languages/
-    └── contentpilot-ja.po        # 日本語翻訳ファイル
+    └── navitto-ja.po            # 日本語翻訳（任意）
 ```
 
 ### データベース設計
 **カスタムフィールド（投稿メタデータ）:**
 ```php
 // 各投稿に保存するメタデータ
-_contentpilot_enabled      // プラグインの有効/無効（boolean）
-_contentpilot_selected_h2  // 選択されたH2のインデックス配列
-_contentpilot_preset       // 使用するデザインプリセット名
-_contentpilot_custom_css   // カスタムCSS（オプション）
+_navitto_display_mode     // 表示モード（show_all / select / hide）
+_navitto_enabled          // 後方互換用（0/1）
+_navitto_selected_h2      // 選択されたH2のインデックス配列
+_navitto_h2_custom_texts  // H2のカスタムラベル
+_navitto_trigger_type     // 表示開始（immediate / first_selected / nth_selected / scroll_px）
+_navitto_trigger_nth, _navitto_trigger_scroll_px
+_navitto_nav_width        // scroll / equal
+_navitto_custom_items     // カスタム項目（外部リンク等）
 ```
 
-**オプション（サイト全体の設定）:**
+**オプション・テーマ mod（サイト全体の設定）:**
 ```php
-contentpilot_default_preset      // デフォルトのデザインプリセット
-contentpilot_position            // 配置位置（top/bottom）
-contentpilot_auto_detect_theme   // テーマカラー自動検出（boolean）
-contentpilot_min_word_count      // 最小文字数（デフォルト3000）
+navitto_default_enabled   // 新規投稿のデフォルト有効化
+navitto_db_version        // DBバージョン（アップグレード用）
+// カスタマイザー（theme_mod）
+navitto_preset            // シンプル / theme
+navitto_position          // top / bottom
+navitto_nav_height        // small / medium / large
+navitto_min_word_count    // 最小文字数（デフォルト3000）
+navitto_show_after_scroll
+navitto_fixed_header_selector_pc / _sp
 ```
 
 ---
@@ -266,7 +270,7 @@ const h2Elements = document.querySelectorAll('.entry-content h2');
 
 ```javascript
 // アンカーリンククリック時
-document.querySelectorAll('.contentpilot-nav a').forEach(link => {
+document.querySelectorAll('.navitto-nav a').forEach(link => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
     const targetId = link.getAttribute('href').slice(1);
@@ -319,7 +323,7 @@ document.querySelectorAll('.contentpilot-nav a').forEach(link => {
 #### 1. 投稿編集画面のサイドバー
 ```
 ┌─────────────────────────┐
-│ ContentPilot            │
+│ Navitto                 │
 ├─────────────────────────┤
 │ ☑ このページで有効化     │
 │                         │
@@ -338,7 +342,7 @@ document.querySelectorAll('.contentpilot-nav a').forEach(link => {
 
 #### 2. カスタマイザー設定
 ```
-外観 > カスタマイズ > ContentPilot
+外観 > カスタマイズ > Navitto - デザイン / Navitto - 共通設定
 
 - デフォルトプリセット
 - 配置位置（上部/下部）
@@ -407,12 +411,12 @@ https://ja.wordpress.org/team/handbook/plugin-development
 ### セキュリティ対策
 ```php
 // nonce検証の例
-if (!wp_verify_nonce($_POST['contentpilot_nonce'], 'contentpilot_save')) {
+if (!wp_verify_nonce($_POST['navitto_meta_nonce'], 'navitto_save_meta')) {
     wp_die('Security check failed');
 }
 
 // データのサニタイズ
-$enabled = sanitize_text_field($_POST['contentpilot_enabled']);
+$mode = sanitize_text_field($_POST['navitto_display_mode']);
 
 // データのエスケープ
 echo esc_html($heading_text);
@@ -455,7 +459,7 @@ echo esc_html($heading_text);
 **期間:** 1-2週間
 
 **実装機能:**
-- デザインプリセット5種類
+- デザインプリセット2種類（シンプル・テーマ準拠）
 - カスタマイザー統合
 - H2選択UI
 - 横スクロール機能
@@ -487,7 +491,7 @@ echo esc_html($heading_text);
 以下の内容を`cursorrules.md`に記載してAIエージェントに渡す:
 
 ```markdown
-# ContentPilot プラグイン開発ルール
+# Navitto プラグイン開発ルール
 
 ## 必須準拠事項
 - WordPress Plugin Handbook に完全準拠: https://ja.wordpress.org/team/handbook/plugin-development
@@ -499,7 +503,7 @@ echo esc_html($heading_text);
 - JavaScriptコーディング規約: WordPress JavaScript Coding Standards
 - 全ての関数・クラスにPHPDocブロックを記述
 - 変数名: snake_case（PHP）、camelCase（JavaScript）
-- プレフィックス: `contentpilot_` を全てのグローバル関数・変数に付与
+- プレフィックス: `navitto_` を全てのグローバル関数・変数に付与
 
 ## セキュリティ
 - 全てのフォーム送信にnonce検証を実装
@@ -509,17 +513,17 @@ echo esc_html($heading_text);
 - 権限チェック（current_user_can）を必ず実装
 
 ## ファイル構成
-- メインファイル: contentpilot.php
+- メインファイル: navitto.php
 - クラスファイルは includes/ ディレクトリに配置
 - アセットファイルは assets/ ディレクトリに配置
 - 言語ファイルは languages/ ディレクトリに配置
 
 ## 命名規則
-- プラグインプレフィックス: `contentpilot_`
-- フック名: `contentpilot_{action/filter}_name`
-- クラス名: `ContentPilot_ClassName`
-- 関数名: `contentpilot_function_name`
-- CSS/JSハンドル名: `contentpilot-{name}`
+- プラグインプレフィックス: `navitto_`
+- フック名: `navitto_{action/filter}_name`
+- クラス名: `Navitto_ClassName`
+- 関数名: `navitto_function_name`
+- CSS/JSハンドル名: `navitto-{name}`
 
 ## WordPress関数の使用
 - 直接SQLクエリを書かない（wpdbを使用）
@@ -530,8 +534,8 @@ echo esc_html($heading_text);
 
 ## 翻訳対応
 - 全ての表示テキストは翻訳関数を使用（__, _e, esc_html__等）
-- テキストドメイン: 'contentpilot'
-- load_plugin_textdomain() でテキストドメイン読み込み
+- テキストドメイン: 'navitto'
+- load_plugin_textdomain( 'navitto', ... ) でテキストドメイン読み込み
 
 ## テスト
 - 主要WordPressテーマでの動作確認必須
@@ -605,3 +609,4 @@ A: 最小限のJavaScript/CSSのみを読み込むため、ほとんど影響あ
 ## 改訂履歴
 
 - v1.0.0 (2025-02-05): 初版作成
+- v1.0.0 (2026-02-15): Navitto に名称変更、プリセット2種・カスタマイザー整理・データ構造を現行仕様に合わせて更新

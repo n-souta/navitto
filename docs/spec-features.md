@@ -1,12 +1,12 @@
-# ContentPilot プラグイン開発フロー
+# Navitto プラグイン開発フロー
 
 ## 📋 プロジェクト全体の流れ
 
-このドキュメントでは、GitHub を使った ContentPilot プラグインの開発から販売までの流れをまとめています。
+このドキュメントでは、GitHub を使った Navitto プラグインの開発から販売までの流れをまとめています。
 
 ---
 
-## 🚀 現在の開発状況（2026-02-06 更新）
+## 🚀 現在の開発状況（2026-02-15 更新）
 
 ### ✅ Phase 1: MVP開発 - **完了**
 
@@ -14,20 +14,21 @@
 
 | 機能 | 状態 | ファイル |
 |------|------|----------|
-| プラグイン基本構造 | ✅ 完了 | `contentpilot.php` |
-| メインクラス | ✅ 完了 | `includes/class-contentpilot.php` |
-| 管理画面クラス | ✅ 完了 | `includes/class-contentpilot-admin.php` |
+| プラグイン基本構造 | ✅ 完了 | `navitto.php` |
+| メインクラス | ✅ 完了 | `includes/class-navitto.php` |
+| 管理画面クラス | ✅ 完了 | `includes/class-navitto-admin.php` |
+| 設定ページ | ✅ 完了 | `includes/class-navitto-settings.php` |
 | H2見出し自動検出 | ✅ 完了 | `assets/js/frontend.js` |
 | 固定ナビゲーション表示 | ✅ 完了 | `assets/js/frontend.js`, `assets/css/frontend.css` |
 | スムーズスクロール | ✅ 完了 | `assets/js/frontend.js` |
 | アクティブ項目ハイライト | ✅ 完了 | `assets/js/frontend.js` |
-| 投稿ごとの有効/無効設定 | ✅ 完了 | `includes/class-contentpilot-admin.php` |
+| 投稿ごとの有効/無効・表示モード | ✅ 完了 | `includes/class-navitto-admin.php` |
 | アンインストール処理 | ✅ 完了 | `uninstall.php` |
 
 **表示条件:**
 - H2見出し: 2つ以上
-- 文字数: 3000文字以上
-- メタボックスで「有効」にチェック
+- 文字数: カスタマイザーで設定（デフォルト3000文字以上）
+- 投稿の表示モードで「有効」（show_all / select / hide）
 
 ### ✅ Phase 2: 目次連携機能 - **完了**
 
@@ -41,44 +42,57 @@
 
 | 機能 | 状態 |
 |------|------|
-| デザインプリセット5種類 | ✅ 完了 |
+| デザインプリセット2種類（シンプル・テーマ準拠） | ✅ 完了 |
 | WordPress カスタマイザー統合 | ✅ 完了 |
 | H2選択UI | ✅ 完了 |
-| 横スクロール機能 | ✅ 完了 |
+| 横スクロール・均等割り | ✅ 完了 |
+| box-shadow はテーマの --navitto-nav-shadow に従う | ✅ 完了 |
+
+### ✅ Phase 4: テストフェーズ - **完了**
+
+- 基本機能・目次検出・H2選択・デザインプリセット・レスポンシブ・パフォーマンス・セキュリティのテスト完了（TEST-CHECKLIST.txt 参照）
+
+### ✅ Phase 5-6: リリース準備・リリース - **完了**
+
+- v1.0.0 リリース済み
 
 ### 📁 現在のファイル構成
 
 ```
-contentpilot/
-├── contentpilot.php          # メインプラグインファイル
+navitto/
+├── navitto.php               # メインプラグインファイル
 ├── uninstall.php             # アンインストール処理
 ├── includes/
-│   ├── class-contentpilot.php          # メインクラス
-│   ├── class-contentpilot-admin.php    # 管理画面クラス
-│   └── class-contentpilot-detector.php # 目次検出クラス
+│   ├── class-navitto.php           # メインクラス
+│   ├── class-navitto-admin.php     # 管理画面クラス
+│   ├── class-navitto-settings.php  # 設定ページ
+│   └── class-navitto-detector.php  # 目次検出クラス
 ├── assets/
 │   ├── css/
-│   │   └── frontend.css      # フロントエンドスタイル
+│   │   ├── frontend.css      # フロントエンドスタイル
+│   │   └── admin-metabox.css
 │   └── js/
-│       └── frontend.js       # フロントエンドJS
-├── SETUP_GUIDE.md            # 別PC用セットアップガイド
-├── development-flow.md       # このファイル
-├── plugin-specification.md   # プラグイン仕様書
-└── wordpress-development-guide.md # 開発ガイド
+│       ├── frontend.js       # フロントエンドJS
+│       ├── admin-settings.js
+│       └── admin-metabox.js
+├── docs/
+│   ├── spec-plugin.md        # プラグイン基本仕様
+│   └── spec-features.md      # このファイル（開発フロー）
+├── TEST-CHECKLIST.txt        # テストチェックリスト
+├── AGENTS.md
+├── PROJECT_STRUCTURE.md
+└── CHANGELOG.txt / CHANGELOG.md
 ```
 
 ### 🔀 ブランチ状況
 
-- `main`: 初期コミットのみ
-- `develop`: Phase 1 MVP完了
-- `feature/toc-detection`: Phase 2 目次連携機能
-- `feature/design-customization`: Phase 3 デザイン・カスタマイズ（最新）
+- `main`: リリース用（v1.0.0 リリース済み）
+- `develop` / `release/v1.0.0`: 運用に応じて使用
 
 ### 📝 次のタスク
 
-別PCで作業を再開する場合：
-1. `SETUP_GUIDE.md` を参照してセットアップ
-2. Phase 2（目次連携機能）から開発を継続
+- 継続的開発（バグ修正は hotfix、新機能は feature ブランチ）
+- 公式サイト・販売は必要に応じて実施
 
 ---
 
@@ -102,12 +116,12 @@ contentpilot/
 ```bash
 # Local by Flywheel を使用する場合
 # 1. Local をインストール
-# 2. 新しいサイトを作成（例: contentpilot-dev）
+# 2. 新しいサイトを作成（例: navitto-dev）
 # 3. WordPress 6.0 以上を選択
 # 4. PHP 7.4 以上を選択
 
 # サイトのプラグインディレクトリに移動
-cd ~/Local Sites/contentpilot-dev/app/public/wp-content/plugins/
+cd ~/Local Sites/navitto-dev/app/public/wp-content/plugins/
 ```
 
 ### 1-2. GitHub リポジトリの作成
@@ -116,7 +130,7 @@ cd ~/Local Sites/contentpilot-dev/app/public/wp-content/plugins/
 1. GitHub にログイン
 2. 「New repository」をクリック
 3. リポジトリ設定：
-   - **Repository name:** `contentpilot`
+   - **Repository name:** `navitto`
    - **Description:** `長文記事の離脱を防ぐ、目次連携型の固定ナビゲーションプラグイン`
    - **Visibility:** Private（開発中は非公開）
    - **Initialize:** ✅ Add a README file
@@ -126,14 +140,14 @@ cd ~/Local Sites/contentpilot-dev/app/public/wp-content/plugins/
 #### ローカルでの Git 初期化
 ```bash
 # プラグインディレクトリを作成
-mkdir contentpilot
-cd contentpilot
+mkdir navitto
+cd navitto
 
 # Git を初期化
 git init
 
 # GitHub リポジトリと連携
-git remote add origin https://github.com/YOUR_USERNAME/contentpilot.git
+git remote add origin https://github.com/YOUR_USERNAME/navitto.git
 
 # メインブランチ名を main に変更（必要に応じて）
 git branch -M main
@@ -143,7 +157,7 @@ git branch -M main
 
 #### ディレクトリ構造を作成
 ```bash
-contentpilot/
+navitto/
 ├── .gitignore
 ├── cursorrules.md
 ├── wordpress-development-guide.md
@@ -264,8 +278,8 @@ git push -u origin develop
 プラグインの基本構造を実装する
 
 ## チェックリスト
-- [ ] contentpilot.php（メインファイル）作成
-- [ ] includes/class-contentpilot.php 作成
+- [ ] navitto.php（メインファイル）作成
+- [ ] includes/class-navitto.php 作成
 - [ ] assets ディレクトリ作成
 - [ ] プラグインヘッダーの実装
 - [ ] アクティベーション/ディアクティベーション処理
@@ -322,7 +336,7 @@ cursor .
 **Step 3: AI に指示を出す（Cursor での例）**
 ```
 You: wordpress-development-guide.md を読んで、
-     contentpilot.php を作成してください。
+     navitto.php を作成してください。
      チェックリストをすべて確認してから実装してください。
 
 AI: [wordpress-development-guide.md を読む]
@@ -336,7 +350,7 @@ AI: [wordpress-development-guide.md を読む]
 git status
 
 # ステージング
-git add contentpilot.php
+git add navitto.php
 
 # コミット（具体的なメッセージ）
 git commit -m "feat: プラグインメインファイルを作成
@@ -358,8 +372,8 @@ git push -u origin feature/basic-structure
 5. 説明:
 ```markdown
 ## 実装内容
-- プラグインメインファイル（contentpilot.php）
-- メインクラスファイル（includes/class-contentpilot.php）
+- プラグインメインファイル（navitto.php）
+- メインクラスファイル（includes/class-navitto.php）
 
 ## チェックリスト
 - [x] wordpress-development-guide.md のチェックリスト確認
@@ -420,7 +434,7 @@ git push -u origin feature/toc-detection
 ### 3-3. フェーズ3: デザイン・カスタマイズ（1週間）
 
 #### 実装する機能
-- [x] デザインプリセット5種類
+- [x] デザインプリセット2種類（シンプル・テーマ準拠）
 - [x] WordPress カスタマイザー統合
 - [x] H2選択UI
 - [x] 横スクロール機能
@@ -442,11 +456,11 @@ git checkout -b testing/theme-compatibility
 ```
 Local by Flywheel で以下のサイトを作成：
 
-1. contentpilot-swell（SWELL テーマ）
-2. contentpilot-jin（JIN テーマ）
-3. contentpilot-sango（SANGO テーマ）
-4. contentpilot-affinger（AFFINGER テーマ）
-5. contentpilot-cocoon（Cocoon テーマ）
+1. navitto-swell（SWELL テーマ）
+2. navitto-jin（JIN テーマ）
+3. navitto-sango（SANGO テーマ）
+4. navitto-affinger（AFFINGER テーマ）
+5. navitto-cocoon（Cocoon テーマ）
 ```
 
 #### テストプラグインをインストール
@@ -513,14 +527,14 @@ git checkout -b release/v1.0.0
 
 #### 更新するファイル
 ```php
-// contentpilot.php
+// navitto.php
 /**
  * Version: 1.0.0
  */
 define( 'CONTENTPILOT_VERSION', '1.0.0' );
 
 // README.md
-# ContentPilot v1.0.0
+# Navitto v1.0.0
 
 // readme.txt (WordPress.org用)
 Stable tag: 1.0.0
@@ -536,7 +550,7 @@ Stable tag: 1.0.0
 ### Added
 - 目次自動連携機能（テーマ内蔵/プラグイン対応）
 - H2見出し選択機能
-- デザインプリセット5種類
+- デザインプリセット2種類（シンプル・テーマ準拠）
 - 横スクロール対応
 - WordPress カスタマイザー統合
 
@@ -580,12 +594,12 @@ git checkout main
 git pull origin main
 
 # タグを作成
-git tag -a v1.0.0 -m "ContentPilot v1.0.0
+git tag -a v1.0.0 -m "Navitto v1.0.0
 
 初回リリース
 - 目次自動連携機能
 - H2選択機能
-- デザインプリセット5種類"
+- デザインプリセット2種類（シンプル・テーマ準拠）"
 
 # タグをプッシュ
 git push origin v1.0.0
@@ -596,22 +610,22 @@ git push origin v1.0.0
 1. GitHub リポジトリの「Releases」タブ
 2. 「Create a new release」
 3. タグを選択: `v1.0.0`
-4. リリースタイトル: `ContentPilot v1.0.0`
+4. リリースタイトル: `Navitto v1.0.0`
 5. 説明:
 ```markdown
 ## 🎉 初回リリース
 
-ContentPilot v1.0.0 をリリースしました！
+Navitto v1.0.0 をリリースしました！
 
 ### ✨ 主な機能
 - 目次自動連携（SWELL, JIN, SANGO, AFFINGER, Cocoon対応）
 - 主要目次プラグイン対応（TOC+, Easy TOC等）
 - H2見出し選択機能
-- デザインプリセット5種類
+- デザインプリセット2種類（シンプル・テーマ準拠）
 - 横スクロール対応
 
 ### 📥 インストール
-1. 下の「contentpilot-v1.0.0.zip」をダウンロード
+1. 下の「navitto-v1.0.0.zip」をダウンロード
 2. WordPress 管理画面 → プラグイン → 新規追加 → アップロード
 3. 有効化
 
@@ -620,8 +634,8 @@ ContentPilot v1.0.0 をリリースしました！
 - PHP 7.4以上
 
 ### 📚 ドキュメント
-- [README](https://github.com/YOUR_USERNAME/contentpilot/blob/main/README.md)
-- [CHANGELOG](https://github.com/YOUR_USERNAME/contentpilot/blob/main/CHANGELOG.md)
+- [README](https://github.com/YOUR_USERNAME/navitto/blob/main/README.md)
+- [CHANGELOG](https://github.com/YOUR_USERNAME/navitto/blob/main/CHANGELOG.md)
 ```
 
 6. アセット（zipファイル）を添付
@@ -631,14 +645,14 @@ ContentPilot v1.0.0 をリリースしました！
 ```bash
 # プラグインファイルのみを含む ZIP を作成
 cd /path/to/plugins/
-zip -r contentpilot-v1.0.0.zip contentpilot/ \
-  -x "contentpilot/.git/*" \
-  -x "contentpilot/.gitignore" \
-  -x "contentpilot/node_modules/*" \
-  -x "contentpilot/*.md" \
-  -x "contentpilot/cursorrules.md" \
-  -x "contentpilot/wordpress-development-guide.md" \
-  -x "contentpilot/plugin-specification.md"
+zip -r navitto-v1.0.0.zip navitto/ \
+  -x "navitto/.git/*" \
+  -x "navitto/.gitignore" \
+  -x "navitto/node_modules/*" \
+  -x "navitto/*.md" \
+  -x "navitto/cursorrules.md" \
+  -x "navitto/wordpress-development-guide.md" \
+  -x "navitto/plugin-specification.md"
 ```
 
 または、専用スクリプトを作成：
@@ -648,7 +662,7 @@ zip -r contentpilot-v1.0.0.zip contentpilot/ \
 #!/bin/bash
 
 VERSION="1.0.0"
-PLUGIN_NAME="contentpilot"
+PLUGIN_NAME="navitto"
 BUILD_DIR="build"
 
 # ビルドディレクトリをクリーンアップ
@@ -689,16 +703,16 @@ chmod +x build.sh
 
 ```bash
 # 別のリポジトリを作成
-mkdir contentpilot-website
-cd contentpilot-website
+mkdir navitto-website
+cd navitto-website
 git init
-git remote add origin https://github.com/YOUR_USERNAME/contentpilot-website.git
+git remote add origin https://github.com/YOUR_USERNAME/navitto-website.git
 ```
 
 ### 7-2. サイトの構成
 
 ```
-contentpilot-website/
+navitto-website/
 ├── index.html
 ├── css/
 │   └── style.css
@@ -719,16 +733,16 @@ contentpilot-website/
 2. 「Pages」セクション
 3. Source: `main` ブランチ
 4. 「Save」
-5. サイトURL: `https://YOUR_USERNAME.github.io/contentpilot-website/`
+5. サイトURL: `https://YOUR_USERNAME.github.io/navitto-website/`
 
 ### 7-4. 販売プラットフォームの設定
 
 #### Gumroad を使用する場合
 1. Gumroad アカウント作成
 2. 新しい商品を作成
-   - 商品名: ContentPilot
+   - 商品名: Navitto
    - 価格: ¥2,000
-   - ファイル: contentpilot-v1.0.0.zip
+   - ファイル: navitto-v1.0.0.zip
 3. 商品ページのカスタマイズ
 4. 公式サイトに購入リンクを設置
 
@@ -909,7 +923,7 @@ git push -f origin BRANCH_NAME
 tail -f /path/to/wordpress/wp-content/debug.log
 
 # プラグインを無効化（FTP経由）
-# wp-content/plugins/contentpilot を一時的にリネーム
+# wp-content/plugins/navitto を一時的にリネーム
 
 # エラー箇所を特定して修正
 ```
