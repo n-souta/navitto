@@ -13,9 +13,9 @@
 
 :root {
 	--navitto-bg: #ffffff;
-	--navitto-text: #999999;  /* 非アクティブの文字色（薄め） */
+	--navitto-text: #b3b3b3;  /* 非アクティブの文字色（薄め） */
 	--navitto-text-hover: #0073aa;
-	--navitto-active-bg: #f5f5f5;
+	--navitto-active-bg: transparent;
 	--navitto-active-text: #0073aa;
 	--navitto-border: #e0e0e0;
 	/* --navitto-nav-shadow: テーマで定義。未定義時は影なし */
@@ -26,6 +26,7 @@
 	--navitto-radius: 0px;
 	--navitto-adminbar-h: 0px;
 	--navitto-nav-transition-duration: 0.3s;
+	--navitto-font-weight: 500;
 }
 
 /* 管理バーの高さをCSS変数で管理（SWELL方式） */
@@ -165,7 +166,7 @@
 	color: var(--navitto-text);
 	font-family: inherit;
 	font-size: var(--navitto-font-size);
-	font-weight: 500;
+	font-weight: var(--navitto-font-weight);
 	text-decoration: none;
 	white-space: nowrap;
 	border-bottom: 3px solid transparent;  /* アクティブ時も高さを変えず border のみ変化させる */
@@ -246,7 +247,7 @@ nav.navitto-nav.nav-equal .navitto-nav__link.is-overflow {
 	--navitto-theme-color: currentColor;          /* メインカラー: JS 未実行時フォールバック */
 	--navitto-theme-text: currentColor;            /* 文字色: JS 未実行時フォールバック */
 	--navitto-theme-bg: #ffffff;                  /* ナビ背景（ヘッダー色）: JS 未実行時フォールバック */
-	--navitto-theme-active-bg: rgba(0, 0, 0, 0.08); /* アクティブ項目背景（ヘッダー色を少し濃く）: JS が設定 */
+	--navitto-theme-active-bg: transparent; /* アクティブ項目背景: 指定なし */
 	--navitto-bg: var(--navitto-theme-bg);
 	--navitto-text: var(--navitto-theme-text);
 	--navitto-text-hover: var(--navitto-theme-text);
@@ -258,7 +259,7 @@ nav.navitto-nav.nav-equal .navitto-nav__link.is-overflow {
 
 /* テーマ準拠: 非アクティブは opacity で薄く */
 .navitto-nav.cp-preset-theme .navitto-nav__item:not(.navitto-nav__item--active) .navitto-nav__link {
-	opacity: 0.65;
+	opacity: 0.5;
 }
 
 .navitto-nav.cp-preset-theme .navitto-nav__item--active .navitto-nav__link {

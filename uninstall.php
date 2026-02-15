@@ -29,6 +29,7 @@ $theme_mods = array(
 	'navitto_position',
 	'navitto_nav_height',
 	'navitto_nav_width',
+	'navitto_font_weight',
 	'navitto_theme_bg_transparent',
 	'navitto_min_word_count',
 	'navitto_show_after_scroll',

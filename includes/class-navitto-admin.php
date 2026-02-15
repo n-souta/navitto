@@ -461,6 +461,21 @@ class Navitto_Admin {
 			),
 		) );
 
+		// 文字の太さ
+		$wp_customize->add_setting( 'navitto_font_weight', array(
+			'default'           => 'default',
+			'sanitize_callback' => array( $this, 'sanitize_font_weight' ),
+		) );
+		$wp_customize->add_control( 'navitto_font_weight', array(
+			'label'   => __( '文字の太さ', 'navitto' ),
+			'section' => 'navitto_design',
+			'type'    => 'radio',
+			'choices' => array(
+				'default' => __( 'デフォルト', 'navitto' ),
+				'bold'    => __( '太字', 'navitto' ),
+			),
+		) );
+
 		// 背景を透明にする（テーマ準拠時）
 		$wp_customize->add_setting( 'navitto_theme_bg_transparent', array(
 			'default'           => false,
@@ -468,7 +483,7 @@ class Navitto_Admin {
 		) );
 		$wp_customize->add_control( 'navitto_theme_bg_transparent', array(
 			'label'       => __( '背景を透明にする', 'navitto' ),
-			'description' => __( 'テーマ準拠のとき、ナビの背景を透明にします。ヘッダーが透明なテーマで自然に馴染みます。', 'navitto' ),
+			'description' => __( 'テーマ準拠のとき、ナビの背景を透明にします。', 'navitto' ),
 			'section'     => 'navitto_design',
 			'type'        => 'checkbox',
 		) );
@@ -551,5 +566,9 @@ class Navitto_Admin {
 
 	public function sanitize_nav_height( $value ) {
 		return in_array( $value, array( 'small', 'medium', 'large' ), true ) ? $value : 'medium';
+	}
+
+	public function sanitize_font_weight( $value ) {
+		return in_array( $value, array( 'default', 'bold' ), true ) ? $value : 'default';
 	}
 }

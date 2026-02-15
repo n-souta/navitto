@@ -538,13 +538,7 @@
 				}
 			}
 
-			/* ----- アクティブ項目の背景（ヘッダー色を少し濃くした色）----- */
-			var activeBg = null;
-			if (bgColor) {
-				activeBg = this.darkenColor(bgColor);
-			}
-
-			/* ----- CSS変数にセット ----- */
+			/* ----- CSS変数にセット（アクティブ項目の背景は指定なし＝透明）----- */
 			if (mainColor) {
 				nav.style.setProperty('--navitto-theme-color', mainColor);
 			}
@@ -554,9 +548,7 @@
 			if (bgColor) {
 				nav.style.setProperty('--navitto-theme-bg', bgColor);
 			}
-			if (activeBg) {
-				nav.style.setProperty('--navitto-theme-active-bg', activeBg);
-			}
+			nav.style.setProperty('--navitto-theme-active-bg', 'transparent');
 		},
 
 		/**

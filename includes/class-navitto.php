@@ -179,7 +179,8 @@ class Navitto_Main {
 	 * カスタマイザー設定からインラインCSSを生成
 	 */
 	private function generate_inline_css() {
-		$nav_height = get_theme_mod( 'navitto_nav_height', 'medium' );
+		$nav_height   = get_theme_mod( 'navitto_nav_height', 'medium' );
+		$font_weight  = get_theme_mod( 'navitto_font_weight', 'default' );
 
 		$css = ':root {';
 
@@ -193,6 +194,11 @@ class Navitto_Main {
 			$css .= '--navitto-height:' . $height_map[ $nav_height ][0] . ';';
 			$css .= '--navitto-height-mobile:' . $height_map[ $nav_height ][1] . ';';
 			$css .= '--navitto-font-size:' . intval( $height_map[ $nav_height ][2] ) . 'px;';
+		}
+
+		// フォントの太さ（デフォルト=500 / 太字=700）
+		if ( 'bold' === $font_weight ) {
+			$css .= '--navitto-font-weight:700;';
 		}
 		$css .= '}';
 
