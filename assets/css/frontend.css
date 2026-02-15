@@ -18,7 +18,7 @@
 	--contentpilot-active-bg: #f5f5f5;
 	--contentpilot-active-text: #0073aa;
 	--contentpilot-border: #e0e0e0;
-	--contentpilot-nav-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	--contentpilot-nav-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* 下方向のみ */
 	--contentpilot-height: 56px;
 	--contentpilot-height-mobile: 48px;
 	--contentpilot-z-index: 99;
@@ -97,6 +97,11 @@
 .contentpilot-nav.cp-pos-bottom .contentpilot-nav__item--active .contentpilot-nav__link {
 	border-bottom: none;
 	border-top: 3px solid var(--contentpilot-active-text);
+}
+
+/* 下部固定時は影を上方向のみに */
+.contentpilot-nav.cp-pos-bottom {
+	box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* ==========================================================================
@@ -243,7 +248,7 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 	--contentpilot-active-bg: rgba(255, 255, 255, 0.15);
 	--contentpilot-active-text: #ffffff;
 	--contentpilot-border: transparent;
-	--contentpilot-nav-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+	--contentpilot-nav-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);  /* 下方向のみ */
 	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
@@ -283,7 +288,7 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 	--contentpilot-active-bg: rgba(233, 69, 96, 0.15);
 	--contentpilot-active-text: #e94560;
 	--contentpilot-border: #16213e;
-	--contentpilot-nav-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+	--contentpilot-nav-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);  /* 下方向のみ */
 	background: #1a1a2e;
 }
 
@@ -298,7 +303,7 @@ nav.contentpilot-nav.nav-equal .contentpilot-nav__link.is-overflow {
 	--contentpilot-text-hover: var(--contentpilot-theme-text);
 	--contentpilot-active-text: var(--contentpilot-theme-text);
 	--contentpilot-border: var(--contentpilot-theme-color);
-	--contentpilot-nav-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+	--contentpilot-nav-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);  /* 下方向のみ */
 	border-bottom: none;
 }
 
