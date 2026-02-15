@@ -511,8 +511,16 @@
 			if (headerEl) {
 				headerBg = this.getElOrPseudoBackground(headerEl);
 			}
+			/* ----- 「背景を透明にする」がオンのときは透明を優先 ----- */
+			var s = this.settings;
+			var bgColor = null;
+			if (s.themeBgTransparent) {
+				bgColor = 'transparent';
+			}
+			if (!bgColor) {
+				bgColor = headerBg;
+			}
 			/* ----- ヘッダーが取れない場合はテーマの背景色をフォールバック ----- */
-			var bgColor = headerBg;
 			if (!bgColor) {
 				var bgVars = [
 					'--color_bg', '--jin-color-bg', '--bg-color', '--cocoon-bg-color',

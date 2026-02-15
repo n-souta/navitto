@@ -148,23 +148,26 @@ class Navitto_Main {
 		$raw_custom_items = get_post_meta( $post_id, '_navitto_custom_items', true );
 		$custom_items     = is_array( $raw_custom_items ) ? $raw_custom_items : array();
 
+		$theme_bg_transparent = (bool) get_theme_mod( 'navitto_theme_bg_transparent', false );
+
 		wp_localize_script(
 			'navitto-frontend',
 			'navittoData',
 			array(
-				'scrollOffset'    => 80,
-				'animDuration'    => 500,
-				'showAfterScroll' => intval( $show_after ),
-				'preset'          => $preset,
-				'position'        => $position,
-				'displayMode'     => $display_mode,
-				'selectedH2'      => $selected_h2,
-				'customTexts'     => ! empty( $js_custom_texts ) ? $js_custom_texts : new stdClass(),
-				'trigger'         => $trigger_data,
-				'navWidth'        => $nav_width,
-				'detection'       => $detection_data,
-				'fixedHeader'     => $header_data,
-				'customItems'     => $custom_items,
+				'scrollOffset'        => 80,
+				'animDuration'        => 500,
+				'showAfterScroll'     => intval( $show_after ),
+				'preset'              => $preset,
+				'themeBgTransparent'   => $theme_bg_transparent,
+				'position'            => $position,
+				'displayMode'         => $display_mode,
+				'selectedH2'          => $selected_h2,
+				'customTexts'         => ! empty( $js_custom_texts ) ? $js_custom_texts : new stdClass(),
+				'trigger'             => $trigger_data,
+				'navWidth'            => $nav_width,
+				'detection'           => $detection_data,
+				'fixedHeader'         => $header_data,
+				'customItems'         => $custom_items,
 			)
 		);
 

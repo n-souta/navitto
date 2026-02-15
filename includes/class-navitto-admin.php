@@ -461,6 +461,18 @@ class Navitto_Admin {
 			),
 		) );
 
+		// 背景を透明にする（テーマ準拠時）
+		$wp_customize->add_setting( 'navitto_theme_bg_transparent', array(
+			'default'           => false,
+			'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
+		) );
+		$wp_customize->add_control( 'navitto_theme_bg_transparent', array(
+			'label'       => __( '背景を透明にする', 'navitto' ),
+			'description' => __( 'テーマ準拠のとき、ナビの背景を透明にします。ヘッダーが透明なテーマで自然に馴染みます。', 'navitto' ),
+			'section'     => 'navitto_design',
+			'type'        => 'checkbox',
+		) );
+
 		// --- セクション: 共通設定 ---
 		$wp_customize->add_section( 'navitto_common', array(
 			'title'    => __( 'Navitto - 共通設定', 'navitto' ),
