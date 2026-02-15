@@ -1,7 +1,7 @@
 # Navitto - AI Agent Instructions
 
 ## 基本
-- **プラグイン名**: Navitto（ナビット）— 設定ゼロで始める固定ナビゲーション
+- **プラグイン名**: Navitto — 設定ゼロで始める固定ナビゲーション
 - **WordPress**: 6.0+ / **PHP**: 7.4+
 - 実装時は本ファイルのルールと `@PROJECT_STRUCTURE.md` に従うこと
 

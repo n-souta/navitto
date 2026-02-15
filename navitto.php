@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Navitto（ナビット）
+ * Plugin Name:       Navitto
  * Plugin URI:        https://example.com/navitto
  * Description:       設定ゼロで始める固定ナビゲーション。ナビっと表示、サクッと移動。
  * Version:           1.0.0

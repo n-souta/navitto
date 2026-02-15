@@ -461,18 +461,6 @@ class Navitto_Admin {
 			),
 		) );
 
-		// フォントサイズ
-		$wp_customize->add_setting( 'navitto_font_size', array(
-			'default'           => 14,
-			'sanitize_callback' => 'absint',
-		) );
-		$wp_customize->add_control( 'navitto_font_size', array(
-			'label'       => __( 'フォントサイズ (px)', 'navitto' ),
-			'section'     => 'navitto_design',
-			'type'        => 'number',
-			'input_attrs' => array( 'min' => 10, 'max' => 20, 'step' => 1 ),
-		) );
-
 		// --- セクション: 共通設定 ---
 		$wp_customize->add_section( 'navitto_common', array(
 			'title'    => __( 'Navitto - 共通設定', 'navitto' ),

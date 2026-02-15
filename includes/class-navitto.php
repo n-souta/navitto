@@ -176,7 +176,6 @@ class Navitto_Main {
 	 * カスタマイザー設定からインラインCSSを生成
 	 */
 	private function generate_inline_css() {
-		$font_size  = get_theme_mod( 'navitto_font_size', 14 );
 		$nav_height = get_theme_mod( 'navitto_nav_height', 'medium' );
 
 		$css = ':root {';
@@ -191,11 +190,6 @@ class Navitto_Main {
 			$css .= '--navitto-height:' . $height_map[ $nav_height ][0] . ';';
 			$css .= '--navitto-height-mobile:' . $height_map[ $nav_height ][1] . ';';
 			$css .= '--navitto-font-size:' . intval( $height_map[ $nav_height ][2] ) . 'px;';
-		}
-
-		// カスタマイザーでフォントサイズを個別指定している場合は上書き
-		if ( intval( $font_size ) !== 14 ) {
-			$css .= '--navitto-font-size:' . intval( $font_size ) . 'px;';
 		}
 		$css .= '}';
 

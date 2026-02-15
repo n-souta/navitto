@@ -27,7 +27,6 @@ foreach ( $options as $option ) {
 $theme_mods = array(
 	'navitto_preset',
 	'navitto_position',
-	'navitto_font_size',
 	'navitto_nav_height',
 	'navitto_nav_width',
 	'navitto_min_word_count',
