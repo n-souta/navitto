@@ -3,7 +3,7 @@
  * Plugin Name:       ContentPilot
  * Plugin URI:        https://example.com/contentpilot
  * Description:       長文記事の離脱を防ぐ、目次連携型の固定ナビゲーション
- * Version:           1.0.1
+ * Version:           1.0.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Your Name
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * プラグインバージョン
  */
-define( 'CONTENTPILOT_VERSION', '1.0.1' );
+define( 'CONTENTPILOT_VERSION', '1.0.0' );
 
 /**
  * プラグインディレクトリパス

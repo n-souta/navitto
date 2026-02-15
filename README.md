@@ -1,4 +1,4 @@
-# ContentPilot
+# ContentPilot v1.0.0
 
 長文記事の離脱を防ぐ、目次連携型の固定ナビゲーションプラグイン
 
