@@ -38,6 +38,7 @@
 	var iconRegistry = window.__NAVITTO_ICONS__;
 	var pickerOverlay = null;
 	var pickerModal = null;
+	var currentPickerType = 'h2'; // 'h2' | 'custom'
 	var currentPickerIndex = null;
 
 	function getIconNameFromValue(val) {
@@ -63,11 +64,17 @@
 			}
 		});
 		document.querySelectorAll('.navitto-icon-picker-value').forEach(function(input) {
+			var type = input.getAttribute('data-type') || 'h2';
 			var idx = input.getAttribute('data-index');
-			if (idx !== null) updateIconButtonState(idx);
+			if (idx !== null) updateIconButtonState(type, idx);
 		});
 	}
 	initIconPreviews();
+
+	function getIconPickerSelector(type, index) {
+		var typeAttr = type ? '[data-type="' + type + '"]' : '';
+		return typeAttr + '[data-index="' + index + '"]';
+	}
 
 	function buildPickerModal() {
 		if (pickerModal || !iconRegistry || !iconRegistry.iconNames) return;
@@ -119,11 +126,14 @@
 		document.body.appendChild(pickerModal);
 	}
 
-	function openIconPicker(index) {
+	function openIconPicker(type, index) {
+		if (index === undefined) { index = type; type = 'h2'; }
 		buildPickerModal();
 		if (!pickerModal) return;
+		currentPickerType = type || 'h2';
 		currentPickerIndex = index;
-		var hiddenInput = document.querySelector('.navitto-icon-picker-value[data-index="' + index + '"]');
+		var sel = getIconPickerSelector(currentPickerType, currentPickerIndex);
+		var hiddenInput = document.querySelector('.navitto-icon-picker-value' + sel);
 		var currentVal = hiddenInput ? hiddenInput.value : '';
 		var currentName = getIconNameFromValue(currentVal);
 		if (!currentName) currentName = 'none';
@@ -139,11 +149,13 @@
 		if (pickerOverlay) pickerOverlay.classList.remove('navitto-icon-picker-overlay-visible');
 		if (pickerModal) pickerModal.classList.remove('navitto-icon-picker-modal-visible');
 		currentPickerIndex = null;
+		currentPickerType = 'h2';
 	}
 
-	function updateIconButtonState(index) {
-		var btn = document.querySelector('.navitto-icon-picker-btn[data-index="' + index + '"]');
-		var hiddenInput = document.querySelector('.navitto-icon-picker-value[data-index="' + index + '"]');
+	function updateIconButtonState(type, index) {
+		var sel = getIconPickerSelector(type, index);
+		var btn = document.querySelector('.navitto-icon-picker-btn' + sel);
+		var hiddenInput = document.querySelector('.navitto-icon-picker-value' + sel);
 		if (!btn || !hiddenInput) return;
 		var hasIcon = !!(hiddenInput.value && hiddenInput.value !== 'none' && hiddenInput.value.indexOf(':none') === -1);
 		btn.textContent = hasIcon ? 'アイコンを削除' : 'アイコンを追加';
@@ -154,8 +166,9 @@
 	function selectIcon(iconName) {
 		if (currentPickerIndex === null) return;
 		var value = (!iconName || iconName === 'none') ? '' : iconName;
-		var hiddenInput = document.querySelector('.navitto-icon-picker-value[data-index="' + currentPickerIndex + '"]');
-		var preview = document.querySelector('.navitto-icon-picker-preview[data-index="' + currentPickerIndex + '"]');
+		var sel = getIconPickerSelector(currentPickerType, currentPickerIndex);
+		var hiddenInput = document.querySelector('.navitto-icon-picker-value' + sel);
+		var preview = document.querySelector('.navitto-icon-picker-preview' + sel);
 		if (hiddenInput) hiddenInput.value = value;
 		if (preview) {
 			if (value && iconName !== 'none' && iconRegistry) {
@@ -165,7 +178,7 @@
 				preview.innerHTML = '';
 			}
 		}
-		updateIconButtonState(currentPickerIndex);
+		updateIconButtonState(currentPickerType, currentPickerIndex);
 		closeIconPicker();
 	}
 
@@ -173,14 +186,17 @@
 		var btn = e.target.closest('.navitto-icon-picker-btn');
 		if (!btn || btn.disabled) return;
 		e.preventDefault();
+		var type = btn.getAttribute('data-type') || 'h2';
 		var index = btn.getAttribute('data-index');
-		var hiddenInput = document.querySelector('.navitto-icon-picker-value[data-index="' + index + '"]');
+		var sel = getIconPickerSelector(type, index);
+		var hiddenInput = document.querySelector('.navitto-icon-picker-value' + sel);
 		var hasIcon = hiddenInput && hiddenInput.value && hiddenInput.value !== 'none' && hiddenInput.value.indexOf(':none') === -1;
 		if (hasIcon) {
+			currentPickerType = type;
 			currentPickerIndex = index;
 			selectIcon('none');
 		} else {
-			openIconPicker(index);
+			openIconPicker(type, index);
 		}
 	});
 
@@ -198,12 +214,20 @@
 			div.setAttribute('data-index', index);
 			div.style.cssText = 'background:#f9f9f9; padding:8px; margin-bottom:6px; border:1px solid #ddd; border-radius:4px;';
 			div.innerHTML =
-				'<input type="text" name="navitto_custom_item_label[]" value="" placeholder="ラベル（例: お問い合わせ）" style="width:100%; margin-bottom:4px;" />' +
+				'<div class="cp-h2-item-row">' +
+					'<span class="navitto-icon-picker-preview" data-type="custom" data-index="' + index + '"></span>' +
+					'<input type="text" name="navitto_custom_item_label[]" value="" placeholder="ラベル（例: お問い合わせ）" style="flex:1; min-width:0; margin-bottom:0;" />' +
+				'</div>' +
+				'<div class="cp-h2-item-row cp-h2-item-row--icon-btn">' +
+					'<button type="button" class="navitto-icon-picker-btn button button-small" data-type="custom" data-index="' + index + '" title="アイコンを追加">アイコンを追加</button>' +
+					'<input type="hidden" name="navitto_custom_item_icon[]" class="navitto-icon-picker-value" data-type="custom" data-index="' + index + '" value="" />' +
+				'</div>' +
 				'<input type="url" name="navitto_custom_item_url[]" value="" placeholder="URL（例: https://example.com）" style="width:100%; margin-bottom:4px;" />' +
 				'<label style="font-size:12px;"><input type="checkbox" name="navitto_custom_item_newtab[' + index + ']" value="1" /> 新しいタブで開く</label>' +
 				'<button type="button" class="cp-remove-custom-item" style="float:right; color:#a00; background:none; border:none; cursor:pointer; font-size:12px;">削除</button>' +
 				'<div style="clear:both;"></div>';
 			listWrap.appendChild(div);
+			updateIconButtonState('custom', index);
 		});
 		listWrap.addEventListener('click', function(e) {
 			if (e.target && e.target.classList.contains('cp-remove-custom-item')) {

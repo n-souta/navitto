@@ -280,7 +280,13 @@
 					var target = item.newtab ? ' target="_blank" rel="noopener noreferrer"' : '';
 					html += '<li class="navitto-nav__item navitto-nav__item--custom">';
 					html += '<a href="' + self.escapeAttr(item.url || '#') + '" class="navitto-nav__link navitto-nav__link--custom"' + target + '>';
-					html += self.escapeHtml(label);
+					if (item.icon && iconRegistry) {
+						var customIconHtml = iconRegistry.getSvg(item.icon);
+						if (customIconHtml) {
+							html += '<span class="navitto-nav__icon" aria-hidden="true">' + customIconHtml + '</span>';
+						}
+					}
+					html += '<span class="navitto-nav__text">' + self.escapeHtml(label) + '</span>';
 					html += '</a></li>';
 				});
 			}

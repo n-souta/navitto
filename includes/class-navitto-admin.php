@@ -200,7 +200,7 @@ class Navitto_Admin {
 							<?php echo esc_html( $h2_text ); ?>
 						</label>
 						<div class="cp-h2-item-row">
-							<span class="navitto-icon-picker-preview" data-index="<?php echo esc_attr( $index ); ?>"><?php
+							<span class="navitto-icon-picker-preview" data-type="h2" data-index="<?php echo esc_attr( $index ); ?>"><?php
 								if ( $icon_value && $icon_value !== 'none' && substr( $icon_value, -4 ) !== ':none' ) {
 									echo '<span class="navitto-icon-picker-placeholder" data-icon-value="' . esc_attr( $icon_value ) . '"></span>';
 								}
@@ -216,12 +216,14 @@ class Navitto_Admin {
 						<div class="cp-h2-item-row cp-h2-item-row--icon-btn">
 							<button type="button"
 								class="navitto-icon-picker-btn button button-small"
+								data-type="h2"
 								data-index="<?php echo esc_attr( $index ); ?>"
 								title="<?php esc_attr_e( 'アイコンを追加', 'navitto' ); ?>"
 								<?php echo $is_checked ? '' : 'disabled'; ?>><?php esc_html_e( 'アイコンを追加', 'navitto' ); ?></button>
 							<input type="hidden"
 								name="navitto_h2_icon_<?php echo esc_attr( $index ); ?>"
 								class="navitto-icon-picker-value"
+								data-type="h2"
 								data-index="<?php echo esc_attr( $index ); ?>"
 								value="<?php echo esc_attr( $icon_value ); ?>" />
 						</div>
@@ -310,12 +312,29 @@ class Navitto_Admin {
 				$custom_items = is_array( $custom_items ) ? $custom_items : array();
 				?>
 				<div id="cp-custom-items-list">
-					<?php foreach ( $custom_items as $ci_index => $item ) : ?>
+					<?php foreach ( $custom_items as $ci_index => $item ) :
+						$ci_icon = isset( $item['icon'] ) ? $item['icon'] : '';
+					?>
 					<div class="cp-custom-item" data-index="<?php echo esc_attr( $ci_index ); ?>" style="background:#f9f9f9; padding:8px; margin-bottom:6px; border:1px solid #ddd; border-radius:4px;">
-						<input type="text" name="navitto_custom_item_label[]"
-							value="<?php echo esc_attr( $item['label'] ); ?>"
-							placeholder="<?php esc_attr_e( 'ラベル（例: お問い合わせ）', 'navitto' ); ?>"
-							style="width:100%; margin-bottom:4px;" />
+						<div class="cp-h2-item-row">
+							<span class="navitto-icon-picker-preview" data-type="custom" data-index="<?php echo esc_attr( $ci_index ); ?>"><?php
+								if ( $ci_icon && $ci_icon !== 'none' && substr( $ci_icon, -4 ) !== ':none' ) {
+									echo '<span class="navitto-icon-picker-placeholder" data-icon-value="' . esc_attr( $ci_icon ) . '"></span>';
+								}
+							?></span>
+							<input type="text" name="navitto_custom_item_label[]"
+								value="<?php echo esc_attr( $item['label'] ); ?>"
+								placeholder="<?php esc_attr_e( 'ラベル（例: お問い合わせ）', 'navitto' ); ?>"
+								style="flex:1; min-width:0; margin-bottom:0;" />
+						</div>
+						<div class="cp-h2-item-row cp-h2-item-row--icon-btn">
+							<button type="button"
+								class="navitto-icon-picker-btn button button-small"
+								data-type="custom"
+								data-index="<?php echo esc_attr( $ci_index ); ?>"
+								title="<?php esc_attr_e( 'アイコンを追加', 'navitto' ); ?>"><?php esc_html_e( 'アイコンを追加', 'navitto' ); ?></button>
+							<input type="hidden" name="navitto_custom_item_icon[]" class="navitto-icon-picker-value" data-type="custom" data-index="<?php echo esc_attr( $ci_index ); ?>" value="<?php echo esc_attr( $ci_icon ); ?>" />
+						</div>
 						<input type="url" name="navitto_custom_item_url[]"
 							value="<?php echo esc_url( $item['url'] ); ?>"
 							placeholder="<?php esc_attr_e( 'URL（例: https://example.com）', 'navitto' ); ?>"
@@ -436,6 +455,7 @@ class Navitto_Admin {
 			$labels = wp_unslash( $_POST['navitto_custom_item_label'] );
 			$urls   = isset( $_POST['navitto_custom_item_url'] ) ? wp_unslash( $_POST['navitto_custom_item_url'] ) : array();
 			$newtab = isset( $_POST['navitto_custom_item_newtab'] ) ? wp_unslash( $_POST['navitto_custom_item_newtab'] ) : array();
+			$icons  = isset( $_POST['navitto_custom_item_icon'] ) && is_array( $_POST['navitto_custom_item_icon'] ) ? wp_unslash( $_POST['navitto_custom_item_icon'] ) : array();
 
 			foreach ( $labels as $ci_idx => $label ) {
 				$label = sanitize_text_field( $label );
@@ -443,10 +463,15 @@ class Navitto_Admin {
 				if ( '' === $label && '' === $url ) {
 					continue; // 空の項目はスキップ
 				}
+				$icon = isset( $icons[ $ci_idx ] ) ? sanitize_text_field( $icons[ $ci_idx ] ) : '';
+				if ( $icon === 'none' || substr( $icon, -4 ) === ':none' ) {
+					$icon = '';
+				}
 				$custom_items[] = array(
 					'label'  => $label,
 					'url'    => $url,
 					'newtab' => ! empty( $newtab[ $ci_idx ] ),
+					'icon'   => $icon,
 				);
 			}
 		}
