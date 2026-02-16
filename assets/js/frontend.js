@@ -15,6 +15,7 @@
 		headings: [],
 		$nav: null,
 		$headerParent: null,  // ナビの挿入先ヘッダー要素
+		$nextH2AfterLast: null,  // 指定した最後のh2の「次の」h2（この位置に達したらナビを隠す）
 		insertMode: 'body',   // 'inside' | 'after' | 'body'
 		isScrolling: false,
 		lastActiveIndex: -1,  // 前回のアクティブインデックス
@@ -271,26 +272,6 @@
 				html += '</a></li>';
 			});
 
-			// カスタム項目（外部リンク等）を末尾に追加
-			var customItems = (typeof navittoData !== 'undefined' && navittoData.customItems) || [];
-			if (customItems && customItems.length) {
-				customItems.forEach(function(item) {
-					if (!item.label && !item.url) return;
-					var label = item.label || item.url;
-					var target = item.newtab ? ' target="_blank" rel="noopener noreferrer"' : '';
-					html += '<li class="navitto-nav__item navitto-nav__item--custom">';
-					html += '<a href="' + self.escapeAttr(item.url || '#') + '" class="navitto-nav__link navitto-nav__link--custom"' + target + '>';
-					if (item.icon && iconRegistry) {
-						var customIconHtml = iconRegistry.getSvg(item.icon);
-						if (customIconHtml) {
-							html += '<span class="navitto-nav__icon" aria-hidden="true">' + customIconHtml + '</span>';
-						}
-					}
-					html += '<span class="navitto-nav__text">' + self.escapeHtml(label) + '</span>';
-					html += '</a></li>';
-				});
-			}
-
 			html += '</ul></div></nav>';
 			this.$nav = $(html);
 
@@ -318,6 +299,7 @@
 			this.detectContentWidth();
 			this.updateScrollHint();
 			this.checkOverflow();
+			this.cacheNextH2AfterLast();
 
 			// ナビ作成直後にスクロールオフセット・テーマ連携を設定（DOMレンダリング後）
 			var self = this;
@@ -796,19 +778,13 @@
 			});
 
 			this.$nav.on('click', '.navitto-nav__link', function(e) {
+				e.preventDefault();
 				var $link = $(this);
 				var $item = $link.parent();
-
-				// カスタム項目（外部リンク等）はデフォルト動作（ページ遷移）を許可
-				if ($item.hasClass('navitto-nav__item--custom')) {
-					return; // preventDefault しない
-				}
-
-				e.preventDefault();
 				var id = $link.attr('href').slice(1);
 				var idx = $item.index();
 
-				self.$nav.find('.navitto-nav__item:not(.navitto-nav__item--custom)').removeClass('navitto-nav__item--active');
+				self.$nav.find('.navitto-nav__item').removeClass('navitto-nav__item--active');
 				$item.addClass('navitto-nav__item--active');
 				self.lastActiveIndex = idx;
 				self._clickedIndex = idx;
@@ -823,9 +799,62 @@
 		},
 
 		/**
+		 * 指定した最後のh2の「次の」h2をキャッシュ（その位置に達したらナビを隠す）
+		 */
+		cacheNextH2AfterLast: function() {
+			this.$nextH2AfterLast = null;
+			if (this.headings.length === 0) return;
+			var $container = $(
+				'.entry-content, .post-content, .wp-block-post-content, ' +
+				'article .content, .post_content, #the_content'
+			).first();
+			if ($container.length === 0) $container = $('article').first();
+			if ($container.length === 0) $container = $('main').first();
+			if ($container.length === 0) return;
+			var $allH2 = $container.find('h2');
+			var lastEl = this.headings[this.headings.length - 1].element;
+			var lastIndex = $allH2.index(lastEl);
+			if (lastIndex >= 0 && lastIndex < $allH2.length - 1) {
+				this.$nextH2AfterLast = $allH2.eq(lastIndex + 1);
+			}
+		},
+
+		/** 境界付近で二重動作しないようヒステリシス（px） */
+		_nextH2Hysteresis: 80,
+		_scrollRafId: null,
+
+		/**
+		 * 指定した最後のh2を過ぎて次のh2に達したかどうか（ヒステリシス：隠すのは閾値より下にスクロールしたとき）
+		 */
+		isPastLastH2: function(scrollTop) {
+			if (!this.$nextH2AfterLast || !this.$nextH2AfterLast.length) return false;
+			var offset = this.getScrollOffset();
+			var threshold = this.$nextH2AfterLast.offset().top - offset;
+			return scrollTop >= threshold + this._nextH2Hysteresis;
+		},
+
+		/**
+		 * 次のh2より十分上に戻ったか（ヒステリシス：再表示は閾値より上にスクロールしたとき）
+		 */
+		isBackAboveNextH2: function(scrollTop) {
+			if (!this.$nextH2AfterLast || !this.$nextH2AfterLast.length) return true;
+			var offset = this.getScrollOffset();
+			var threshold = this.$nextH2AfterLast.offset().top - offset;
+			return scrollTop < threshold - this._nextH2Hysteresis;
+		},
+
+		/**
 		 * 表示開始条件を満たしているか判定
 		 */
 		shouldShow: function(scrollTop) {
+			// 指定した最後のh2の「次の」h2に達したらナビを隠す（ヒステリシス込み）
+			if (this.isPastLastH2(scrollTop)) {
+				return false;
+			}
+			// 境界のデッドゾーン内では現在の表示状態を維持（二重動作防止）
+			if (!this.isBackAboveNextH2(scrollTop) && this.$nav && this.$nav.hasClass('navitto-nav--past-last-h2')) {
+				return false;
+			}
 			// テーマヘッダーが sticky の場合は常に表示（スクロール不要）
 			if (this.$nav && this.$nav.hasClass('cp-theme-header-sticky')) {
 				return true;
@@ -882,23 +911,52 @@
 		},
 
 		onScroll: function() {
+			var self = this;
 			var scrollTop = $(window).scrollTop();
 
-			// スクロールアニメーション中はナビの表示/非表示を変更しない
-			// （レイアウトシフトによるオフセットのずれを防止）
+			// アクティブ項目の更新は毎回（スムーズな見た目のため）
 			if (!this.isScrolling) {
-				if (this.shouldShow(scrollTop)) {
-					if (!this.$nav.hasClass('is-visible')) {
-						this.$nav.addClass('is-visible');
-						this.updateScrollMargin();
-					}
-				} else {
-					if (this.$nav.hasClass('is-visible')) {
-						this.$nav.removeClass('is-visible');
-					}
-				}
-
 				this.updateActive(scrollTop);
+			}
+
+			// 表示/非表示の切り替えは rAF でスロットル（カクツキ軽減）
+			if (!this.isScrolling && this.$nav && this.$nav.length) {
+				if (this._scrollRafId != null) {
+					return;
+				}
+				this._scrollRafId = requestAnimationFrame(function() {
+					self._scrollRafId = null;
+					var top = $(window).scrollTop();
+					if (self.shouldShow(top)) {
+						if (!self.$nav.hasClass('is-visible')) {
+							self.$nav.addClass('is-visible');
+							self.$nav.removeClass('navitto-nav--past-last-h2');
+							$('body').removeClass('navitto-past-last-h2');
+							if (self.$headerParent && self.$headerParent.length) {
+								self.$headerParent.removeClass('navitto-header-hidden');
+							}
+							self.updateScrollMargin();
+						}
+					} else {
+						if (self.$nav.hasClass('is-visible')) {
+							self.$nav.removeClass('is-visible');
+						}
+						if (self.isPastLastH2(top)) {
+							self.$nav.removeClass('is-visible');
+							self.$nav.addClass('navitto-nav--past-last-h2');
+							$('body').addClass('navitto-past-last-h2');
+							if (!self.$nav.hasClass('cp-inside-header') && self.$headerParent && self.$headerParent.length) {
+								self.$headerParent.addClass('navitto-header-hidden');
+							}
+						} else if (self.isBackAboveNextH2(top)) {
+							self.$nav.removeClass('navitto-nav--past-last-h2');
+							$('body').removeClass('navitto-past-last-h2');
+							if (self.$headerParent && self.$headerParent.length) {
+								self.$headerParent.removeClass('navitto-header-hidden');
+							}
+						}
+					}
+				});
 			}
 		},
 
@@ -920,7 +978,7 @@
 				}
 			});
 
-			var $items = this.$nav.find('.navitto-nav__item:not(.navitto-nav__item--custom)');
+			var $items = this.$nav.find('.navitto-nav__item');
 			$items.removeClass('navitto-nav__item--active');
 			var $active = $items.eq(activeIndex).addClass('navitto-nav__item--active');
 

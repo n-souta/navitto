@@ -83,6 +83,44 @@
 	transition-duration: 0s;
 }
 
+/* 指定範囲を過ぎて次のh2に達したとき：プラグインナビ＋テーマヘッダーごと非表示（スムーズに） */
+.navitto-header-hidden {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transform: translateY(-100%);
+	will-change: transform, opacity;
+	transition: opacity 0.4s ease-out, transform 0.4s ease-out, visibility 0s linear 0.4s;
+}
+
+/* 指定した最後のh2を過ぎて次のh2に達したとき：navitto-nav をスムーズに非表示 */
+.navitto-nav.navitto-nav--past-last-h2 {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	will-change: opacity;
+	transition: opacity 0.4s ease-out, visibility 0s linear 0.4s;
+}
+
+/* 固定配置時はスライドで隠す（カクツキ防止） */
+.navitto-nav.navitto-nav--past-last-h2:not(.cp-inside-header) {
+	transform: translateY(-100%);
+	will-change: transform, opacity;
+	transition: opacity 0.4s ease-out, transform 0.4s ease-out, visibility 0s linear 0.4s;
+}
+
+.navitto-nav.cp-pos-bottom.navitto-nav--past-last-h2:not(.cp-inside-header) {
+	transform: translateY(100%);
+}
+
+/* ヘッダー内のナビは高さを詰めてスムーズに隠す */
+.navitto-nav.cp-inside-header.navitto-nav--past-last-h2 {
+	height: 0;
+	min-height: 0;
+	overflow: hidden;
+	transition: height 0.4s ease-out, opacity 0.4s ease-out, visibility 0s linear 0.4s;
+}
+
 /* 下部固定 */
 .navitto-nav.cp-pos-bottom {
 	top: auto;
@@ -206,15 +244,6 @@
 }
 .navitto-nav__text {
 	display: inline;
-}
-
-/* ---------- カスタム項目（外部リンク等） ---------- */
-.navitto-nav__item--custom .navitto-nav__link {
-	border-bottom-color: transparent;
-	opacity: 0.8;
-}
-.navitto-nav__item--custom .navitto-nav__link:hover {
-	opacity: 1;
 }
 
 /* ==========================================================================
@@ -381,11 +410,22 @@ html:has(body.navitto-pos-bottom) {
 
 body.navitto-active.navitto-body-padding {
 	padding-top: var(--navitto-height);
+	transition: padding 0.4s ease;
 }
 
 body.navitto-active.navitto-body-padding.navitto-bottom {
 	padding-top: 0;
 	padding-bottom: var(--navitto-height);
+	transition: padding 0.4s ease;
+}
+
+/* 指定範囲を過ぎて次のh2に達したとき：ナビを隠すので body のナビ分余白もスムーズに解除 */
+body.navitto-past-last-h2.navitto-body-padding {
+	padding-top: 0;
+}
+
+body.navitto-past-last-h2.navitto-body-padding.navitto-bottom {
+	padding-bottom: 0;
 }
 
 @media (max-width: 768px) {
@@ -395,6 +435,12 @@ body.navitto-active.navitto-body-padding.navitto-bottom {
 	body.navitto-active.navitto-body-padding.navitto-bottom {
 		padding-top: 0;
 		padding-bottom: var(--navitto-height-mobile);
+	}
+	body.navitto-past-last-h2.navitto-body-padding {
+		padding-top: 0;
+	}
+	body.navitto-past-last-h2.navitto-body-padding.navitto-bottom {
+		padding-bottom: 0;
 	}
 }
 

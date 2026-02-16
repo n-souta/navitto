@@ -198,41 +198,4 @@
 			openIconPicker(type, index);
 		}
 	});
-
-	/* =========================================================================
-	   カスタム項目（外部リンク等）追加・削除
-	   ========================================================================= */
-	var addBtn   = document.getElementById('cp-add-custom-item');
-	var listWrap = document.getElementById('cp-custom-items-list');
-
-	if (addBtn && listWrap) {
-		addBtn.addEventListener('click', function() {
-			var index = listWrap.querySelectorAll('.cp-custom-item').length;
-			var div = document.createElement('div');
-			div.className = 'cp-custom-item';
-			div.setAttribute('data-index', index);
-			div.style.cssText = 'background:#f9f9f9; padding:8px; margin-bottom:6px; border:1px solid #ddd; border-radius:4px;';
-			div.innerHTML =
-				'<div class="cp-h2-item-row">' +
-					'<span class="navitto-icon-picker-preview" data-type="custom" data-index="' + index + '"></span>' +
-					'<input type="text" name="navitto_custom_item_label[]" value="" placeholder="ラベル（例: お問い合わせ）" style="flex:1; min-width:0; margin-bottom:0;" />' +
-				'</div>' +
-				'<div class="cp-h2-item-row cp-h2-item-row--icon-btn">' +
-					'<button type="button" class="navitto-icon-picker-btn button button-small" data-type="custom" data-index="' + index + '" title="アイコンを追加">アイコンを追加</button>' +
-					'<input type="hidden" name="navitto_custom_item_icon[]" class="navitto-icon-picker-value" data-type="custom" data-index="' + index + '" value="" />' +
-				'</div>' +
-				'<input type="url" name="navitto_custom_item_url[]" value="" placeholder="URL（例: https://example.com）" style="width:100%; margin-bottom:4px;" />' +
-				'<label style="font-size:12px;"><input type="checkbox" name="navitto_custom_item_newtab[' + index + ']" value="1" /> 新しいタブで開く</label>' +
-				'<button type="button" class="cp-remove-custom-item" style="float:right; color:#a00; background:none; border:none; cursor:pointer; font-size:12px;">削除</button>' +
-				'<div style="clear:both;"></div>';
-			listWrap.appendChild(div);
-			updateIconButtonState('custom', index);
-		});
-		listWrap.addEventListener('click', function(e) {
-			if (e.target && e.target.classList.contains('cp-remove-custom-item')) {
-				var item = e.target.closest('.cp-custom-item');
-				if (item) item.remove();
-			}
-		});
-	}
 })();

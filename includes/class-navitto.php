@@ -171,10 +171,6 @@ class Navitto_Main {
 			$js_h2_icons[ strval( $k ) ] = $v;
 		}
 
-		// カスタム項目（外部リンク等）
-		$raw_custom_items = get_post_meta( $post_id, '_navitto_custom_items', true );
-		$custom_items     = is_array( $raw_custom_items ) ? $raw_custom_items : array();
-
 		$theme_bg_transparent = (bool) get_theme_mod( 'navitto_theme_bg_transparent', false );
 
 		wp_localize_script(
@@ -195,7 +191,6 @@ class Navitto_Main {
 				'navWidth'            => $nav_width,
 				'detection'           => $detection_data,
 				'fixedHeader'         => $header_data,
-				'customItems'         => $custom_items,
 			)
 		);
 
