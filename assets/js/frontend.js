@@ -1054,6 +1054,7 @@
 				if ((stableCount >= 2 || checkCount >= 60) && !corrected) {
 					corrected = true;
 					clearInterval(checkInterval);
+					clearTimeout(safetyTimeout);
 
 					// 見出しの現在位置を確認し、ナビに被っていたらフワッと補正
 					requestAnimationFrame(function() {
@@ -1075,6 +1076,15 @@
 					});
 				}
 			}, 50);
+
+			// スマホなどでスクロールが長く続き「安定」検知が遅れても、一定時間で isScrolling を解除（アクティブが動かなくなるのを防ぐ）
+			var safetyTimeout = setTimeout(function() {
+				if (!corrected) {
+					corrected = true;
+					clearInterval(checkInterval);
+					self.isScrolling = false;
+				}
+			}, 1200);
 		},
 
 		escapeHtml: function(str) {
