@@ -210,6 +210,7 @@
 	border-bottom: 3px solid transparent;  /* アクティブ時も高さを変えず border のみ変化させる */
 	border-radius: var(--navitto-radius);
 	transition: all 0.2s ease;
+	-webkit-tap-highlight-color: transparent;  /* スマホ：リンクタップ時の一瞬のハイライトを消す（色が残って見える現象の緩和） */
 }
 
 .navitto-nav__link:hover {
