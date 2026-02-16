@@ -56,10 +56,30 @@ class Navitto_Admin {
 			NAVITTO_VERSION
 		);
 
+		// Font Awesome（nv- プレフィックス・テーマの fa- と競合しない）
+		$fa_css = NAVITTO_PLUGIN_DIR . 'assets/lib/fontawesome/all-nv.min.css';
+		if ( file_exists( $fa_css ) ) {
+			wp_enqueue_style(
+				'navitto-fontawesome',
+				NAVITTO_PLUGIN_URL . 'assets/lib/fontawesome/all-nv.min.css',
+				array(),
+				NAVITTO_VERSION
+			);
+		}
+
+		// アイコンレジストリ（メタボックスJSより前に読み込み・テーマ干渉防止）
+		wp_enqueue_script(
+			'navitto-icons',
+			NAVITTO_PLUGIN_URL . 'assets/js/navitto-icons.js',
+			array(),
+			NAVITTO_VERSION,
+			true
+		);
+
 		wp_enqueue_script(
 			'navitto-admin-metabox',
 			NAVITTO_PLUGIN_URL . 'assets/js/admin-metabox.js',
-			array(),
+			array( 'navitto-icons' ),
 			NAVITTO_VERSION,
 			true
 		);
@@ -106,11 +126,14 @@ class Navitto_Admin {
 
 		$selected_h2   = array();
 		$custom_texts  = array();
+		$h2_icons      = array();
 		if ( 'select' === $display_mode ) {
 			$selected_h2 = get_post_meta( $post->ID, '_navitto_selected_h2', true );
 			$selected_h2 = is_array( $selected_h2 ) ? $selected_h2 : array();
 			$custom_texts = get_post_meta( $post->ID, '_navitto_h2_custom_texts', true );
 			$custom_texts = is_array( $custom_texts ) ? $custom_texts : array();
+			$h2_icons = get_post_meta( $post->ID, '_navitto_h2_icons', true );
+			$h2_icons = is_array( $h2_icons ) ? $h2_icons : array();
 		}
 
 		// トリガー設定
@@ -161,20 +184,27 @@ class Navitto_Admin {
 				<?php if ( empty( $h2_list ) ) : ?>
 					<p class="description"><?php esc_html_e( 'H2見出しが見つかりません。', 'navitto' ); ?></p>
 				<?php else : ?>
-					<?php foreach ( $h2_list as $index => $h2_text ) :
-						$is_checked  = in_array( $index, $selected_h2, false );
-						$custom_text = isset( $custom_texts[ $index ] ) ? $custom_texts[ $index ] : '';
-					?>
-						<div class="cp-h2-item">
-							<label>
-								<input type="checkbox"
-									name="navitto_selected_h2[]"
-									value="<?php echo esc_attr( $index ); ?>"
-									class="cp-h2-checkbox"
-									data-index="<?php echo esc_attr( $index ); ?>"
-									<?php checked( $is_checked ); ?> />
-								<?php echo esc_html( $h2_text ); ?>
-							</label>
+				<?php foreach ( $h2_list as $index => $h2_text ) :
+					$is_checked  = in_array( $index, $selected_h2, false );
+					$custom_text = isset( $custom_texts[ $index ] ) ? $custom_texts[ $index ] : '';
+					$icon_value  = isset( $h2_icons[ $index ] ) ? $h2_icons[ $index ] : ''; // "setId:iconName" または ""
+				?>
+					<div class="cp-h2-item">
+						<label>
+							<input type="checkbox"
+								name="navitto_selected_h2[]"
+								value="<?php echo esc_attr( $index ); ?>"
+								class="cp-h2-checkbox"
+								data-index="<?php echo esc_attr( $index ); ?>"
+								<?php checked( $is_checked ); ?> />
+							<?php echo esc_html( $h2_text ); ?>
+						</label>
+						<div class="cp-h2-item-row">
+							<span class="navitto-icon-picker-preview" data-index="<?php echo esc_attr( $index ); ?>"><?php
+								if ( $icon_value && $icon_value !== 'none' && substr( $icon_value, -4 ) !== ':none' ) {
+									echo '<span class="navitto-icon-picker-placeholder" data-icon-value="' . esc_attr( $icon_value ) . '"></span>';
+								}
+							?></span>
 							<input type="text"
 								name="navitto_h2_text_<?php echo esc_attr( $index ); ?>"
 								class="cp-h2-text-input"
@@ -183,7 +213,20 @@ class Navitto_Admin {
 								placeholder="<?php echo esc_attr( $h2_text ); ?>"
 								<?php echo $is_checked ? '' : 'disabled'; ?> />
 						</div>
-					<?php endforeach; ?>
+						<div class="cp-h2-item-row cp-h2-item-row--icon-btn">
+							<button type="button"
+								class="navitto-icon-picker-btn button button-small"
+								data-index="<?php echo esc_attr( $index ); ?>"
+								title="<?php esc_attr_e( 'アイコンを追加', 'navitto' ); ?>"
+								<?php echo $is_checked ? '' : 'disabled'; ?>><?php esc_html_e( 'アイコンを追加', 'navitto' ); ?></button>
+							<input type="hidden"
+								name="navitto_h2_icon_<?php echo esc_attr( $index ); ?>"
+								class="navitto-icon-picker-value"
+								data-index="<?php echo esc_attr( $index ); ?>"
+								value="<?php echo esc_attr( $icon_value ); ?>" />
+						</div>
+					</div>
+				<?php endforeach; ?>
 				<?php endif; ?>
 			</div>
 
@@ -333,13 +376,22 @@ class Navitto_Admin {
 			update_post_meta( $post_id, '_navitto_selected_h2', $selected );
 
 			$texts = array();
+			$icons = array();
 			foreach ( $selected as $idx ) {
 				$key = 'navitto_h2_text_' . $idx;
 				if ( isset( $_POST[ $key ] ) ) {
 					$texts[ $idx ] = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
 				}
+				$icon_key = 'navitto_h2_icon_' . $idx;
+				if ( isset( $_POST[ $icon_key ] ) ) {
+					$val = sanitize_text_field( wp_unslash( $_POST[ $icon_key ] ) );
+					if ( $val !== '' ) {
+						$icons[ $idx ] = $val;
+					}
+				}
 			}
 			update_post_meta( $post_id, '_navitto_h2_custom_texts', $texts );
+			update_post_meta( $post_id, '_navitto_h2_icons', $icons );
 
 			// 表示開始位置
 			$trigger_type = isset( $_POST['_navitto_trigger_type'] )
@@ -366,6 +418,7 @@ class Navitto_Admin {
 		} else {
 			delete_post_meta( $post_id, '_navitto_selected_h2' );
 			delete_post_meta( $post_id, '_navitto_h2_custom_texts' );
+			delete_post_meta( $post_id, '_navitto_h2_icons' );
 			delete_post_meta( $post_id, '_navitto_trigger_type' );
 			delete_post_meta( $post_id, '_navitto_trigger_nth' );
 			delete_post_meta( $post_id, '_navitto_trigger_scroll_px' );

@@ -23,6 +23,8 @@ composer.lock
 *.min.css
 *.min.js
 *.map
+# Font Awesome 同梱用ビルド成果物はコミットする
+!assets/lib/fontawesome/all-nv.min.css
 
 # WordPress
 wp-config.php

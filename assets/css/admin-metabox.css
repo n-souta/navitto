@@ -1,6 +1,8 @@
 /**
  * Navitto - メタボックス管理画面スタイル
  *
+ * クラスは navitto-icon-picker-* で統一し、テーマと競合しない。
+ *
  * @package Navitto
  * @since   1.0.1
  */
@@ -32,14 +34,165 @@
 	gap: 4px;
 	font-size: 13px;
 }
-.cp-h2-text-input {
-	width: 100%;
+.cp-h2-item-row {
+	display: flex;
+	align-items: center;
+	gap: 4px;
 	margin-top: 4px;
+}
+.cp-h2-item-row--icon-btn {
+	margin-top: 2px;
+	margin-left: 28px; /* アイコン幅24px + gap 4px で1行目と揃える */
+}
+.cp-h2-text-input {
+	flex: 1;
+	min-width: 0;
+	margin-top: 0;
 	font-size: 12px;
 }
 .cp-h2-text-input:disabled {
 	opacity: 0.4;
 	pointer-events: none;
+}
+/* プレースホルダー（テキスト入力）の左側に選択アイコンを表示 */
+.navitto-icon-picker-preview {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 32px;
+	min-width: 24px;
+}
+.navitto-icon-picker-preview svg,
+.navitto-icon-picker-preview i {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+}
+.navitto-icon-picker-preview .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+.navitto-icon-picker-btn {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 32px;
+	padding: 0 10px;
+	white-space: nowrap;
+}
+.navitto-icon-picker-btn:disabled {
+	opacity: 0.4;
+	pointer-events: none;
+}
+/* アイコン選択時：ボタンが「アイコンを削除」になり赤色で表示 */
+.navitto-icon-picker-btn.navitto-icon-picker-btn--remove {
+	color: #b32d2e;
+	border-color: #b32d2e;
+}
+.navitto-icon-picker-btn.navitto-icon-picker-btn--remove:hover {
+	background: #b32d2e;
+	color: #fff;
+	border-color: #b32d2e;
+}
+
+/* アイコンピッカー：画面中央モーダル */
+.navitto-icon-picker-overlay {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 100100;
+}
+.navitto-icon-picker-overlay.navitto-icon-picker-overlay-visible {
+	display: block;
+}
+.navitto-icon-picker-modal {
+	display: none;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 480px;
+	max-width: 92vw;
+	max-height: 85vh;
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+	z-index: 100101;
+	overflow: hidden;
+	flex-direction: column;
+}
+.navitto-icon-picker-modal.navitto-icon-picker-modal-visible {
+	display: flex;
+}
+.navitto-icon-picker-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 16px;
+	border-bottom: 1px solid #ddd;
+	flex-shrink: 0;
+}
+.navitto-icon-picker-title {
+	font-size: 14px;
+	font-weight: 600;
+}
+.navitto-icon-picker-close {
+	background: none;
+	border: none;
+	font-size: 22px;
+	line-height: 1;
+	cursor: pointer;
+	color: #666;
+	padding: 0 4px;
+}
+.navitto-icon-picker-close:hover {
+	color: #d63638;
+}
+.navitto-icon-picker-grid-container {
+	overflow-y: auto;
+	flex: 1;
+	padding: 12px;
+	min-height: 200px;
+	max-height: 55vh;
+}
+.navitto-icon-picker-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+	gap: 6px;
+}
+.navitto-icon-picker-cell {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background: #fff;
+	cursor: pointer;
+	padding: 0;
+	color: #3c434a;
+}
+.navitto-icon-picker-cell:hover {
+	background: #f0f6fc;
+	border-color: #2271b1;
+}
+.navitto-icon-picker-cell.navitto-icon-picker-cell-selected {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+}
+.navitto-icon-picker-cell svg {
+	width: 18px;
+	height: 18px;
 }
 .cp-trigger-settings {
 	margin: 8px 0;

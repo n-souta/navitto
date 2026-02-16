@@ -185,6 +185,29 @@
 	border-bottom: 3px solid var(--navitto-active-text);
 }
 
+/* ---------- ナビ項目内アイコン（Font Awesome nvfa / 装飾用・aria-hidden） ---------- */
+.navitto-nav__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 1em;
+	height: 1em;
+	margin-right: 4px;
+}
+.navitto-nav__icon i.nvfa {
+	font-size: 1em;
+	vertical-align: middle;
+}
+.navitto-nav__icon svg {
+	width: 1em;
+	height: 1em;
+	vertical-align: middle;
+}
+.navitto-nav__text {
+	display: inline;
+}
+
 /* ---------- カスタム項目（外部リンク等） ---------- */
 .navitto-nav__item--custom .navitto-nav__link {
 	border-bottom-color: transparent;
@@ -221,7 +244,9 @@ nav.navitto-nav.nav-equal .navitto-nav__item {
 }
 
 nav.navitto-nav.nav-equal .navitto-nav__link {
-	display: block;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	width: 100%;
 	overflow: hidden;
 	white-space: nowrap;

@@ -29,6 +29,7 @@
 			displayMode: 'show_all',
 			selectedH2: [],
 			customTexts: {},
+			h2Icons: {},
 			trigger: { type: 'immediate' },
 			detection: null,
 			fixedHeader: null
@@ -134,6 +135,7 @@
 
 			var selected = s.selectedH2;
 			var texts = s.customTexts || {};
+			var icons = s.h2Icons || {};
 			var filtered = [];
 			for (var i = 0; i < this.headings.length; i++) {
 				var inSelected = false;
@@ -144,6 +146,8 @@
 					var heading = this.headings[i];
 					var customText = texts[String(i)];
 					if (customText && customText.length > 0) heading.text = customText;
+					var iconVal = icons[String(i)];
+					if (iconVal && iconVal !== 'none') heading.icon = iconVal;
 					filtered.push(heading);
 				}
 			}
@@ -252,11 +256,18 @@
 			html += '<div class="navitto-nav__inner">';
 			html += '<ul class="navitto-nav__list">';
 
+			var iconRegistry = window.__NAVITTO_ICONS__;
 			this.headings.forEach(function(heading, index) {
 				var activeClass = index === 0 ? ' navitto-nav__item--active' : '';
 				html += '<li class="navitto-nav__item' + activeClass + '">';
 				html += '<a href="#' + self.escapeAttr(heading.id) + '" class="navitto-nav__link">';
-				html += self.escapeHtml(heading.text);
+				if (heading.icon && iconRegistry) {
+					var svgHtml = iconRegistry.getSvg(heading.icon);
+					if (svgHtml) {
+						html += '<span class="navitto-nav__icon" aria-hidden="true">' + svgHtml + '</span>';
+					}
+				}
+				html += '<span class="navitto-nav__text">' + self.escapeHtml(heading.text) + '</span>';
 				html += '</a></li>';
 			});
 

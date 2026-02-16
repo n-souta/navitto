@@ -77,11 +77,31 @@ class Navitto_Main {
 			$this->version
 		);
 
+		// Font Awesome（nv- プレフィックス）※ アイコン利用時用
+		$fa_css = NAVITTO_PLUGIN_DIR . 'assets/lib/fontawesome/all-nv.min.css';
+		if ( file_exists( $fa_css ) ) {
+			wp_enqueue_style(
+				'navitto-fontawesome',
+				NAVITTO_PLUGIN_URL . 'assets/lib/fontawesome/all-nv.min.css',
+				array(),
+				$this->version
+			);
+		}
+
+		// アイコンレジストリ（frontend より前に読み込み）
+		wp_enqueue_script(
+			'navitto-icons',
+			NAVITTO_PLUGIN_URL . 'assets/js/navitto-icons.js',
+			array(),
+			$this->version,
+			true
+		);
+
 		// JavaScript
 		wp_enqueue_script(
 			'navitto-frontend',
 			NAVITTO_PLUGIN_URL . 'assets/js/frontend.js',
-			array( 'jquery' ),
+			array( 'jquery', 'navitto-icons' ),
 			$this->version,
 			true
 		);
@@ -103,11 +123,14 @@ class Navitto_Main {
 
 		$selected_h2  = array();
 		$custom_texts  = array();
+		$h2_icons      = array();
 		if ( 'select' === $display_mode ) {
 			$raw = get_post_meta( $post_id, '_navitto_selected_h2', true );
 			$selected_h2 = is_array( $raw ) ? $raw : array();
 			$raw_texts = get_post_meta( $post_id, '_navitto_h2_custom_texts', true );
 			$custom_texts = is_array( $raw_texts ) ? $raw_texts : array();
+			$raw_icons = get_post_meta( $post_id, '_navitto_h2_icons', true );
+			$h2_icons = is_array( $raw_icons ) ? $raw_icons : array();
 		}
 
 		// 表示開始位置の設定
@@ -143,6 +166,10 @@ class Navitto_Main {
 		foreach ( $custom_texts as $k => $v ) {
 			$js_custom_texts[ strval( $k ) ] = $v;
 		}
+		$js_h2_icons = array();
+		foreach ( $h2_icons as $k => $v ) {
+			$js_h2_icons[ strval( $k ) ] = $v;
+		}
 
 		// カスタム項目（外部リンク等）
 		$raw_custom_items = get_post_meta( $post_id, '_navitto_custom_items', true );
@@ -163,6 +190,7 @@ class Navitto_Main {
 				'displayMode'         => $display_mode,
 				'selectedH2'          => $selected_h2,
 				'customTexts'         => ! empty( $js_custom_texts ) ? $js_custom_texts : new stdClass(),
+				'h2Icons'             => ! empty( $js_h2_icons ) ? $js_h2_icons : new stdClass(),
 				'trigger'             => $trigger_data,
 				'navWidth'            => $nav_width,
 				'detection'           => $detection_data,
