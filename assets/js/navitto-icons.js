@@ -12,14 +12,12 @@
 	'use strict';
 
 	// アイコン名 → Font Awesome クラス文字列（nv- プレフィックス）
-	// FA6 Free の solid/regular に合わせた名前
+	// FA6 Free の solid/regular に合わせた名前（表示崩れする outline 系は除外）
 	var iconClasses = {
 		none: '',
 		home: 'nvfa nvfas nvfa-house',
 		star: 'nvfa nvfas nvfa-star',
-		'star-outline': 'nvfa nvfar nvfa-star',
 		heart: 'nvfa nvfas nvfa-heart',
-		'heart-outline': 'nvfa nvfar nvfa-heart',
 		bookmark: 'nvfa nvfas nvfa-bookmark',
 		flag: 'nvfa nvfas nvfa-flag',
 		check: 'nvfa nvfas nvfa-check',
@@ -50,7 +48,6 @@
 		'alert-circle': 'nvfa nvfas nvfa-circle-exclamation',
 		'help-circle': 'nvfa nvfas nvfa-circle-question',
 		zap: 'nvfa nvfas nvfa-bolt',
-		'zap-outline': 'nvfa nvfar nvfa-bolt',
 		search: 'nvfa nvfas nvfa-magnifying-glass',
 		lock: 'nvfa nvfas nvfa-lock',
 		unlock: 'nvfa nvfas nvfa-lock-open',
@@ -115,22 +112,22 @@
 		code: 'nvfa nvfas nvfa-code',
 		cpu: 'nvfa nvfas nvfa-microchip',
 		'ranking-star': 'nvfa nvfas nvfa-ranking-star',
-		'piggy-bank': 'nvfa nvfar nvfa-piggy-bank',
 		crown: 'nvfa nvfas nvfa-crown',
 		'wand-magic-sparkles': 'nvfa nvfas nvfa-wand-magic-sparkles',
 		'web-awesome': 'nvfa nvfas nvfa-web-awesome'
 	};
 
+	// ピッカーに表示するアイコン名（'none' は含めない＝初期は未選択）
 	var iconNames = [
-		'none', 'home', 'star', 'star-outline', 'heart', 'heart-outline', 'bookmark', 'flag', 'check', 'check-circle', 'circle', 'list', 'clipboard',
+		'home', 'star', 'heart', 'bookmark', 'flag', 'check', 'check-circle', 'circle', 'list', 'clipboard',
 		'file', 'file-text', 'book', 'book-open', 'pen', 'message-circle', 'mail', 'phone', 'bell',
 		'arrow-right', 'arrow-left', 'arrow-up', 'arrow-down', 'chevron-right', 'chevron-left', 'chevron-up', 'chevron-down', 'external-link', 'compass',
-		'info', 'alert-circle', 'help-circle', 'zap', 'zap-outline', 'search', 'lock', 'unlock', 'shield', 'settings',
+		'info', 'alert-circle', 'help-circle', 'zap', 'search', 'lock', 'unlock', 'shield', 'settings',
 		'image', 'camera', 'play', 'pause', 'music', 'user', 'users', 'globe', 'map-pin', 'clock', 'calendar', 'coffee',
 		'thumbs-up', 'thumbs-down', 'award', 'target', 'smile', 'sun', 'moon', 'lightbulb', 'trending-up', 'trending-down', 'layers', 'database', 'hash', 'link', 'link-off', 'key',
 		'shopping-cart', 'gift', 'dollar-sign', 'tag', 'folder', 'folder-open', 'download', 'upload', 'share', 'printer', 'scissors', 'package',
 		'grid', 'menu', 'more-horizontal', 'more-vertical', 'minus', 'plus', 'x', 'x-circle', 'refresh', 'repeat', 'filter', 'eye', 'eye-off', 'feather', 'anchor', 'box', 'code', 'cpu',
-		'ranking-star', 'piggy-bank', 'crown', 'wand-magic-sparkles', 'web-awesome'
+		'ranking-star', 'crown', 'wand-magic-sparkles', 'web-awesome'
 	];
 
 	/**

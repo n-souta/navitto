@@ -112,10 +112,10 @@
 			cell.type = 'button';
 			cell.className = 'navitto-icon-picker-cell';
 			cell.setAttribute('data-icon-name', iconName);
-			cell.setAttribute('title', iconName === 'none' ? 'アイコンなし' : iconName);
-			cell.setAttribute('aria-label', iconName === 'none' ? 'アイコンなし' : iconName);
+			cell.setAttribute('title', iconName);
+			cell.setAttribute('aria-label', iconName);
 			var iconHtml = iconRegistry.getIconHtml ? iconRegistry.getIconHtml(iconName) : iconRegistry.getSvg(iconName);
-			cell.innerHTML = iconHtml || '<span class="dashicons dashicons-minus" aria-hidden="true"></span>';
+			cell.innerHTML = iconHtml || '';
 			cell.addEventListener('click', function() { selectIcon(iconName); });
 			grid.appendChild(cell);
 		});
@@ -135,8 +135,7 @@
 		var sel = getIconPickerSelector(currentPickerType, currentPickerIndex);
 		var hiddenInput = document.querySelector('.navitto-icon-picker-value' + sel);
 		var currentVal = hiddenInput ? hiddenInput.value : '';
-		var currentName = getIconNameFromValue(currentVal);
-		if (!currentName) currentName = 'none';
+		var currentName = getIconNameFromValue(currentVal) || '';
 
 		pickerModal.querySelectorAll('.navitto-icon-picker-cell').forEach(function(cell) {
 			cell.classList.toggle('navitto-icon-picker-cell-selected', cell.getAttribute('data-icon-name') === currentName);
