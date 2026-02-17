@@ -62,7 +62,7 @@
 	margin-top: var(--navitto-adminbar-h);
 }
 
-/* ヘッダー内に挿入された場合: fixed解除、相対配置にする */
+/* ヘッダー内に挿入された場合: fixed解除、相対配置にする（出現アニメ 0.2s） */
 .navitto-nav.cp-inside-header {
 	position: relative;
 	top: auto;
@@ -71,16 +71,28 @@
 	z-index: auto;
 	width: 100%;
 	margin-top: 0;
-	/* 出現時は height をアニメさせない＝中身が一斉に表示される（height を効かせると最後から順に表示される） */
-	transition: opacity var(--navitto-nav-transition-duration);
+	transition: height 0.2s ease-out, opacity var(--navitto-nav-transition-duration);
 }
 
 /* 表示開始前に「背景だけ見える」状態にしない：ヘッダー内では is-visible まで高さ0で潰す */
+/* 一番上に戻った時：テキストを先にフェードアウト(0.2s)→高さを詰める(0.2s)。opacity/visibility は 0.4s 遅延で変化 */
 .navitto-nav.cp-inside-header:not(.is-visible) {
 	height: 0;
 	min-height: 0;
 	overflow: hidden;
 	visibility: hidden;
+	transition: height 0.2s ease-out 0.2s, opacity 0.2s ease-out 0.4s, visibility 0s linear 0.4s;
+}
+.navitto-nav.cp-inside-header:not(.is-visible) .navitto-nav__inner {
+	opacity: 0;
+	transition: opacity 0.2s ease-out;
+	transition-delay: 0s;
+}
+
+.navitto-nav.cp-inside-header.is-visible .navitto-nav__inner {
+	opacity: 1;
+	transition: opacity 0.2s ease-out;
+	transition-delay: 0.2s;
 }
 
 .navitto-nav.is-visible {
