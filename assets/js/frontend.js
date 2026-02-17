@@ -912,21 +912,15 @@
 
 		onScroll: function() {
 			var self = this;
-			var scrollTop = $(window).scrollTop();
 
-			// アクティブ項目の更新は毎回（スムーズな見た目のため）
-			if (!this.isScrolling) {
-				this.updateActive(scrollTop);
-			}
-
-			// 表示/非表示の切り替えは rAF でスロットル（カクツキ軽減）
-			if (!this.isScrolling && this.$nav && this.$nav.length) {
-				if (this._scrollRafId != null) {
-					return;
-				}
+			// アクティブ更新・表示/非表示を rAF で1フレームに1回にまとめる（カクツキ軽減）
+			if (!this.isScrolling && this.$nav && this.$nav.length && this._scrollRafId == null) {
 				this._scrollRafId = requestAnimationFrame(function() {
 					self._scrollRafId = null;
 					var top = $(window).scrollTop();
+					if (!self.isScrolling) {
+						self.updateActive(top);
+					}
 					if (self.shouldShow(top)) {
 						if (!self.$nav.hasClass('is-visible')) {
 							self.$nav.addClass('is-visible');

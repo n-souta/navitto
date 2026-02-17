@@ -99,14 +99,14 @@
 	visibility: hidden;
 	pointer-events: none;
 	will-change: opacity;
-	transition: opacity 0.4s ease-out, visibility 0s linear 0.4s;
+	transition: opacity 0.1s ease-out, visibility 0s linear 0.1s;
 }
 
 /* 固定配置時はスライドで隠す（カクツキ防止） */
 .navitto-nav.navitto-nav--past-last-h2:not(.cp-inside-header) {
 	transform: translateY(-100%);
 	will-change: transform, opacity;
-	transition: opacity 0.4s ease-out, transform 0.4s ease-out, visibility 0s linear 0.4s;
+	transition: opacity 0.1s ease-out, transform 0.1s ease-out, visibility 0s linear 0.1s;
 }
 
 .navitto-nav.cp-pos-bottom.navitto-nav--past-last-h2:not(.cp-inside-header) {
@@ -118,7 +118,7 @@
 	height: 0;
 	min-height: 0;
 	overflow: hidden;
-	transition: height 0.4s ease-out, opacity 0.4s ease-out, visibility 0s linear 0.4s;
+	transition: height 0.1s ease-out, opacity 0.1s ease-out, visibility 0s linear 0.1s;
 }
 
 /* 下部固定 */
