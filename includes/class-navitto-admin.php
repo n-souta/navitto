@@ -139,8 +139,6 @@ class Navitto_Admin {
 		// トリガー設定
 		$trigger_type = get_post_meta( $post->ID, '_navitto_trigger_type', true );
 		$trigger_type = $trigger_type ? $trigger_type : 'immediate';
-		$trigger_nth  = get_post_meta( $post->ID, '_navitto_trigger_nth', true );
-		$trigger_nth  = $trigger_nth ? absint( $trigger_nth ) : 2;
 
 		// 投稿内容からH2を取得
 		$content = $post->post_content;
@@ -247,18 +245,6 @@ class Navitto_Admin {
 					<?php esc_html_e( '選択した最初の見出しを通過後', 'navitto' ); ?>
 				</label>
 				<p class="description"><?php esc_html_e( 'チェックを入れた最初の見出しを通過したら表示', 'navitto' ); ?></p>
-
-				<label>
-					<input type="radio" name="_navitto_trigger_type" value="nth_selected"
-						<?php checked( $trigger_type, 'nth_selected' ); ?> />
-					<span class="cp-trigger-inline">
-						<input type="number" name="_navitto_trigger_nth"
-							value="<?php echo esc_attr( $trigger_nth ); ?>"
-							min="1" max="99" style="width:60px;" />
-						<?php esc_html_e( '番目の見出しを通過後', 'navitto' ); ?>
-					</span>
-				</label>
-				<p class="description"><?php esc_html_e( 'チェックを入れたN番目の見出しを通過したら表示', 'navitto' ); ?></p>
 			</div>
 
 			<!-- 固定ナビの表示方法 -->
@@ -271,8 +257,10 @@ class Navitto_Admin {
 				</p>
 				<?php
 				$nav_width = get_post_meta( $post->ID, '_navitto_nav_width', true );
+				if ( ! in_array( $nav_width, array( 'scroll', 'equal' ), true ) ) {
+					$nav_width = 'scroll';
+				}
 				$nw_options = array(
-					''       => __( 'デフォルト設定を使用（カスタマイザーの設定）', 'navitto' ),
 					'scroll' => __( '横スクロール可能（全て表示）', 'navitto' ),
 					'equal'  => __( '均等割（はみ出し非表示）', 'navitto' ),
 				);
@@ -346,30 +334,23 @@ class Navitto_Admin {
 			$trigger_type = isset( $_POST['_navitto_trigger_type'] )
 				? sanitize_text_field( wp_unslash( $_POST['_navitto_trigger_type'] ) )
 				: 'immediate';
-			if ( ! in_array( $trigger_type, array( 'immediate', 'first_selected', 'nth_selected' ), true ) ) {
+			if ( ! in_array( $trigger_type, array( 'immediate', 'first_selected' ), true ) ) {
 				$trigger_type = 'immediate';
 			}
 			update_post_meta( $post_id, '_navitto_trigger_type', $trigger_type );
-
-			if ( 'nth_selected' === $trigger_type ) {
-				$nth = isset( $_POST['_navitto_trigger_nth'] ) ? absint( wp_unslash( $_POST['_navitto_trigger_nth'] ) ) : 2;
-				update_post_meta( $post_id, '_navitto_trigger_nth', max( 1, $nth ) );
-			} else {
-				delete_post_meta( $post_id, '_navitto_trigger_nth' );
-			}
 		} else {
 			delete_post_meta( $post_id, '_navitto_selected_h2' );
 			delete_post_meta( $post_id, '_navitto_h2_custom_texts' );
 			delete_post_meta( $post_id, '_navitto_h2_icons' );
 			delete_post_meta( $post_id, '_navitto_trigger_type' );
-			delete_post_meta( $post_id, '_navitto_trigger_nth' );
 		}
 
 		// 固定ナビの表示方法
-		$nav_width = isset( $_POST['_navitto_nav_width'] ) ? sanitize_text_field( wp_unslash( $_POST['_navitto_nav_width'] ) ) : '';
-		if ( in_array( $nav_width, array( '', 'scroll', 'equal' ), true ) ) {
-			update_post_meta( $post_id, '_navitto_nav_width', $nav_width );
+		$nav_width = isset( $_POST['_navitto_nav_width'] ) ? sanitize_text_field( wp_unslash( $_POST['_navitto_nav_width'] ) ) : 'scroll';
+		if ( ! in_array( $nav_width, array( 'scroll', 'equal' ), true ) ) {
+			$nav_width = 'scroll';
 		}
+		update_post_meta( $post_id, '_navitto_nav_width', $nav_width );
 
 	}
 

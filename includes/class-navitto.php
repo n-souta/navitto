@@ -138,10 +138,6 @@ class Navitto_Main {
 		$trigger_data = array(
 			'type' => $trigger_type ? $trigger_type : 'immediate',
 		);
-		if ( 'nth_selected' === $trigger_type ) {
-			$trigger_data['nth'] = absint( get_post_meta( $post_id, '_navitto_trigger_nth', true ) ) ?: 2;
-		}
-
 		// プリセット（カスタマイザーで一括設定。現在はシンプル・テーマ準拠のみ）
 		$preset = get_theme_mod( 'navitto_preset', 'simple' );
 		if ( ! in_array( $preset, array( 'simple', 'theme' ), true ) ) {

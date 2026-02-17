@@ -873,15 +873,6 @@
 				return scrollTop >= $first.offset().top - this.getScrollOffset();
 			}
 
-			// nth_selected: N番目の見出しを通過したら
-			if (type === 'nth_selected') {
-				var nth = (trigger.nth || 2) - 1; // 0ベースに変換
-				if (nth < 0 || nth >= this.headings.length) return false;
-				var $nth = $(this.headings[nth].element);
-				if ($nth.length === 0) return false;
-				return scrollTop >= $nth.offset().top - this.getScrollOffset();
-			}
-
 			// フォールバック
 			return scrollTop > this.settings.showAfterScroll;
 		},
