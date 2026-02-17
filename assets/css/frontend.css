@@ -71,6 +71,16 @@
 	z-index: auto;
 	width: 100%;
 	margin-top: 0;
+	/* 出現時は height をアニメさせない＝中身が一斉に表示される（height を効かせると最後から順に表示される） */
+	transition: opacity var(--navitto-nav-transition-duration);
+}
+
+/* 表示開始前に「背景だけ見える」状態にしない：ヘッダー内では is-visible まで高さ0で潰す */
+.navitto-nav.cp-inside-header:not(.is-visible) {
+	height: 0;
+	min-height: 0;
+	overflow: hidden;
+	visibility: hidden;
 }
 
 .navitto-nav.is-visible {
