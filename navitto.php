@@ -3,7 +3,7 @@
  * Plugin Name:       Navitto
  * Plugin URI:        https://example.com/navitto
  * Description:       設定ゼロで始める固定ナビゲーション。ナビっと表示、サクッと移動。
- * Version:           1.0.0
+ * Version:           1.1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Your Name
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * プラグインバージョン
  */
-define( 'NAVITTO_VERSION', '1.0.0' );
+define( 'NAVITTO_VERSION', '1.1.0' );
 
 /**
  * プラグインディレクトリパス
