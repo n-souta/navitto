@@ -85,6 +85,7 @@
 **選択UI:**
 - 投稿編集画面のサイドバーに「Navitto」メタボックスを配置
 - チェックボックスで表示するH2を選択
+- 各見出しにカスタムラベル入力・**アイコン設定**（アイコンピッカー）を用意（「表示する見出しを選択」時のみ）
 - 選択された見出しのみ固定ナビに表示
 
 **横スクロール:**
@@ -151,18 +152,23 @@
 navitto/
 ├── navitto.php                  # メインファイル
 ├── uninstall.php                # アンインストール処理
-├── LICENSE                      # ライセンス
+├── package.json                 # npm（Font Awesome ビルド用）
+├── scripts/
+│   └── build-fontawesome-nv.mjs # Font Awesome を nv- プレフィックスでビルド
 ├── assets/
+│   ├── lib/
+│   │   └── fontawesome/         # 同梱 Font Awesome（all-nv.min.css, webfonts/）
 │   ├── css/
 │   │   ├── frontend.css        # フロントエンド用CSS
-│   │   └── admin-metabox.css    # メタボックス用CSS
+│   │   └── admin-metabox.css   # メタボックス用CSS
 │   └── js/
 │       ├── frontend.js         # フロントエンド用JS
-│       ├── admin-settings.js    # 設定ページ用JS
-│       └── admin-metabox.js     # メタボックス用JS
+│       ├── admin-settings.js   # 設定ページ用JS
+│       ├── admin-metabox.js    # メタボックス・アイコンピッカー用JS
+│       └── navitto-icons.js    # アイコンレジストリ（Font Awesome クラス名）
 ├── includes/
 │   ├── class-navitto.php        # メインクラス
-│   ├── class-navitto-admin.php   # 管理画面・メタボックス・カスタマイザー
+│   ├── class-navitto-admin.php  # 管理画面・メタボックス・カスタマイザー
 │   ├── class-navitto-settings.php # 設定ページ
 │   └── class-navitto-detector.php # 目次検出クラス
 └── languages/
@@ -177,10 +183,11 @@ _navitto_display_mode     // 表示モード（show_all / select / hide）
 _navitto_enabled          // 後方互換用（0/1）
 _navitto_selected_h2      // 選択されたH2のインデックス配列
 _navitto_h2_custom_texts  // H2のカスタムラベル
+_navitto_h2_icons         // H2ごとのアイコン名（インデックス => アイコン名）
 _navitto_trigger_type     // 表示開始（immediate / first_selected / nth_selected / scroll_px）
 _navitto_trigger_nth, _navitto_trigger_scroll_px
 _navitto_nav_width        // scroll / equal
-_navitto_custom_items     // カスタム項目（外部リンク等）
+_navitto_custom_items     // カスタム項目（外部リンク等）配列。各要素: label, url, newtab, icon（任意）
 ```
 
 **オプション・テーマ mod（サイト全体の設定）:**
@@ -199,6 +206,14 @@ navitto_fixed_header_selector_pc / _sp
 ---
 
 ## 機能詳細
+
+### アイコン機能（v1.0.0 以降の機能ブランチ）
+- **引用元:** Font Awesome（https://fontawesome.com/）を npm パッケージ `@fortawesome/fontawesome-free` で同梱
+- **クラス名:** テーマの `fa-` と競合しないよう `nvfa` / `nvfas` / `nvfar` / `nvfab` + `nvfa-xxx` に変換（`scripts/build-fontawesome-nv.mjs` でビルド）
+- **対象:** 表示する見出しを選択した各H2、およびカスタム項目（各項目にアイコン設定可能）
+- **管理UI:** アイコンピッカー（モーダル）で選択。選択時は「アイコンを削除」ボタン表示で削除可能
+
+---
 
 ### 自動検出ロジック
 
@@ -264,6 +279,8 @@ const h2Elements = document.querySelectorAll('.entry-content h2');
 - 100px以上スクロールしたら表示（フェードイン）
 - ページトップに戻ったら非表示（フェードアウト）
 
+※ 機能ブランチ `feature/hide-nav-after-last-h2` では、最後の指定H2を過ぎたあとナビを非表示にするオプションを実装。
+
 ---
 
 ### スムーススクロール実装
@@ -325,20 +342,23 @@ document.querySelectorAll('.navitto-nav a').forEach(link => {
 ┌─────────────────────────┐
 │ Navitto                 │
 ├─────────────────────────┤
-│ ☑ このページで有効化     │
-│                         │
-│ 表示する見出しを選択:    │
-│ ☑ 選び方                │
-│ ☑ ランキング            │
-│ ☑ 使い方                │
-│ □ よくある質問          │
-│                         │
-│ デザインプリセット:      │
-│ [シンプル ▼]            │
-│                         │
-│ [プレビュー]            │
+│ ○ 固定ナビを表示（H2そのまま） │
+│ ○ 表示する見出しを選択       │
+│ ○ 固定ナビを非表示          │
+├─────────────────────────┤
+│ 表示する見出しを選択時:      │
+│ [アイコン] [ラベル入力]      │
+│ [アイコンを追加] または      │
+│ [アイコンを削除]（赤）       │
+│ 表示開始位置・固定ナビの表示方法 │
+├─────────────────────────┤
+│ カスタム項目を追加（任意）    │
+│ 各項目: アイコン・ラベル・URL  │
+│ ＋ 項目を追加               │
 └─────────────────────────┘
 ```
+
+※ ブランチ `feature/hide-nav-after-last-h2` では投稿画面から「カスタム項目を追加」を削除した構成あり。
 
 #### 2. カスタマイザー設定
 ```
@@ -604,9 +624,15 @@ A: 最小限のJavaScript/CSSのみを読み込むため、ほとんど影響あ
 - Table of Contents Plus: https://wordpress.org/plugins/table-of-contents-plus/
 - Easy Table of Contents: https://wordpress.org/plugins/easy-table-of-contents/
 
+**アイコン（Font Awesome）:**
+- Font Awesome: https://fontawesome.com/
+- Font Awesome Free License: https://fontawesome.com/license/free
+
 ---
 
 ## 改訂履歴
 
 - v1.0.0 (2025-02-05): 初版作成
 - v1.0.0 (2026-02-15): Navitto に名称変更、プリセット2種・カスタマイザー整理・データ構造を現行仕様に合わせて更新
+- v1.0.0 (2026-02-16): ファイル構成に package.json / scripts / navitto-icons.js / fontawesome を追加。DB に _navitto_h2_icons を追加、_navitto_custom_items に icon を追記。アイコン機能・管理UI・改訂履歴を更新。
+```

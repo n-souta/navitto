@@ -6,7 +6,7 @@
 
 ---
 
-## 🚀 現在の開発状況（2026-02-15 更新）
+## 🚀 現在の開発状況（2026-02-16 更新）
 
 ### ✅ Phase 1: MVP開発 - **完了**
 
@@ -56,41 +56,56 @@
 
 - v1.0.0 リリース済み
 
+### 🔧 v1.0.0 以降の機能ブランチ（開発中・マージ待ち）
+
+| ブランチ | 主な内容 | 備考 |
+|----------|----------|------|
+| `feature/icon-picker` | 見出し・カスタム項目に Font Awesome アイコン設定。nv- プレフィックスでテーマと競合防止。アイコンピッカー（モーダル）、追加/削除ボタンUI | 管理・フロントでアイコン表示 |
+| `feature/hide-nav-after-last-h2` | 最後の指定H2を過ぎたらナビを非表示。ナビタップ後のスクロールでアクティブがずれないよう isScrolling 安全タイマー。**投稿画面からカスタム項目を削除** | 表示制御の改善 |
+
 ### 📁 現在のファイル構成
 
 ```
 navitto/
 ├── navitto.php               # メインプラグインファイル
 ├── uninstall.php             # アンインストール処理
+├── package.json              # npm（Font Awesome ビルド用）
 ├── includes/
 │   ├── class-navitto.php           # メインクラス
 │   ├── class-navitto-admin.php     # 管理画面クラス
 │   ├── class-navitto-settings.php  # 設定ページ
 │   └── class-navitto-detector.php  # 目次検出クラス
+├── scripts/
+│   └── build-fontawesome-nv.mjs    # Font Awesome を nv- プレフィックスでビルド
 ├── assets/
+│   ├── lib/
+│   │   └── fontawesome/            # 同梱 Font Awesome（all-nv.min.css, webfonts/）
 │   ├── css/
-│   │   ├── frontend.css      # フロントエンドスタイル
-│   │   └── admin-metabox.css
+│   │   ├── frontend.css            # フロントエンドスタイル
+│   │   └── admin-metabox.css      # メタボックス用
 │   └── js/
-│       ├── frontend.js       # フロントエンドJS
-│       ├── admin-settings.js
-│       └── admin-metabox.js
+│       ├── frontend.js             # フロントエンドJS
+│       ├── admin-settings.js       # 設定ページ用
+│       ├── admin-metabox.js        # メタボックス・アイコンピッカー用
+│       └── navitto-icons.js        # アイコンレジストリ（Font Awesome クラス名）
 ├── docs/
-│   ├── spec-plugin.md        # プラグイン基本仕様
-│   └── spec-features.md      # このファイル（開発フロー）
-├── TEST-CHECKLIST.txt        # テストチェックリスト
+│   ├── spec-plugin.md              # プラグイン基本仕様
+│   └── spec-features.md            # このファイル（開発フロー）
 ├── AGENTS.md
 ├── PROJECT_STRUCTURE.md
-└── CHANGELOG.txt / CHANGELOG.md
+└── CHANGELOG.txt / CHANGELOG.md（任意）
 ```
 
 ### 🔀 ブランチ状況
 
 - `main`: リリース用（v1.0.0 リリース済み）
+- `feature/icon-picker`: アイコン機能（H2・カスタム項目、Font Awesome 同梱）
+- `feature/hide-nav-after-last-h2`: 最後のH2以降でナビ非表示・投稿画面からカスタム項目削除・タップ時のアクティブずれ修正
 - `develop` / `release/v1.0.0`: 運用に応じて使用
 
 ### 📝 次のタスク
 
+- 上記 feature ブランチの main へのマージ判断とリリース（v1.0.1 または v1.1.0）
 - 継続的開発（バグ修正は hotfix、新機能は feature ブランチ）
 - 公式サイト・販売は必要に応じて実施
 
@@ -531,7 +546,7 @@ git checkout -b release/v1.0.0
 /**
  * Version: 1.0.0
  */
-define( 'CONTENTPILOT_VERSION', '1.0.0' );
+define( 'NAVITTO_VERSION', '1.0.0' );
 
 // README.md
 # Navitto v1.0.0
@@ -933,9 +948,10 @@ tail -f /path/to/wordpress/wp-content/debug.log
 ## 📚 参考リンク
 
 ### ドキュメント
-- [plugin-specification.md](./plugin-specification.md) - プラグイン仕様書
-- [cursorrules.md](./cursorrules.md) - AI開発ルール
-- [wordpress-development-guide.md](./wordpress-development-guide.md) - WordPress開発ガイド
+- [spec-plugin.md](./spec-plugin.md) - プラグイン基本仕様
+- [spec-features.md](./spec-features.md) - このファイル（開発フロー）
+- [AGENTS.md](../AGENTS.md) - AI開発ルール・参照順序
+- [PROJECT_STRUCTURE.md](../PROJECT_STRUCTURE.md) - プロジェクト構造定義
 
 ### WordPress 公式
 - [Plugin Handbook](https://developer.wordpress.org/plugins/)
@@ -946,5 +962,3 @@ tail -f /path/to/wordpress/wp-content/debug.log
 - [GitHub Guides](https://guides.github.com/)
 
 ---
-
-**このフローに沿って開発を進めれば、品質の高いプラグインを効率的にリリースできます！**
