@@ -882,12 +882,6 @@
 				return scrollTop >= $nth.offset().top - this.getScrollOffset();
 			}
 
-			// scroll_px: 指定ピクセルスクロール後
-			if (type === 'scroll_px') {
-				var px = trigger.scrollPx || 300;
-				return scrollTop > px;
-			}
-
 			// フォールバック
 			return scrollTop > this.settings.showAfterScroll;
 		},

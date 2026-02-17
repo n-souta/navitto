@@ -29,10 +29,15 @@
 	margin-bottom: 6px;
 }
 .cp-h2-item label {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
-	gap: 4px;
+	gap: 6px;
 	font-size: 13px;
+}
+.cp-h2-item label input[type="checkbox"] {
+	margin: 0;
+	flex-shrink: 0;
+	vertical-align: middle;
 }
 .cp-h2-item-row {
 	display: flex;
@@ -214,12 +219,22 @@
 .cp-trigger-settings label:last-child {
 	margin-bottom: 0;
 }
+/* 番目の見出しを通過後: ラジオを数値入力の横に並べる */
+.cp-trigger-settings label:has(.cp-trigger-inline) {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
 .cp-trigger-settings .cp-trigger-inline {
-	display: inline-block;
-	vertical-align: middle;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+.cp-trigger-settings .cp-trigger-inline input[type="number"] {
+	width: 60px;
+	margin: 0;
 }
 .cp-trigger-settings input[type="number"] {
-	width: 60px;
 	vertical-align: middle;
 }
 .cp-trigger-settings .description {

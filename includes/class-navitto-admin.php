@@ -137,12 +137,10 @@ class Navitto_Admin {
 		}
 
 		// トリガー設定
-		$trigger_type      = get_post_meta( $post->ID, '_navitto_trigger_type', true );
-		$trigger_type      = $trigger_type ? $trigger_type : 'immediate';
-		$trigger_nth       = get_post_meta( $post->ID, '_navitto_trigger_nth', true );
-		$trigger_nth       = $trigger_nth ? absint( $trigger_nth ) : 2;
-		$trigger_scroll_px = get_post_meta( $post->ID, '_navitto_trigger_scroll_px', true );
-		$trigger_scroll_px = $trigger_scroll_px ? absint( $trigger_scroll_px ) : 300;
+		$trigger_type = get_post_meta( $post->ID, '_navitto_trigger_type', true );
+		$trigger_type = $trigger_type ? $trigger_type : 'immediate';
+		$trigger_nth  = get_post_meta( $post->ID, '_navitto_trigger_nth', true );
+		$trigger_nth  = $trigger_nth ? absint( $trigger_nth ) : 2;
 
 		// 投稿内容からH2を取得
 		$content = $post->post_content;
@@ -261,17 +259,6 @@ class Navitto_Admin {
 					</span>
 				</label>
 				<p class="description"><?php esc_html_e( 'チェックを入れたN番目の見出しを通過したら表示', 'navitto' ); ?></p>
-
-				<label>
-					<input type="radio" name="_navitto_trigger_type" value="scroll_px"
-						<?php checked( $trigger_type, 'scroll_px' ); ?> />
-					<span class="cp-trigger-inline">
-						<input type="number" name="_navitto_trigger_scroll_px"
-							value="<?php echo esc_attr( $trigger_scroll_px ); ?>"
-							min="0" max="10000" step="50" style="width:80px;" />
-						<?php esc_html_e( 'px スクロール後', 'navitto' ); ?>
-					</span>
-				</label>
 			</div>
 
 			<!-- 固定ナビの表示方法 -->
@@ -359,7 +346,7 @@ class Navitto_Admin {
 			$trigger_type = isset( $_POST['_navitto_trigger_type'] )
 				? sanitize_text_field( wp_unslash( $_POST['_navitto_trigger_type'] ) )
 				: 'immediate';
-			if ( ! in_array( $trigger_type, array( 'immediate', 'first_selected', 'nth_selected', 'scroll_px' ), true ) ) {
+			if ( ! in_array( $trigger_type, array( 'immediate', 'first_selected', 'nth_selected' ), true ) ) {
 				$trigger_type = 'immediate';
 			}
 			update_post_meta( $post_id, '_navitto_trigger_type', $trigger_type );
@@ -370,20 +357,12 @@ class Navitto_Admin {
 			} else {
 				delete_post_meta( $post_id, '_navitto_trigger_nth' );
 			}
-
-			if ( 'scroll_px' === $trigger_type ) {
-				$scroll = isset( $_POST['_navitto_trigger_scroll_px'] ) ? absint( wp_unslash( $_POST['_navitto_trigger_scroll_px'] ) ) : 300;
-				update_post_meta( $post_id, '_navitto_trigger_scroll_px', $scroll );
-			} else {
-				delete_post_meta( $post_id, '_navitto_trigger_scroll_px' );
-			}
 		} else {
 			delete_post_meta( $post_id, '_navitto_selected_h2' );
 			delete_post_meta( $post_id, '_navitto_h2_custom_texts' );
 			delete_post_meta( $post_id, '_navitto_h2_icons' );
 			delete_post_meta( $post_id, '_navitto_trigger_type' );
 			delete_post_meta( $post_id, '_navitto_trigger_nth' );
-			delete_post_meta( $post_id, '_navitto_trigger_scroll_px' );
 		}
 
 		// 固定ナビの表示方法

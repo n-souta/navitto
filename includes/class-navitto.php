@@ -141,9 +141,6 @@ class Navitto_Main {
 		if ( 'nth_selected' === $trigger_type ) {
 			$trigger_data['nth'] = absint( get_post_meta( $post_id, '_navitto_trigger_nth', true ) ) ?: 2;
 		}
-		if ( 'scroll_px' === $trigger_type ) {
-			$trigger_data['scrollPx'] = absint( get_post_meta( $post_id, '_navitto_trigger_scroll_px', true ) ) ?: 300;
-		}
 
 		// プリセット（カスタマイザーで一括設定。現在はシンプル・テーマ準拠のみ）
 		$preset = get_theme_mod( 'navitto_preset', 'simple' );
