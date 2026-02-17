@@ -38,7 +38,7 @@
 	var iconRegistry = window.__NAVITTO_ICONS__;
 	var pickerOverlay = null;
 	var pickerModal = null;
-	var currentPickerType = 'h2'; // 'h2' | 'custom'
+	var currentPickerType = 'h2'; // H2 のみ（カスタム項目は削除済み）
 	var currentPickerIndex = null;
 
 	function getIconNameFromValue(val) {

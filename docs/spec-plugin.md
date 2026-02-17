@@ -1,4 +1,4 @@
-# Navitto プラグイン仕様書
+﻿# Navitto プラグイン仕様書
 
 ## プロジェクト概要
 
@@ -636,3 +636,4 @@ A: 最小限のJavaScript/CSSのみを読み込むため、ほとんど影響あ
 - v1.0.0 (2026-02-15): Navitto に名称変更、プリセット2種・カスタマイザー整理・データ構造を現行仕様に合わせて更新
 - v1.0.0 (2026-02-16): ファイル構成に package.json / scripts / navitto-icons.js / fontawesome を追加。DB に _navitto_h2_icons を追加、_navitto_custom_items に icon を追記。アイコン機能・管理UI・改訂履歴を更新。
 ```
+- v1.0.0 (2026-02-16): 今後の流れを整理。feature/icon-picker と feature/hide-nav-after-last-h2 のマージ方針確定・実施を次のタスクとして spec-features に明記。マージ前にカスタム項目の扱い（残す／削除）を決定する旨を整理。

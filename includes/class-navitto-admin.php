@@ -392,6 +392,9 @@ class Navitto_Admin {
 			update_post_meta( $post_id, '_navitto_nav_width', $nav_width );
 		}
 
+		// カスタム項目は削除したため、過去データがあれば保存時に削除する
+		delete_post_meta( $post_id, '_navitto_custom_items' );
+
 	}
 
 	/* =========================================================================
