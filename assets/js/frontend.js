@@ -855,10 +855,7 @@
 			if (!this.isBackAboveNextH2(scrollTop) && this.$nav && this.$nav.hasClass('navitto-nav--past-last-h2')) {
 				return false;
 			}
-			// テーマヘッダーが sticky の場合は常に表示（スクロール不要）
-			if (this.$nav && this.$nav.hasClass('cp-theme-header-sticky')) {
-				return true;
-			}
+			// sticky のときも表示開始位置（trigger）に達してから表示する
 
 			var trigger = this.settings.trigger || { type: 'immediate' };
 			var type = trigger.type || 'immediate';
