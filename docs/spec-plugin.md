@@ -177,9 +177,8 @@ _navitto_display_mode     // 表示モード（show_all / select / hide）
 _navitto_enabled          // 後方互換用（0/1）
 _navitto_selected_h2      // 選択されたH2のインデックス配列
 _navitto_h2_custom_texts  // H2のカスタムラベル
-_navitto_trigger_type     // 表示開始（immediate / first_selected / nth_selected / scroll_px）
-_navitto_trigger_nth, _navitto_trigger_scroll_px
-_navitto_nav_width        // scroll / equal
+_navitto_trigger_type     // 表示開始（immediate / first_selected）
+_navitto_nav_width        // scroll / equal（投稿画面で選択。デフォルトは scroll）
 _navitto_custom_items     // カスタム項目（外部リンク等）
 ```
 
@@ -333,24 +332,27 @@ document.querySelectorAll('.navitto-nav a').forEach(link => {
 │ ☑ 使い方                │
 │ □ よくある質問          │
 │                         │
-│ デザインプリセット:      │
-│ [シンプル ▼]            │
+│ 表示開始位置:            │
+│ ○ ページ上部から        │
+│ ○ 選択した最初の見出しを通過後 │
 │                         │
-│ [プレビュー]            │
+│ 固定ナビの表示方法:      │
+│ ○ 横スクロール可能      │
+│ ○ 均等割（はみ出し非表示）│
 └─────────────────────────┘
 ```
+※ デザインプリセットはカスタマイザーで設定（投稿ごとには設定しない）
 
 #### 2. カスタマイザー設定
 ```
 外観 > カスタマイズ > Navitto - デザイン / Navitto - 共通設定
 
-- デフォルトプリセット
+- デザインプリセット（シンプル / テーマ準拠）
 - 配置位置（上部/下部）
-- 背景色
-- テキスト色
-- アクティブ色
+- ナビの高さ（小・中・大）
 - 最小文字数
 - スクロール表示開始位置
+- テーマ固定ヘッダーセレクタ（PC/SP）
 ```
 
 ---
@@ -610,3 +612,4 @@ A: 最小限のJavaScript/CSSのみを読み込むため、ほとんど影響あ
 
 - v1.0.0 (2025-02-05): 初版作成
 - v1.0.0 (2026-02-15): Navitto に名称変更、プリセット2種・カスタマイザー整理・データ構造を現行仕様に合わせて更新
+- (2026-02): 表示開始位置を immediate / first_selected のみに、固定ナビ表示方法を横スクロール・均等割の2択に。メタボックス図・カスタムフィールド一覧を現行UIに合わせて更新
