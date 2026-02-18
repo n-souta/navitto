@@ -26,6 +26,7 @@
 ## 仕様書（必要時に @ 参照）
 - `@docs/spec-plugin.md` — プラグイン基本仕様
 - `@docs/spec-features.md` — 機能詳細・開発フロー
+- `@docs/spec-product.md` — 製品・エディション・価格・今後の工程（Phase 7〜11）
 
 ## Agent Skills（必要時に @ 参照）
 - `@skills/wp-plugin-development/SKILL.md` — WordPress 公式ベストプラクティス
