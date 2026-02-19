@@ -15,7 +15,6 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 $options = array(
 	'navitto_default_preset',
 	'navitto_position',
-	'navitto_min_word_count',
 	'navitto_default_enabled',
 	'navitto_db_version',
 );
@@ -31,7 +30,6 @@ $theme_mods = array(
 	'navitto_nav_width',
 	'navitto_font_weight',
 	'navitto_theme_bg_transparent',
-	'navitto_min_word_count',
 	'navitto_show_after_scroll',
 	'navitto_fixed_header_selector_pc',
 	'navitto_fixed_header_selector_sp',

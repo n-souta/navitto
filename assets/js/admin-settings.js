@@ -18,8 +18,7 @@
 		// 確認メッセージのマッピング
 		var confirmMessages = {
 			navitto_enable_all:  i18n.confirmEnableAll  || 'Are you sure?',
-			navitto_disable_all: i18n.confirmDisableAll || 'Are you sure?',
-			navitto_enable_long: i18n.confirmEnableLong || 'Are you sure?'
+			navitto_disable_all: i18n.confirmDisableAll || 'Are you sure?'
 		};
 
 		// 一括適用ボタンのクリック処理

@@ -105,7 +105,6 @@ function navitto_maybe_upgrade() {
 	if ( version_compare( $db_version, '1.0.1', '<' ) ) {
 		delete_option( 'navitto_default_preset' );
 		delete_option( 'navitto_position' );
-		delete_option( 'navitto_min_word_count' );
 	}
 
 	// 現在のバージョンを保存

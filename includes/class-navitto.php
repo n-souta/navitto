@@ -246,21 +246,9 @@ class Navitto_Main {
 		$post    = get_post( $post_id );
 		$content = $post ? $post->post_content : '';
 
-		// selectモードでは文字数・H2数チェックをスキップ
+		// selectモードではH2数チェックをスキップ
 		if ( 'select' === $display_mode ) {
 			return true;
-		}
-
-		// show_allモードでも表示を許可
-		if ( 'show_all' === $display_mode ) {
-			// 文字数・H2数チェックは引き続き実行
-		}
-
-		// 最小文字数チェック（Customizer theme_mod に統一 — #3 Data）
-		$min_word_count = get_theme_mod( 'navitto_min_word_count', 3000 );
-		$word_count = $this->get_word_count( $content );
-		if ( $word_count < $min_word_count ) {
-			return false;
 		}
 
 		// H2見出しが2個以上
@@ -270,12 +258,6 @@ class Navitto_Main {
 		}
 
 		return true;
-	}
-
-	private function get_word_count( $content ) {
-		$text = wp_strip_all_tags( $content );
-		$text = preg_replace( '/\s+/', '', $text );
-		return mb_strlen( $text, 'UTF-8' );
 	}
 
 	private function count_h2_headings( $content ) {

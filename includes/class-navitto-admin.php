@@ -83,6 +83,12 @@ class Navitto_Admin {
 			NAVITTO_VERSION,
 			true
 		);
+
+		wp_localize_script( 'navitto-admin-metabox', 'navittoMetabox', array(
+			'i18n' => array(
+				'addIcon' => __( 'アイコンを追加', 'navitto' ),
+			),
+		) );
 	}
 
 	/**
@@ -140,18 +146,15 @@ class Navitto_Admin {
 		$trigger_type = get_post_meta( $post->ID, '_navitto_trigger_type', true );
 		$trigger_type = $trigger_type ? $trigger_type : 'immediate';
 
-		// 投稿内容からH2を取得
+		// 投稿内容からH2を取得（ブロックエディタ・クラシック両対応・最新のDB本文を使用）
 		$content = $post->post_content;
-		if ( function_exists( 'do_blocks' ) ) {
-			$content = do_blocks( $content );
-		}
-		preg_match_all( '/<h2[^>]*>(.*?)<\/h2>/is', $content, $matches );
-		$h2_list = array();
-		if ( ! empty( $matches[1] ) ) {
-			foreach ( $matches[1] as $h2_text ) {
-				$h2_list[] = wp_strip_all_tags( $h2_text );
+		if ( $post->ID > 0 ) {
+			$latest = get_post( $post->ID );
+			if ( $latest && $latest->post_content !== '' ) {
+				$content = $latest->post_content;
 			}
 		}
+		$h2_list = $this->extract_h2_list_from_content( $content );
 
 		$is_select = ( 'select' === $display_mode );
 		?>
@@ -176,9 +179,9 @@ class Navitto_Admin {
 			</div>
 
 			<!-- 見出し選択（select時のみ表示） -->
-			<div id="cp-h2-select-area" style="<?php echo $is_select ? '' : 'display:none;'; ?>">
+			<div id="cp-h2-select-area" style="<?php echo $is_select ? '' : 'display:none;'; ?>" data-navitto-empty="<?php echo empty( $h2_list ) ? '1' : '0'; ?>">
 				<?php if ( empty( $h2_list ) ) : ?>
-					<p class="description"><?php esc_html_e( 'H2見出しが見つかりません。', 'navitto' ); ?></p>
+					<p class="description" id="navitto-h2-empty-msg"><?php esc_html_e( 'H2見出しが見つかりません。', 'navitto' ); ?></p>
 				<?php else : ?>
 				<?php foreach ( $h2_list as $index => $h2_text ) :
 					$is_checked  = in_array( $index, $selected_h2, false );
@@ -275,10 +278,49 @@ class Navitto_Admin {
 			</div>
 
 			<p class="description" style="margin-top:8px;">
-				<?php esc_html_e( '文字数・H2数の条件を満たす場合に表示されます（show_all時）。', 'navitto' ); ?>
+				<?php esc_html_e( 'H2見出しが2個以上の記事に表示されます（show_all時）。', 'navitto' ); ?>
 			</p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * 投稿本文からH2見出しのテキスト一覧を取得（ブロック・クラシック両対応）
+	 *
+	 * @param string $content 投稿本文（post_content）
+	 * @return array H2のテキスト配列（0始まりのインデックス）
+	 */
+	private function extract_h2_list_from_content( $content ) {
+		$h2_list = array();
+
+		// 1) do_blocks でレンダーしたHTMLから <h2>...</h2> を抽出
+		$rendered = $content;
+		if ( function_exists( 'do_blocks' ) ) {
+			$rendered = do_blocks( $content );
+		}
+		if ( preg_match_all( '/<h2[^>]*>(.*?)<\/h2>/is', $rendered, $m ) && ! empty( $m[1] ) ) {
+			foreach ( $m[1] as $inner ) {
+				$h2_list[] = wp_strip_all_tags( $inner );
+			}
+			return $h2_list;
+		}
+
+		// 2) 生の本文からも <h2>...</h2> を試す（do_blocks 前のHTML）
+		if ( preg_match_all( '/<h2[^>]*>(.*?)<\/h2>/is', $content, $m ) && ! empty( $m[1] ) ) {
+			foreach ( $m[1] as $inner ) {
+				$h2_list[] = wp_strip_all_tags( $inner );
+			}
+			return $h2_list;
+		}
+
+		// 3) ブロック形式のみ（level:2）の見出しを抽出
+		if ( preg_match_all( '/<!--\s*wp:heading[^>]*"level"\s*:\s*2[^>]*-->\s*<h2[^>]*>(.*?)<\/h2>/is', $content, $m ) && ! empty( $m[1] ) ) {
+			foreach ( $m[1] as $inner ) {
+				$h2_list[] = wp_strip_all_tags( $inner );
+			}
+		}
+
+		return $h2_list;
 	}
 
 	/**
@@ -446,18 +488,6 @@ class Navitto_Admin {
 		$wp_customize->add_section( 'navitto_common', array(
 			'title'    => __( 'Navitto - 共通設定', 'navitto' ),
 			'priority' => 201,
-		) );
-
-		// 最小文字数
-		$wp_customize->add_setting( 'navitto_min_word_count', array(
-			'default'           => 3000,
-			'sanitize_callback' => 'absint',
-		) );
-		$wp_customize->add_control( 'navitto_min_word_count', array(
-			'label'       => __( '最小文字数', 'navitto' ),
-			'section'     => 'navitto_common',
-			'type'        => 'number',
-			'input_attrs' => array( 'min' => 0, 'max' => 20000, 'step' => 100 ),
 		) );
 
 		// スクロール表示開始
