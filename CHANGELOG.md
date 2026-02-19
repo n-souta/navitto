@@ -1,9 +1,26 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to Navitto will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/lang/ja/).
+
+## [1.1.0] - 2026-02-19
+
+### Added
+
+- デザインプリセットに「カスタム」を追加（文字色・背景色・選択中テキスト色をカスタマイザーで設定可能）
+
+### Changed
+
+- 新規投稿の「デフォルトで有効にする」オプションを反映するよう表示判定を修正（オフ時は新規投稿で固定ナビを非表示）
+- 一括適用「すべて無効」「すべて有効」で display_mode や選択見出しを上書きせずフラグで制御（再度有効にすると元の設定に戻る）
+- 一括適用の説明文を修正（反対の操作で戻せる旨を追記）
+
+### Removed
+
+- カスタマイザー「Navitto - 共通設定」セクションを削除（スクロール表示開始位置・固定ヘッダーセレクタを削除、表示開始は100px固定）
+---
 
 ## [1.0.0] - 2026-02-15
 
@@ -31,3 +48,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/ja/).
 ---
 
 [1.0.0]: https://github.com/n-souta/navitto/releases/tag/v1.0.0
+
+[1.1.0]: https://github.com/n-souta/navitto/releases/tag/v1.1.0

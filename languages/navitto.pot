@@ -1,0 +1,79 @@
+# Copyright (C) 2026
+# This file is distributed under the same license as the Navitto package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Navitto 1.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-19T00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: includes/class-navitto-admin.php
+msgid "カスタム"
+msgstr ""
+
+#: includes/class-navitto-admin.php
+msgid "文字色"
+msgstr ""
+
+#: includes/class-navitto-admin.php
+msgid "背景色"
+msgstr ""
+
+#: includes/class-navitto-admin.php
+msgid "選択中テキスト色"
+msgstr ""
+
+#: includes/class-navitto-settings.php
+msgid "すべての投稿の固定ナビ設定を一括で上書きします。必要に応じて「すべて有効にする」「すべて無効にする」の反対の操作を実行すれば、再度一括で戻せます。"
+msgstr ""
+
+#: includes/class-navitto-settings.php
+msgid "新規投稿でデフォルトで有効にする"
+msgstr ""
+
+#: includes/class-navitto-settings.php
+msgid "新規投稿作成時のデフォルト動作を設定します。"
+msgstr ""
+
+#: includes/class-navitto-settings.php
+msgid "チェックを外すと、新しく作成する投稿では手動で有効化が必要になります。"
+msgstr ""
+
+#: includes/class-navitto-settings.php
+msgid "デフォルト動作"
+msgstr ""
+
+#: includes/class-navitto-settings.php
+msgid "一括適用"
+msgstr ""
+
+#: includes/class-navitto-settings.php
+msgid "すべて有効にする"
+msgstr ""
+
+#: includes/class-navitto-settings.php
+msgid "すべて無効にする"
+msgstr ""
+
+#: includes/class-navitto-settings.php
+msgid "すべての投稿で有効にする"
+msgstr ""
+
+#: includes/class-navitto-settings.php
+msgid "すべての投稿で無効にする"
+msgstr ""
+
+#: includes/class-navitto-settings.php
+msgid "有効"
+msgstr ""
+
+#: includes/class-navitto-settings.php
+msgid "Navitto 設定"
+msgstr ""
+
