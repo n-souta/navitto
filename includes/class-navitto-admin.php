@@ -490,18 +490,6 @@ class Navitto_Admin {
 			'priority' => 201,
 		) );
 
-		// スクロール表示開始
-		$wp_customize->add_setting( 'navitto_show_after_scroll', array(
-			'default'           => 100,
-			'sanitize_callback' => 'absint',
-		) );
-		$wp_customize->add_control( 'navitto_show_after_scroll', array(
-			'label'       => __( 'スクロール表示開始位置 (px)', 'navitto' ),
-			'section'     => 'navitto_common',
-			'type'        => 'number',
-			'input_attrs' => array( 'min' => 0, 'max' => 1000, 'step' => 10 ),
-		) );
-
 		// 固定ヘッダーセレクタ PC
 		$wp_customize->add_setting( 'navitto_fixed_header_selector_pc', array(
 			'default'           => '',

@@ -30,7 +30,6 @@ $theme_mods = array(
 	'navitto_nav_width',
 	'navitto_font_weight',
 	'navitto_theme_bg_transparent',
-	'navitto_show_after_scroll',
 	'navitto_fixed_header_selector_pc',
 	'navitto_fixed_header_selector_sp',
 );

@@ -151,8 +151,7 @@ class Navitto_Main {
 		}
 
 		// カスタマイザーの設定
-		$position    = get_theme_mod( 'navitto_position', 'top' );
-		$show_after  = get_theme_mod( 'navitto_show_after_scroll', 100 );
+		$position = get_theme_mod( 'navitto_position', 'top' );
 
 		// JS用テキストデータ（intキーをstringに変換）
 		$js_custom_texts = array();
@@ -172,7 +171,7 @@ class Navitto_Main {
 			array(
 				'scrollOffset'        => 80,
 				'animDuration'        => 500,
-				'showAfterScroll'     => intval( $show_after ),
+				'showAfterScroll'     => 100,
 				'preset'              => $preset,
 				'themeBgTransparent'   => $theme_bg_transparent,
 				'position'            => $position,
