@@ -483,36 +483,6 @@ class Navitto_Admin {
 			'section'     => 'navitto_design',
 			'type'        => 'checkbox',
 		) );
-
-		// --- セクション: 共通設定 ---
-		$wp_customize->add_section( 'navitto_common', array(
-			'title'    => __( 'Navitto - 共通設定', 'navitto' ),
-			'priority' => 201,
-		) );
-
-		// 固定ヘッダーセレクタ PC
-		$wp_customize->add_setting( 'navitto_fixed_header_selector_pc', array(
-			'default'           => '',
-			'sanitize_callback' => 'sanitize_text_field',
-		) );
-		$wp_customize->add_control( 'navitto_fixed_header_selector_pc', array(
-			'label'       => __( 'テーマ固定ヘッダー セレクタ (PC)', 'navitto' ),
-			'description' => __( '例: #fix_header, .site-header', 'navitto' ),
-			'section'     => 'navitto_common',
-			'type'        => 'text',
-		) );
-
-		// 固定ヘッダーセレクタ SP
-		$wp_customize->add_setting( 'navitto_fixed_header_selector_sp', array(
-			'default'           => '',
-			'sanitize_callback' => 'sanitize_text_field',
-		) );
-		$wp_customize->add_control( 'navitto_fixed_header_selector_sp', array(
-			'label'       => __( 'テーマ固定ヘッダー セレクタ (SP)', 'navitto' ),
-			'description' => __( '空欄の場合はPC用セレクタを使用', 'navitto' ),
-			'section'     => 'navitto_common',
-			'type'        => 'text',
-		) );
 	}
 
 	/* =========================================================================
