@@ -225,7 +225,7 @@ class Navitto_Settings {
 			<!-- 一括適用セクション -->
 			<h2><?php esc_html_e( '一括適用', 'navitto' ); ?></h2>
 			<p class="description">
-				<?php esc_html_e( 'すべての投稿の固定ナビ設定を一括で変更します。この操作は取り消せません。', 'navitto' ); ?>
+				<?php esc_html_e( 'すべての投稿の固定ナビ設定を一括で上書きします。必要に応じて「すべて有効にする」「すべて無効にする」の反対の操作を実行すれば、再度一括で戻せます。', 'navitto' ); ?>
 			</p>
 
 			<table class="form-table" role="presentation">
@@ -295,8 +295,8 @@ class Navitto_Settings {
 
 		$count = 0;
 		foreach ( $post_ids as $post_id ) {
-			update_post_meta( (int) $post_id, '_navitto_display_mode', 'show_all' );
-			update_post_meta( (int) $post_id, '_navitto_enabled', '1' );
+			// 一括無効フラグのみ解除（display_mode や選択見出しは変更しない）
+			delete_post_meta( (int) $post_id, '_navitto_bulk_disabled' );
 			$count++;
 		}
 
@@ -327,8 +327,8 @@ class Navitto_Settings {
 
 		$count = 0;
 		foreach ( $post_ids as $post_id ) {
-			update_post_meta( (int) $post_id, '_navitto_display_mode', 'hide' );
-			update_post_meta( (int) $post_id, '_navitto_enabled', '0' );
+			// 一括無効フラグのみ付与（display_mode や選択見出しは変更しない＝再度有効にすると元の設定に戻る）
+			update_post_meta( (int) $post_id, '_navitto_bulk_disabled', '1' );
 			$count++;
 		}
 

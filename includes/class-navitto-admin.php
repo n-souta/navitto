@@ -123,7 +123,12 @@ class Navitto_Admin {
 		$display_mode = get_post_meta( $post->ID, '_navitto_display_mode', true );
 		if ( '' === $display_mode ) {
 			$old_enabled = get_post_meta( $post->ID, '_navitto_enabled', true );
-			$display_mode = ( '0' === $old_enabled ) ? 'hide' : 'show_all';
+			if ( '0' === $old_enabled ) {
+				$display_mode = 'hide';
+			} else {
+				// メタ未設定時は「新規投稿でデフォルトで有効にする」に従う
+				$display_mode = get_option( 'navitto_default_enabled', true ) ? 'show_all' : 'hide';
+			}
 		}
 		// 後方互換: auto → show_all
 		if ( 'auto' === $display_mode ) {

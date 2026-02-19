@@ -243,6 +243,11 @@ class Navitto_Main {
 	 * 表示条件をチェック
 	 */
 	public function should_display( $post_id ) {
+		// 一括で無効にされている場合は表示しない（display_mode や選択見出しは保持したまま）
+		if ( '1' === get_post_meta( $post_id, '_navitto_bulk_disabled', true ) ) {
+			return false;
+		}
+
 		// 新しい表示モードを確認
 		$display_mode = get_post_meta( $post_id, '_navitto_display_mode', true );
 
@@ -250,11 +255,17 @@ class Navitto_Main {
 			return false;
 		}
 
-		// 後方互換
+		// メタ未設定（新規投稿など）: デフォルト動作オプションに従う
 		if ( '' === $display_mode || 'auto' === $display_mode ) {
 			$enabled = get_post_meta( $post_id, '_navitto_enabled', true );
 			if ( '0' === $enabled ) {
 				return false;
+			}
+			// 新規投稿で「デフォルトで有効」がオフの場合は非表示
+			if ( '' === $display_mode && '' === $enabled ) {
+				if ( ! get_option( 'navitto_default_enabled', true ) ) {
+					return false;
+				}
 			}
 		}
 
