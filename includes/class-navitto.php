@@ -140,7 +140,7 @@ class Navitto_Main {
 		);
 		// プリセット（カスタマイザーで一括設定。現在はシンプル・テーマ準拠のみ）
 		$preset = get_theme_mod( 'navitto_preset', 'simple' );
-		if ( ! in_array( $preset, array( 'simple', 'theme' ), true ) ) {
+		if ( ! in_array( $preset, array( 'simple', 'theme', 'custom' ), true ) ) {
 			$preset = 'simple';
 		}
 
@@ -216,6 +216,22 @@ class Navitto_Main {
 			$css .= '--navitto-font-weight:700;';
 		}
 		$css .= '}';
+
+		// カスタムプリセット: 文字色・背景色・選択中テキスト色を CSS 変数で出力
+		$preset = get_theme_mod( 'navitto_preset', 'simple' );
+		if ( 'custom' === $preset ) {
+			$text_color      = get_theme_mod( 'navitto_custom_color_text', '#333333' ) ?: '#333333';
+			$bg_color        = get_theme_mod( 'navitto_custom_color_bg', '#ffffff' ) ?: '#ffffff';
+			$underline_color = get_theme_mod( 'navitto_custom_color_underline', '#0073aa' ) ?: '#0073aa';
+			$css .= '.navitto-nav.cp-preset-custom{';
+			$css .= '--navitto-bg:' . esc_attr( $bg_color ) . ';';
+			$css .= '--navitto-text:' . esc_attr( $text_color ) . ';';
+			$css .= '--navitto-text-hover:' . esc_attr( $underline_color ) . ';';
+			$css .= '--navitto-active-text:' . esc_attr( $underline_color ) . ';';
+			$css .= '--navitto-active-bg:transparent;';
+			$css .= '--navitto-border:' . esc_attr( $underline_color ) . ';';
+			$css .= '}';
+		}
 
 		// デフォルト値のみの場合はインラインCSS不要
 		if ( ':root {}' !== $css ) {

@@ -421,9 +421,53 @@ class Navitto_Admin {
 			'section' => 'navitto_design',
 			'type'    => 'select',
 			'choices' => array(
-				'simple' => __( 'シンプル', 'navitto' ),
-				'theme'  => __( 'テーマ準拠', 'navitto' ),
+				'simple'  => __( 'シンプル', 'navitto' ),
+				'theme'   => __( 'テーマ準拠', 'navitto' ),
+				'custom'  => __( 'カスタム', 'navitto' ),
 			),
+		) );
+
+		// カスタムプリセット時のみ: 文字色・背景色・選択中テキスト色
+		$wp_customize->add_setting( 'navitto_custom_color_text', array(
+			'default'           => '#333333',
+			'sanitize_callback' => 'sanitize_hex_color',
+		) );
+		$wp_customize->add_control( new WP_Customize_Color_Control(
+			$wp_customize,
+			'navitto_custom_color_text',
+			array(
+				'label'           => __( '文字色', 'navitto' ),
+				'section'         => 'navitto_design',
+				'active_callback' => array( $this, 'is_preset_custom' ),
+			)
+		) );
+
+		$wp_customize->add_setting( 'navitto_custom_color_bg', array(
+			'default'           => '#ffffff',
+			'sanitize_callback' => 'sanitize_hex_color',
+		) );
+		$wp_customize->add_control( new WP_Customize_Color_Control(
+			$wp_customize,
+			'navitto_custom_color_bg',
+			array(
+				'label'           => __( '背景色', 'navitto' ),
+				'section'         => 'navitto_design',
+				'active_callback' => array( $this, 'is_preset_custom' ),
+			)
+		) );
+
+		$wp_customize->add_setting( 'navitto_custom_color_underline', array(
+			'default'           => '#0073aa',
+			'sanitize_callback' => 'sanitize_hex_color',
+		) );
+		$wp_customize->add_control( new WP_Customize_Color_Control(
+			$wp_customize,
+			'navitto_custom_color_underline',
+			array(
+				'label'           => __( '選択中テキスト色', 'navitto' ),
+				'section'         => 'navitto_design',
+				'active_callback' => array( $this, 'is_preset_custom' ),
+			)
 		) );
 
 		// 配置位置
@@ -490,8 +534,18 @@ class Navitto_Admin {
 	   ========================================================================= */
 
 	public function sanitize_preset( $value ) {
-		$valid = array( 'simple', 'theme' );
+		$valid = array( 'simple', 'theme', 'custom' );
 		return in_array( $value, $valid, true ) ? $value : 'simple';
+	}
+
+	/**
+	 * デザインプリセットが「カスタム」のときのみ true（カラーコントロールの active_callback）
+	 *
+	 * @param WP_Customize_Control $control Control instance.
+	 * @return bool
+	 */
+	public function is_preset_custom( $control ) {
+		return 'custom' === get_theme_mod( 'navitto_preset', 'simple' );
 	}
 
 	public function sanitize_position( $value ) {
