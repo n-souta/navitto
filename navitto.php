@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name:       Navitto
- * Plugin URI:        https://example.com/navitto
+ * Plugin URI:        https://wordpress.org/plugins/navitto/
  * Description:       設定ゼロで始める固定ナビゲーション。ナビっと表示、サクッと移動。
  * Version:           1.2.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
- * Author:            Your Name
- * Author URI:        https://example.com
+ * Author:            n-souta
+ * Author URI:        https://profiles.wordpress.org/n-souta/
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       navitto

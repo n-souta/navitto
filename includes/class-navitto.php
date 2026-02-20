@@ -260,17 +260,14 @@ class Navitto_Main {
 			return false;
 		}
 
-		// メタ未設定（新規投稿など）: デフォルト動作オプションに従う
+		// メタ未設定: 有効化前からあった既存記事は表示しない（一括適用または個別に「表示」を選んで保存した投稿のみ表示）
 		if ( '' === $display_mode || 'auto' === $display_mode ) {
 			$enabled = get_post_meta( $post_id, '_navitto_enabled', true );
 			if ( '0' === $enabled ) {
 				return false;
 			}
-			// 新規投稿で「デフォルトで有効」がオフの場合は非表示
 			if ( '' === $display_mode && '' === $enabled ) {
-				if ( ! get_option( 'navitto_default_enabled', true ) ) {
-					return false;
-				}
+				return false;
 			}
 		}
 
