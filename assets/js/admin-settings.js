@@ -63,6 +63,38 @@
 			});
 		});
 
+		// ライセンスをクリア（未入力状態で検証する用）
+		$('#navitto_clear_license').on('click', function() {
+			if ( ! confirm( i18n.confirmClearLicense || '保存したライセンスをクリアします。' ) ) {
+				return;
+			}
+			var $btn = $(this);
+			$btn.prop('disabled', true );
+			$.ajax({
+				url:  config.ajaxUrl,
+				type: 'POST',
+				data: {
+					action: 'navitto_clear_license',
+					nonce:  config.licenseNonce
+				},
+				dataType: 'json'
+			})
+			.done(function(response) {
+				if ( response.success ) {
+					window.location.reload();
+				} else {
+					$('#navitto_license_result').removeClass('success').addClass('error')
+						.text( ( response.data && response.data.message ) || i18n.error );
+				}
+			})
+			.fail(function() {
+				$('#navitto_license_result').removeClass('success').addClass('error').text( i18n.error || 'エラーが発生しました。' );
+			})
+			.always(function() {
+				$btn.prop('disabled', false );
+			});
+		});
+
 		// 一括適用ボタンのクリック処理
 		$('.navitto-bulk-btn').on('click', function() {
 

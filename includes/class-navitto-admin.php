@@ -56,30 +56,32 @@ class Navitto_Admin {
 			NAVITTO_VERSION
 		);
 
-		// Font Awesome（nv- プレフィックス・テーマの fa- と競合しない）
-		$fa_css = NAVITTO_PLUGIN_DIR . 'assets/lib/fontawesome/all-nv.min.css';
-		if ( file_exists( $fa_css ) ) {
-			wp_enqueue_style(
-				'navitto-fontawesome',
-				NAVITTO_PLUGIN_URL . 'assets/lib/fontawesome/all-nv.min.css',
+		$license_ok = ( get_option( 'navitto_license_status', '' ) === 'valid' );
+
+		// ライセンス有効時のみ Font Awesome とアイコンレジストリを読み込む
+		if ( $license_ok ) {
+			$fa_css = NAVITTO_PLUGIN_DIR . 'assets/lib/fontawesome/all-nv.min.css';
+			if ( file_exists( $fa_css ) ) {
+				wp_enqueue_style(
+					'navitto-fontawesome',
+					NAVITTO_PLUGIN_URL . 'assets/lib/fontawesome/all-nv.min.css',
+					array(),
+					NAVITTO_VERSION
+				);
+			}
+			wp_enqueue_script(
+				'navitto-icons',
+				NAVITTO_PLUGIN_URL . 'assets/js/navitto-icons.js',
 				array(),
-				NAVITTO_VERSION
+				NAVITTO_VERSION,
+				true
 			);
 		}
-
-		// アイコンレジストリ（メタボックスJSより前に読み込み・テーマ干渉防止）
-		wp_enqueue_script(
-			'navitto-icons',
-			NAVITTO_PLUGIN_URL . 'assets/js/navitto-icons.js',
-			array(),
-			NAVITTO_VERSION,
-			true
-		);
 
 		wp_enqueue_script(
 			'navitto-admin-metabox',
 			NAVITTO_PLUGIN_URL . 'assets/js/admin-metabox.js',
-			array( 'navitto-icons' ),
+			$license_ok ? array( 'navitto-icons' ) : array(),
 			NAVITTO_VERSION,
 			true
 		);
@@ -161,7 +163,8 @@ class Navitto_Admin {
 		}
 		$h2_list = $this->extract_h2_list_from_content( $content );
 
-		$is_select = ( 'select' === $display_mode );
+		$is_select   = ( 'select' === $display_mode );
+		$license_ok = ( get_option( 'navitto_license_status', '' ) === 'valid' );
 		?>
 		<div class="navitto-meta-box">
 			<!-- 表示モード -->
@@ -204,11 +207,13 @@ class Navitto_Admin {
 							<?php echo esc_html( $h2_text ); ?>
 						</label>
 						<div class="cp-h2-item-row">
+							<?php if ( $license_ok ) : ?>
 							<span class="navitto-icon-picker-preview" data-type="h2" data-index="<?php echo esc_attr( $index ); ?>"><?php
 								if ( $icon_value && $icon_value !== 'none' && substr( $icon_value, -4 ) !== ':none' ) {
 									echo '<span class="navitto-icon-picker-placeholder" data-icon-value="' . esc_attr( $icon_value ) . '"></span>';
 								}
 							?></span>
+							<?php endif; ?>
 							<input type="text"
 								name="navitto_h2_text_<?php echo esc_attr( $index ); ?>"
 								class="cp-h2-text-input"
@@ -217,6 +222,7 @@ class Navitto_Admin {
 								placeholder="<?php echo esc_attr( $h2_text ); ?>"
 								<?php echo $is_checked ? '' : 'disabled'; ?> />
 						</div>
+						<?php if ( $license_ok ) : ?>
 						<div class="cp-h2-item-row cp-h2-item-row--icon-btn">
 							<button type="button"
 								class="navitto-icon-picker-btn button button-small"
@@ -231,6 +237,7 @@ class Navitto_Admin {
 								data-index="<?php echo esc_attr( $index ); ?>"
 								value="<?php echo esc_attr( $icon_value ); ?>" />
 						</div>
+						<?php endif; ?>
 					</div>
 				<?php endforeach; ?>
 				<?php endif; ?>
@@ -360,22 +367,28 @@ class Navitto_Admin {
 			update_post_meta( $post_id, '_navitto_selected_h2', $selected );
 
 			$texts = array();
-			$icons = array();
 			foreach ( $selected as $idx ) {
 				$key = 'navitto_h2_text_' . $idx;
 				if ( isset( $_POST[ $key ] ) ) {
 					$texts[ $idx ] = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
 				}
-				$icon_key = 'navitto_h2_icon_' . $idx;
-				if ( isset( $_POST[ $icon_key ] ) ) {
-					$val = sanitize_text_field( wp_unslash( $_POST[ $icon_key ] ) );
-					if ( $val !== '' ) {
-						$icons[ $idx ] = $val;
-					}
-				}
 			}
 			update_post_meta( $post_id, '_navitto_h2_custom_texts', $texts );
-			update_post_meta( $post_id, '_navitto_h2_icons', $icons );
+
+			// ライセンス有効時のみアイコンデータを保存
+			if ( get_option( 'navitto_license_status', '' ) === 'valid' ) {
+				$icons = array();
+				foreach ( $selected as $idx ) {
+					$icon_key = 'navitto_h2_icon_' . $idx;
+					if ( isset( $_POST[ $icon_key ] ) ) {
+						$val = sanitize_text_field( wp_unslash( $_POST[ $icon_key ] ) );
+						if ( $val !== '' ) {
+							$icons[ $idx ] = $val;
+						}
+					}
+				}
+				update_post_meta( $post_id, '_navitto_h2_icons', $icons );
+			}
 
 			// 表示開始位置
 			$trigger_type = isset( $_POST['_navitto_trigger_type'] )

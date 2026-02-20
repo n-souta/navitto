@@ -149,15 +149,13 @@
 	bottom: 0;
 }
 
-/* 下部固定時: アクティブインジケーターは上側（border-top）に表示 */
+/* 下部固定時: アクティブインジケーターは上側に表示（box-shadow で描画） */
 .navitto-nav.cp-pos-bottom .navitto-nav__link {
-	border-bottom: none;
-	border-top: 3px solid transparent;
+	box-shadow: inset 0 3px 0 transparent, inset 0 -3px 0 transparent;
 }
 
 .navitto-nav.cp-pos-bottom .navitto-nav__item--active .navitto-nav__link {
-	border-bottom: none;
-	border-top: 3px solid var(--navitto-active-text);
+	box-shadow: inset 0 3px 0 var(--navitto-active-text), inset 0 -3px 0 transparent;
 }
 
 /* 下部固定時も影はテーマの --navitto-nav-shadow に従う */
@@ -229,7 +227,8 @@
 	font-weight: var(--navitto-font-weight);
 	text-decoration: none;
 	white-space: nowrap;
-	border-bottom: 3px solid transparent;  /* アクティブ時も高さを変えず border のみ変化させる */
+	/* 下線は box-shadow で描画（レイアウトに含めない）→ アイコン・テキストが高さ方向で正しく中央に揃う */
+	box-shadow: inset 0 -3px 0 transparent;
 	border-radius: var(--navitto-radius);
 	transition: all 0.2s ease;
 	-webkit-tap-highlight-color: transparent;  /* スマホ：リンクタップ時の一瞬のハイライトを消す（色が残って見える現象の緩和） */
@@ -243,7 +242,7 @@
 .navitto-nav__item--active .navitto-nav__link {
 	color: var(--navitto-active-text);
 	background: var(--navitto-active-bg);
-	border-bottom: 3px solid var(--navitto-active-text);
+	box-shadow: inset 0 -3px 0 var(--navitto-active-text);
 }
 
 /* ---------- ナビ項目内アイコン（Font Awesome nvfa / 装飾用・aria-hidden） ---------- */
@@ -353,12 +352,11 @@ nav.navitto-nav.nav-equal .navitto-nav__link.is-overflow {
 
 .navitto-nav.cp-preset-theme .navitto-nav__item--active .navitto-nav__link {
 	background: var(--navitto-theme-active-bg);
-	border-bottom: 3px solid var(--navitto-theme-color);
+	box-shadow: inset 0 -3px 0 var(--navitto-theme-color);
 }
 
 .navitto-nav.cp-preset-theme.cp-pos-bottom .navitto-nav__item--active .navitto-nav__link {
-	border-bottom: none;
-	border-top: 3px solid var(--navitto-theme-color);
+	box-shadow: inset 0 3px 0 var(--navitto-theme-color), inset 0 -3px 0 transparent;
 }
 
 /* ==========================================================================

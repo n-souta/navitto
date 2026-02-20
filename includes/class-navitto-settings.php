@@ -65,6 +65,7 @@ class Navitto_Settings {
 		add_action( 'wp_ajax_navitto_enable_all',   array( $this, 'ajax_enable_all' ) );
 		add_action( 'wp_ajax_navitto_disable_all',  array( $this, 'ajax_disable_all' ) );
 		add_action( 'wp_ajax_navitto_activate_license', array( $this, 'ajax_activate_license' ) );
+		add_action( 'wp_ajax_navitto_clear_license', array( $this, 'ajax_clear_license' ) );
 	}
 
 	/* =========================================================================
@@ -126,6 +127,8 @@ class Navitto_Settings {
 				'licenseValid'      => __( 'ライセンスは有効です。', 'navitto' ),
 				'licenseInvalid'    => __( 'ライセンスが無効です。', 'navitto' ),
 				'licenseEmpty'      => __( 'ライセンスキーを入力してください。', 'navitto' ),
+				'licenseClear'      => __( 'ライセンスをクリア', 'navitto' ),
+				'confirmClearLicense' => __( '保存したライセンスをクリアします。未入力状態で検証できます。', 'navitto' ),
 			),
 		) );
 	}
@@ -209,6 +212,12 @@ class Navitto_Settings {
 						<?php if ( $is_valid ) : ?>
 							<p class="description navitto-license-status navitto-license-status-valid">
 								<?php esc_html_e( 'ライセンスは有効です。', 'navitto' ); ?>
+							</p>
+							<p class="description" style="margin-top: 6px;">
+								<button type="button" id="navitto_clear_license" class="button button-link-delete">
+									<?php esc_html_e( 'ライセンスをクリア', 'navitto' ); ?>
+								</button>
+								<?php esc_html_e( '（未入力状態の検証用）', 'navitto' ); ?>
 							</p>
 						<?php elseif ( $license_key && ! $is_valid ) : ?>
 							<p class="description navitto-license-status navitto-license-status-invalid">
@@ -442,6 +451,26 @@ class Navitto_Settings {
 		}
 
 		wp_send_json_success( array( 'message' => __( 'ライセンスは有効です。', 'navitto' ) ) );
+	}
+
+	/**
+	 * Ajax: ライセンスをクリア（未入力状態で検証する用）
+	 *
+	 * @return void
+	 */
+	public function ajax_clear_license() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( '権限がありません。', 'navitto' ) ) );
+		}
+		if ( ! check_ajax_referer( 'navitto_license_activate', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'セキュリティ検証に失敗しました。', 'navitto' ) ) );
+		}
+
+		delete_option( 'navitto_license_key' );
+		delete_option( 'navitto_license_status' );
+		delete_option( 'navitto_license_email' );
+
+		wp_send_json_success( array( 'message' => __( 'ライセンスをクリアしました。', 'navitto' ) ) );
 	}
 
 	/* =========================================================================

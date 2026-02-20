@@ -69,6 +69,8 @@ class Navitto_Main {
 			return;
 		}
 
+		$license_ok = ( get_option( 'navitto_license_status', '' ) === 'valid' );
+
 		// CSS
 		wp_enqueue_style(
 			'navitto-frontend',
@@ -77,31 +79,31 @@ class Navitto_Main {
 			$this->version
 		);
 
-		// Font Awesome（nv- プレフィックス）※ アイコン利用時用
-		$fa_css = NAVITTO_PLUGIN_DIR . 'assets/lib/fontawesome/all-nv.min.css';
-		if ( file_exists( $fa_css ) ) {
-			wp_enqueue_style(
-				'navitto-fontawesome',
-				NAVITTO_PLUGIN_URL . 'assets/lib/fontawesome/all-nv.min.css',
+		// ライセンス有効時のみ Font Awesome とアイコンレジストリを読み込む
+		if ( $license_ok ) {
+			$fa_css = NAVITTO_PLUGIN_DIR . 'assets/lib/fontawesome/all-nv.min.css';
+			if ( file_exists( $fa_css ) ) {
+				wp_enqueue_style(
+					'navitto-fontawesome',
+					NAVITTO_PLUGIN_URL . 'assets/lib/fontawesome/all-nv.min.css',
+					array(),
+					$this->version
+				);
+			}
+			wp_enqueue_script(
+				'navitto-icons',
+				NAVITTO_PLUGIN_URL . 'assets/js/navitto-icons.js',
 				array(),
-				$this->version
+				$this->version,
+				true
 			);
 		}
 
-		// アイコンレジストリ（frontend より前に読み込み）
-		wp_enqueue_script(
-			'navitto-icons',
-			NAVITTO_PLUGIN_URL . 'assets/js/navitto-icons.js',
-			array(),
-			$this->version,
-			true
-		);
-
-		// JavaScript
+		// JavaScript（ライセンス無効時はアイコン用スクリプトに依存しない）
 		wp_enqueue_script(
 			'navitto-frontend',
 			NAVITTO_PLUGIN_URL . 'assets/js/frontend.js',
-			array( 'jquery', 'navitto-icons' ),
+			$license_ok ? array( 'jquery', 'navitto-icons' ) : array( 'jquery' ),
 			$this->version,
 			true
 		);
@@ -129,8 +131,11 @@ class Navitto_Main {
 			$selected_h2 = is_array( $raw ) ? $raw : array();
 			$raw_texts = get_post_meta( $post_id, '_navitto_h2_custom_texts', true );
 			$custom_texts = is_array( $raw_texts ) ? $raw_texts : array();
-			$raw_icons = get_post_meta( $post_id, '_navitto_h2_icons', true );
-			$h2_icons = is_array( $raw_icons ) ? $raw_icons : array();
+			// ライセンス有効時のみアイコンデータを読み込む
+			if ( $license_ok ) {
+				$raw_icons = get_post_meta( $post_id, '_navitto_h2_icons', true );
+				$h2_icons = is_array( $raw_icons ) ? $raw_icons : array();
+			}
 		}
 
 		// 表示開始位置の設定
