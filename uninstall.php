@@ -17,6 +17,9 @@ $options = array(
 	'navitto_position',
 	'navitto_default_enabled',
 	'navitto_db_version',
+	'navitto_license_key',
+	'navitto_license_status',
+	'navitto_license_email',
 );
 foreach ( $options as $option ) {
 	delete_option( $option );

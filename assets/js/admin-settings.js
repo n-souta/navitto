@@ -21,6 +21,48 @@
 			navitto_disable_all: i18n.confirmDisableAll || 'Are you sure?'
 		};
 
+		// ライセンス有効化ボタン
+		$('#navitto_activate_license').on('click', function() {
+			var $btn = $(this);
+			var $input = $('#navitto_license_key');
+			var $result = $('#navitto_license_result');
+			var key = $.trim( $input.val() );
+
+			if ( ! key ) {
+				$result.removeClass('success error').addClass('error').text( i18n.licenseEmpty || 'ライセンスキーを入力してください。' );
+				return;
+			}
+
+			$result.removeClass('success error').text('');
+			$('.navitto-license-status').remove();
+			$btn.prop('disabled', true).text( i18n.licenseActivating || '確認中...' );
+
+			$.ajax({
+				url:  config.ajaxUrl,
+				type: 'POST',
+				data: {
+					action:      'navitto_activate_license',
+					nonce:       config.licenseNonce,
+					license_key: key
+				},
+				dataType: 'json'
+			})
+			.done(function(response) {
+				if ( response.success && response.data ) {
+					$result.addClass('success').text( response.data.message || i18n.licenseValid );
+				} else {
+					var msg = ( response.data && response.data.message ) ? response.data.message : ( i18n.licenseInvalid || 'ライセンスが無効です。' );
+					$result.addClass('error').text( msg );
+				}
+			})
+			.fail(function() {
+				$result.addClass('error').text( i18n.error || 'エラーが発生しました。' );
+			})
+			.always(function() {
+				$btn.prop('disabled', false).text( i18n.licenseActivate || '有効化' );
+			});
+		});
+
 		// 一括適用ボタンのクリック処理
 		$('.navitto-bulk-btn').on('click', function() {
 
