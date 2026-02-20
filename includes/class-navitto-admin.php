@@ -360,6 +360,11 @@ class Navitto_Admin {
 		// 後方互換: _navitto_enabled も更新
 		update_post_meta( $post_id, '_navitto_enabled', 'hide' === $mode ? '0' : '1' );
 
+		// 投稿で「表示」を選んだ場合は一括無効フラグを外す（個別の選択を優先）
+		if ( 'show_all' === $mode || 'select' === $mode ) {
+			delete_post_meta( $post_id, '_navitto_bulk_disabled' );
+		}
+
 		// H2選択データ
 		if ( 'select' === $mode ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- array_map('intval') sanitizes

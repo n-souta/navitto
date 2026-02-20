@@ -3,7 +3,7 @@
  * Plugin Name:       Navitto
  * Plugin URI:        https://example.com/navitto
  * Description:       設定ゼロで始める固定ナビゲーション。ナビっと表示、サクッと移動。
- * Version:           1.1.0
+ * Version:           1.2.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Your Name
@@ -16,6 +16,21 @@
  * @package Navitto
  */
 
+/**
+ * Navitto is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * any later version.
+ *
+ * Navitto is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Navitto. If not, see https://www.gnu.org/licenses/gpl-2.0.html.
+ */
+
 // 直接アクセスを防ぐ
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,7 +39,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * プラグインバージョン
  */
-define( 'NAVITTO_VERSION', '1.1.0' );
+define( 'NAVITTO_VERSION', '1.2.0' );
 
 /**
  * プラグインディレクトリパス

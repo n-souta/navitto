@@ -1,11 +1,11 @@
 === Navitto ===
 
-Contributors: (your WordPress.org username)
-Tags: navigation, table of contents, fixed nav, toc, heading
+Contributors: (WordPress.org ユーザー名を記入)
+Tags: navigation, table of contents, fixed nav, toc, heading, sticky nav, 固定ナビ, 目次
 Requires at least: 6.0
-Tested up to: 6.4
+Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,9 +13,64 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
 
-固定ナビゲーション（目次型）プラグイン。H2見出しに連動し、長文記事での移動を補助します。
+Navitto は、投稿ページの H2 見出しに連動する**固定ナビゲーション（目次型）**プラグインです。長文記事で「今どこにいるか」がわかりやすく、クリックで該当見出しへスムーズに移動できます。
+
+**主な機能**
+
+* **固定ナビ表示** … 画面上部（または下部）に固定され、スクロールしても見出し一覧が常に見える
+* **表示モード** … 「すべて表示」「表示する見出しを選択」「非表示」から選択可能
+* **カスタマイザー** … デザインプリセット（シンプル・テーマ準拠・カスタム）、ナビの高さ・位置・色などを設定
+* **一括適用** … 全投稿で固定ナビを一括で有効／無効にできる（設定 → Navitto）
+* **ライセンス** … Navitto Pro ライセンスキー（Lemon Squeezy）を入力すると、見出しにアイコンを追加する機能が利用可能
+
+**動作**
+
+* 投稿編集画面の「Navitto」メタボックスで、その投稿ごとに固定ナビの表示／非表示や表示する見出しを設定
+* テーマのヘッダー内に固定ナビを挿入するオプションあり（テーマが対応している場合）
+
+== Installation ==
+
+1. プラグイン ZIP をアップロードするか、WordPress 管理画面の「プラグイン → 新規追加」から「Navitto」を検索してインストール
+2. 「有効化」をクリック
+3. 投稿の編集画面のサイドバーに「Navitto」メタボックスが表示されます。表示モードや見出しの選択を設定
+4. （任意）「外観 → カスタマイズ → Navitto」でデザインや位置を調整
+5. （任意）「設定 → Navitto」で新規投稿のデフォルトや一括適用・ライセンスを設定
+
+== Frequently Asked Questions ==
+
+= 固定ナビが表示されない =
+
+* その投稿で「固定ナビを非表示」になっていないか、投稿編集の Navitto メタボックスで確認してください
+* 本文に H2 見出しが 2 個以上ある投稿にのみ表示されます（1 個以下の場合は表示されません）
+
+= 見出しを選んで表示するには？ =
+
+「表示する見出しを選択」を選ぶと、チェックボックスで表示する H2 を選べます。表示開始位置（ページ上部から／選択した最初の見出しを通過後）も設定できます。
+
+= アイコンを追加するには？ =
+
+Navitto Pro のライセンスキーを「設定 → Navitto」のライセンス欄で有効化すると、投稿編集で各見出しにアイコンを追加できるようになります。ライセンスは Lemon Squeezy で購入できます。
+
+= テーマのヘッダー内に固定ナビを出したい =
+
+テーマが `navitto_fixed_nav_inside_header` フィルターをサポートしている場合、固定ナビがヘッダー内に挿入されます。テーマのドキュメントを確認してください。
+
+== Screenshots ==
+
+1. 固定ナビの表示例（シンプルプリセット・画面上部固定）。H2 見出しに連動してアクティブが切り替わる
+2. 投稿編集画面の Navitto メタボックス。表示モード・見出しの選択・表示開始位置を設定
+3. カスタマイザー「Navitto」セクション。プリセット・位置・高さ・色などを設定
+4. 設定 → Navitto。デフォルト動作・一括適用・ライセンスキー入力
+
+* スクリーンショットは WordPress.org プラグイン SVN の `assets` フォルダに `screenshot-1.png` ～ `screenshot-4.png`（推奨 1280×720）で配置してください。
 
 == Changelog ==
+
+= 1.2.0 = (2026-02-20)
+* Added: ライセンスキー入力・有効化（Lemon Squeezy 連携）
+* Added: ライセンスをクリアするボタン（未入力状態の検証用）
+* Changed: アイコン機能をライセンス有効時のみ利用可能に（Phase 7-B）
+* Fixed: 固定ナビのアイコンが下がって見える表示を修正（下線を box-shadow に変更）
 
 = 1.1.0 = (2026-02-19)
 * Added: デザインプリセットに「カスタム」を追加（文字色・背景色・選択中テキスト色をカスタマイザーで設定可能）
@@ -26,3 +81,8 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 = 1.0.0 = (2026-02-15)
 * Initial release.
+
+== Upgrade Notice ==
+
+= 1.2.0 =
+ライセンスキー入力・有効化（Lemon Squeezy）を追加。アイコン機能はライセンス有効時のみ利用可能になりました。表示まわりの微調整を含みます。
