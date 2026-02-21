@@ -52,6 +52,10 @@ class Navitto_Main {
 		}
 		$classes[] = 'navitto-pos-' . $position;
 
+		if ( get_theme_mod( 'navitto_disable_animation', false ) ) {
+			$classes[] = 'navitto-no-animation';
+		}
+
 		return $classes;
 	}
 

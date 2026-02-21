@@ -539,6 +539,18 @@ class Navitto_Admin {
 			),
 		) );
 
+		// アニメーションを無効にする
+		$wp_customize->add_setting( 'navitto_disable_animation', array(
+			'default'           => false,
+			'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
+		) );
+		$wp_customize->add_control( 'navitto_disable_animation', array(
+			'label'   => __( 'アニメーションを無効にする', 'navitto' ),
+			'section' => 'navitto_design',
+			'type'    => 'checkbox',
+			'description' => __( '固定ナビの表示・非表示のフェードや高さのアニメーションをオフにします。', 'navitto' ),
+		) );
+
 		// 背景を透明にする（テーマ準拠時）
 		$wp_customize->add_setting( 'navitto_theme_bg_transparent', array(
 			'default'           => false,
