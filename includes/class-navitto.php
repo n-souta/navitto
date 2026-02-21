@@ -180,7 +180,7 @@ class Navitto_Main {
 			array(
 				'scrollOffset'        => 80,
 				'animDuration'        => 500,
-				'showAfterScroll'     => 100,
+				'showAfterScroll'     => 0,
 				'preset'              => $preset,
 				'themeBgTransparent'   => $theme_bg_transparent,
 				'position'            => $position,

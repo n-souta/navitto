@@ -24,7 +24,7 @@
 		settings: {
 			scrollOffset: 80,
 			animDuration: 500,
-			showAfterScroll: 100,
+			showAfterScroll: 0,
 			preset: 'simple',
 			position: 'top',
 			displayMode: 'show_all',
