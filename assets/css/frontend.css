@@ -466,22 +466,6 @@ body.navitto-past-last-h2.navitto-body-padding.navitto-bottom {
 }
 
 /* ==========================================================================
-   アニメーション無効（カスタマイザー「アニメーションを無効にする」ON 時）
-   ========================================================================== */
-
-body.navitto-no-animation .navitto-nav,
-body.navitto-no-animation .navitto-nav .navitto-nav__inner,
-body.navitto-no-animation .navitto-header-hidden,
-body.navitto-no-animation .navitto-nav .navitto-nav__link {
-	transition: none !important;
-}
-
-body.navitto-no-animation.navitto-active.navitto-body-padding,
-body.navitto-no-animation.navitto-active.navitto-body-padding.navitto-bottom {
-	transition: none !important;
-}
-
-/* ==========================================================================
    印刷時は非表示
    ========================================================================== */
 

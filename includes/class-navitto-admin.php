@@ -434,7 +434,15 @@ class Navitto_Admin {
 			'priority' => 200,
 		) );
 
-		// プリセット
+		// プリセット（カスタムは有料・ライセンス有効時のみ選択肢に表示）
+		$license_ok = ( get_option( 'navitto_license_status', '' ) === 'valid' );
+		$preset_choices = array(
+			'simple' => __( 'シンプル', 'navitto' ),
+			'theme'  => __( 'テーマ準拠', 'navitto' ),
+		);
+		if ( $license_ok ) {
+			$preset_choices['custom'] = __( 'カスタム', 'navitto' );
+		}
 		$wp_customize->add_setting( 'navitto_preset', array(
 			'default'           => 'simple',
 			'sanitize_callback' => array( $this, 'sanitize_preset' ),
@@ -443,11 +451,7 @@ class Navitto_Admin {
 			'label'   => __( 'デザインプリセット', 'navitto' ),
 			'section' => 'navitto_design',
 			'type'    => 'select',
-			'choices' => array(
-				'simple'  => __( 'シンプル', 'navitto' ),
-				'theme'   => __( 'テーマ準拠', 'navitto' ),
-				'custom'  => __( 'カスタム', 'navitto' ),
-			),
+			'choices' => $preset_choices,
 		) );
 
 		// カスタムプリセット時のみ: 文字色・背景色・選択中テキスト色
@@ -539,18 +543,6 @@ class Navitto_Admin {
 			),
 		) );
 
-		// アニメーションを無効にする
-		$wp_customize->add_setting( 'navitto_disable_animation', array(
-			'default'           => false,
-			'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
-		) );
-		$wp_customize->add_control( 'navitto_disable_animation', array(
-			'label'   => __( 'アニメーションを無効にする', 'navitto' ),
-			'section' => 'navitto_design',
-			'type'    => 'checkbox',
-			'description' => __( '固定ナビの表示・非表示のフェードや高さのアニメーションをオフにします。', 'navitto' ),
-		) );
-
 		// 背景を透明にする（テーマ準拠時）
 		$wp_customize->add_setting( 'navitto_theme_bg_transparent', array(
 			'default'           => false,
@@ -570,17 +562,25 @@ class Navitto_Admin {
 
 	public function sanitize_preset( $value ) {
 		$valid = array( 'simple', 'theme', 'custom' );
-		return in_array( $value, $valid, true ) ? $value : 'simple';
+		if ( ! in_array( $value, $valid, true ) ) {
+			return 'simple';
+		}
+		// カスタムは有料のため、ライセンス未有効時はシンプルに落とす
+		if ( 'custom' === $value && get_option( 'navitto_license_status', '' ) !== 'valid' ) {
+			return 'simple';
+		}
+		return $value;
 	}
 
 	/**
-	 * デザインプリセットが「カスタム」のときのみ true（カラーコントロールの active_callback）
+	 * デザインプリセットが「カスタム」かつライセンス有効のときのみ true（カラーコントロールの active_callback）
 	 *
 	 * @param WP_Customize_Control $control Control instance.
 	 * @return bool
 	 */
 	public function is_preset_custom( $control ) {
-		return 'custom' === get_theme_mod( 'navitto_preset', 'simple' );
+		return 'custom' === get_theme_mod( 'navitto_preset', 'simple' )
+			&& get_option( 'navitto_license_status', '' ) === 'valid';
 	}
 
 	public function sanitize_position( $value ) {

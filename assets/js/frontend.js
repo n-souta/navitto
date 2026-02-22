@@ -371,8 +371,13 @@
 			this.$nav[0].style.setProperty('--navitto-nav-transition-duration', duration + 's');
 			if (themeHeaderSticky) {
 				this.$nav.addClass('cp-theme-header-sticky');
-				this.$nav.addClass('is-visible');
-				this.updateScrollMargin();
+				// 「選択した最初の見出しを通過後」のときは初期表示で開かない（一瞬開いて閉じるチラつき防止）
+				var trigger = this.settings.trigger || { type: 'immediate' };
+				var triggerType = trigger.type || 'immediate';
+				if (triggerType !== 'first_selected') {
+					this.$nav.addClass('is-visible');
+					this.updateScrollMargin();
+				}
 			} else {
 				this.$nav.removeClass('cp-theme-header-sticky');
 			}
@@ -855,10 +860,14 @@
 			if (!this.isBackAboveNextH2(scrollTop) && this.$nav && this.$nav.hasClass('navitto-nav--past-last-h2')) {
 				return false;
 			}
-			// sticky のときも表示開始位置（trigger）に達してから表示する
-
 			var trigger = this.settings.trigger || { type: 'immediate' };
 			var type = trigger.type || 'immediate';
+
+			// テーマヘッダーが sticky かつ immediate のときだけ先頭から表示（一瞬閉じるチラつき防止）
+			// first_selected のときは「最初の見出しを通過後」なので先頭から表示しない
+			if (this.$nav && this.$nav.hasClass('cp-theme-header-sticky') && type !== 'first_selected') {
+				return true;
+			}
 
 			// immediate: showAfterScroll ベース（デフォルト動作）
 			if (type === 'immediate') {

@@ -52,10 +52,6 @@ class Navitto_Main {
 		}
 		$classes[] = 'navitto-pos-' . $position;
 
-		if ( get_theme_mod( 'navitto_disable_animation', false ) ) {
-			$classes[] = 'navitto-no-animation';
-		}
-
 		return $classes;
 	}
 
@@ -147,9 +143,12 @@ class Navitto_Main {
 		$trigger_data = array(
 			'type' => $trigger_type ? $trigger_type : 'immediate',
 		);
-		// プリセット（カスタマイザーで一括設定。現在はシンプル・テーマ準拠のみ）
+		// プリセット（カスタムは有料：ライセンス未有効時はシンプルとして扱う）
 		$preset = get_theme_mod( 'navitto_preset', 'simple' );
 		if ( ! in_array( $preset, array( 'simple', 'theme', 'custom' ), true ) ) {
+			$preset = 'simple';
+		}
+		if ( 'custom' === $preset && get_option( 'navitto_license_status', '' ) !== 'valid' ) {
 			$preset = 'simple';
 		}
 
@@ -226,9 +225,9 @@ class Navitto_Main {
 		}
 		$css .= '}';
 
-		// カスタムプリセット: 文字色・背景色・選択中テキスト色を CSS 変数で出力
+		// カスタムプリセット: 文字色・背景色・選択中テキスト色を CSS 変数で出力（有料・ライセンス有効時のみ）
 		$preset = get_theme_mod( 'navitto_preset', 'simple' );
-		if ( 'custom' === $preset ) {
+		if ( 'custom' === $preset && get_option( 'navitto_license_status', '' ) === 'valid' ) {
 			$text_color      = get_theme_mod( 'navitto_custom_color_text', '#333333' ) ?: '#333333';
 			$bg_color        = get_theme_mod( 'navitto_custom_color_bg', '#ffffff' ) ?: '#ffffff';
 			$underline_color = get_theme_mod( 'navitto_custom_color_underline', '#0073aa' ) ?: '#0073aa';

@@ -33,7 +33,6 @@ $theme_mods = array(
 	'navitto_nav_width',
 	'navitto_font_weight',
 	'navitto_theme_bg_transparent',
-	'navitto_disable_animation',
 	'navitto_custom_color_text',
 	'navitto_custom_color_bg',
 	'navitto_custom_color_underline',
