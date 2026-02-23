@@ -41,15 +41,8 @@ foreach ( $theme_mods as $mod ) {
 	remove_theme_mod( $mod );
 }
 
-// メタデータを削除
-global $wpdb;
-
-$wpdb->query(
-	$wpdb->prepare(
-		"DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE %s",
-		$wpdb->esc_like( '_navitto_' ) . '%'
-	)
-);
+// 投稿メタは削除しない（再インストール時に「固定ナビを表示する」設定を保持するため）
+// 完全にデータを消したい場合は手動で DB から _navitto_% を削除してください。
 
 // キャッシュをクリア
 wp_cache_flush();
