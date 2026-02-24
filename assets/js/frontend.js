@@ -946,8 +946,8 @@
 		},
 
 		updateActive: function(scrollTop) {
-			// クリック後1秒間はクリックで指定したインデックスを維持
-			if (this._clickedIndex >= 0 && (Date.now() - this._clickedTime) < 1000) {
+			// クリック＋補正完了後2秒間は指定したインデックスを維持（補正完了時に _clickedTime を再設定している）
+			if (this._clickedIndex >= 0 && (Date.now() - this._clickedTime) < 2000) {
 				return;
 			}
 			this._clickedIndex = -1;
@@ -967,7 +967,7 @@
 			$items.removeClass('navitto-nav__item--active');
 			var $active = $items.eq(activeIndex).addClass('navitto-nav__item--active');
 
-			// カレントが変わったらセンタリング
+			// カレントが変わったらセンタリングとインジケーター更新
 			if (activeIndex !== this.lastActiveIndex) {
 				this.lastActiveIndex = activeIndex;
 				this.centerActiveItem($active);
@@ -1020,11 +1020,51 @@
 			// Step 1: scrollIntoView でざっくり移動
 			$target[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-			// Step 2: スクロール停止を検知 → ナビの高さ分フワッと補正
+			// Step 2: スクロール停止を検知 → ナビの高さ分フワッと補正（停止検知は時間制限なし。タイムアウト時も補正は実行する）
 			var lastScroll = $(window).scrollTop();
 			var stableCount = 0;
 			var checkCount = 0;
 			var corrected = false;
+
+			function runCorrection() {
+				if (corrected) return;
+				corrected = true;
+				clearInterval(checkInterval);
+				clearTimeout(safetyTimeout);
+				// 補正後にナビのカレントが「1つ前」に戻らないよう、対象見出しのインデックスを特定して強制反映する
+				var targetIndex = -1;
+				for (var i = 0; i < self.headings.length; i++) {
+					if (self.headings[i].element === $target[0]) {
+						targetIndex = i;
+						break;
+					}
+				}
+				function finishScroll() {
+					self.isScrolling = false;
+					if (targetIndex >= 0) {
+						self.lastActiveIndex = targetIndex;
+						self._clickedIndex = targetIndex;
+						self._clickedTime = Date.now();
+						self.$nav.find('.navitto-nav__item').removeClass('navitto-nav__item--active');
+						self.$nav.find('.navitto-nav__item').eq(targetIndex).addClass('navitto-nav__item--active');
+						self.centerActiveItem(self.$nav.find('.navitto-nav__item').eq(targetIndex));
+					}
+				}
+				requestAnimationFrame(function() {
+					var headingRect = $target[0].getBoundingClientRect();
+					var navBottom = self.getNavBottom();
+					var desiredTop = navBottom + 20;
+					if (headingRect.top < desiredTop) {
+						var diff = desiredTop - headingRect.top;
+						$('html, body').stop().animate({
+							scrollTop: $(window).scrollTop() - diff
+						}, 100, 'swing', finishScroll);
+					} else {
+						finishScroll();
+					}
+				});
+			}
+
 			var checkInterval = setInterval(function() {
 				var currentScroll = $(window).scrollTop();
 				if (Math.abs(currentScroll - lastScroll) < 1) {
@@ -1034,42 +1074,18 @@
 				}
 				lastScroll = currentScroll;
 				checkCount++;
-
-				// 2回連続で安定 or 60回チェック(3秒)で完了とみなす
-				if ((stableCount >= 2 || checkCount >= 60) && !corrected) {
-					corrected = true;
-					clearInterval(checkInterval);
-					clearTimeout(safetyTimeout);
-
-					// 見出しの現在位置を確認し、ナビに被っていたらフワッと補正
-					requestAnimationFrame(function() {
-						var headingRect = $target[0].getBoundingClientRect();
-						var navBottom = self.getNavBottom();
-						var desiredTop = navBottom + 20;
-
-						if (headingRect.top < desiredTop) {
-							// ナビの高さ分 + 余白をフワッとアニメーションで補正
-							var diff = desiredTop - headingRect.top;
-							$('html, body').stop().animate({
-								scrollTop: $(window).scrollTop() - diff
-							}, 100, 'swing', function() {
-								self.isScrolling = false;
-							});
-						} else {
-							self.isScrolling = false;
-						}
-					});
+				// 2回連続で安定 or 120回チェック(6秒)で完了とみなす
+				if (stableCount >= 2 || checkCount >= 120) {
+					runCorrection();
 				}
 			}, 50);
 
-			// スマホなどでスクロールが長く続き「安定」検知が遅れても、一定時間で isScrolling を解除（アクティブが動かなくなるのを防ぐ）
+			// 長距離スクロールでも補正を必ず1回実行する（安定検知が遅れてもタイムアウト時に補正して isScrolling 解除）
 			var safetyTimeout = setTimeout(function() {
 				if (!corrected) {
-					corrected = true;
-					clearInterval(checkInterval);
-					self.isScrolling = false;
+					runCorrection();
 				}
-			}, 1200);
+			}, 5000);
 		},
 
 		escapeHtml: function(str) {
