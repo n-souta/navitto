@@ -292,6 +292,14 @@ class Navitto_Admin {
 			<p class="description" style="margin-top:8px;">
 				<?php esc_html_e( 'H2見出しが2個以上の記事に表示されます（show_all時）。', 'navitto' ); ?>
 			</p>
+			<?php if ( defined( 'NAVITTO_PRO_URL' ) && get_option( 'navitto_license_status', '' ) !== 'valid' ) : ?>
+			<div style="margin-top:12px;padding-top:12px;border-top:1px solid #ddd;">
+				<p style="margin:0 0 4px;">
+					<a href="<?php echo esc_url( NAVITTO_PRO_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Pro版へ', 'navitto' ); ?></a>
+				</p>
+				<p class="description" style="margin:0;"><?php esc_html_e( 'Pro版ではアイコン設置やデザインカスタマイズが可能です。', 'navitto' ); ?></p>
+			</div>
+			<?php endif; ?>
 		</div>
 		<?php
 	}
@@ -553,6 +561,19 @@ class Navitto_Admin {
 			'description' => __( 'テーマ準拠のとき、ナビの背景を透明にします。', 'navitto' ),
 			'section'     => 'navitto_design',
 			'type'        => 'checkbox',
+		) );
+
+		// Pro版へリンク（ダミー setting + カスタムコントロール）
+		$wp_customize->add_setting( 'navitto_pro_link_dummy', array(
+			'sanitize_callback' => '__return_empty_string',
+		) );
+		require_once NAVITTO_PLUGIN_DIR . 'includes/class-navitto-customize-pro-link-control.php';
+		$wp_customize->add_control( new Navitto_Customize_Pro_Link_Control(
+			$wp_customize,
+			'navitto_pro_link_dummy',
+			array(
+				'section' => 'navitto_design',
+			)
 		) );
 	}
 

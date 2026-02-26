@@ -190,7 +190,14 @@ class Navitto_Settings {
 		$license_status = get_option( 'navitto_license_status', '' );
 		$is_valid      = ( $license_status === 'valid' );
 		?>
-		<p><?php esc_html_e( 'Navitto Pro のライセンスキーを入力し「有効化」をクリックすると、有料版機能が利用可能になります。', 'navitto' ); ?></p>
+		<p><?php
+			if ( defined( 'NAVITTO_PRO_URL' ) ) {
+				echo '<a href="' . esc_url( NAVITTO_PRO_URL ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Navitto Pro ライセンス', 'navitto' ) . '</a>';
+			} else {
+				echo esc_html__( 'Navitto Pro ライセンス', 'navitto' );
+			}
+			echo esc_html__( 'を購入すると、アイコン設置やデザインカスタマイズが可能になります。ライセンスキーを入力し、「有効化」をクリックしてください。', 'navitto' );
+		?></p>
 		<table class="form-table" role="presentation">
 			<tbody>
 				<tr>
