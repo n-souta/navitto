@@ -45,7 +45,7 @@ class Navitto_Admin {
 		}
 
 		$screen = get_current_screen();
-		if ( ! $screen || 'post' !== $screen->post_type ) {
+		if ( ! $screen || ! in_array( $screen->post_type, array( 'post', 'page' ), true ) ) {
 			return;
 		}
 
@@ -109,7 +109,7 @@ class Navitto_Admin {
 			'navitto_settings',
 			__( 'Navitto', 'navitto' ),
 			array( $this, 'render_meta_box' ),
-			'post',
+			array( 'post', 'page' ),
 			'side',
 			'default'
 		);
@@ -267,9 +267,6 @@ class Navitto_Admin {
 				<label style="font-weight: 600; font-size: 12px; display: block; margin-bottom: 6px;">
 					<?php esc_html_e( '固定ナビの表示方法', 'navitto' ); ?>
 				</label>
-				<p class="description" style="margin: 0 0 6px; font-size: 12px;">
-					<?php esc_html_e( '見出しが多い場合の表示方法を選択します', 'navitto' ); ?>
-				</p>
 				<?php
 				$nav_width = get_post_meta( $post->ID, '_navitto_nav_width', true );
 				if ( ! in_array( $nav_width, array( 'scroll', 'equal' ), true ) ) {
@@ -289,9 +286,6 @@ class Navitto_Admin {
 				<?php endforeach; ?>
 			</div>
 
-			<p class="description" style="margin-top:8px;">
-				<?php esc_html_e( 'H2見出しが2個以上の記事に表示されます（show_all時）。', 'navitto' ); ?>
-			</p>
 			<?php if ( defined( 'NAVITTO_PRO_URL' ) && get_option( 'navitto_license_status', '' ) !== 'valid' ) : ?>
 			<div style="margin-top:12px;padding-top:12px;border-top:1px solid #ddd;">
 				<p style="margin:0 0 4px;">

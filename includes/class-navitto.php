@@ -37,7 +37,7 @@ class Navitto_Main {
 	 * body タグにクラスを追加（配置位置の判定用）
 	 */
 	public function add_body_class( $classes ) {
-		if ( ! is_singular( 'post' ) ) {
+		if ( ! is_singular( array( 'post', 'page' ) ) ) {
 			return $classes;
 		}
 
@@ -59,7 +59,7 @@ class Navitto_Main {
 	 * スクリプトとスタイルを読み込む
 	 */
 	public function enqueue_scripts() {
-		if ( ! is_singular( 'post' ) ) {
+		if ( ! is_singular( array( 'post', 'page' ) ) ) {
 			return;
 		}
 
