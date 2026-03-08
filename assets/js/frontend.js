@@ -435,6 +435,8 @@
 			/* ----- メインカラー（アクセント色 → border-bottom / active 用）----- */
 			var mainColor = null;
 			var mainVars = [
+				'--ark-color--main',               // Arkhe
+				'--ark-color--link',               // Arkhe（リンク色）
 				'--color_main',                    // SWELL
 				'--jin-color-primary',             // JIN
 				'--main-color',                    // SANGO
@@ -465,6 +467,7 @@
 			/* ----- テキストカラー（テーマの文字色 → 通常のナビ文字色用）----- */
 			var textColor = null;
 			var textVars = [
+				'--ark-color--text',               // Arkhe
 				'--color_text',                    // SWELL
 				'--jin-color-text',                // JIN
 				'--text-color',                    // SANGO / 汎用
@@ -527,6 +530,7 @@
 			/* ----- ヘッダーが取れない場合はテーマの背景色をフォールバック ----- */
 			if (!bgColor) {
 				var bgVars = [
+					'--ark-color--bg',              // Arkhe
 					'--color_bg', '--jin-color-bg', '--bg-color', '--cocoon-bg-color',
 					'--wp--preset--color--base', '--body-bg', '--e-global-color-bg'
 				];
