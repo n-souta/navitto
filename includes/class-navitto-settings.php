@@ -61,11 +61,9 @@ class Navitto_Settings {
 		add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 
-		// Ajax ハンドラ
+		// Ajax ハンドラ（一括適用）
 		add_action( 'wp_ajax_navitto_enable_all',   array( $this, 'ajax_enable_all' ) );
 		add_action( 'wp_ajax_navitto_disable_all',  array( $this, 'ajax_disable_all' ) );
-		add_action( 'wp_ajax_navitto_activate_license', array( $this, 'ajax_activate_license' ) );
-		add_action( 'wp_ajax_navitto_clear_license', array( $this, 'ajax_clear_license' ) );
 	}
 
 	/* =========================================================================
@@ -116,19 +114,11 @@ class Navitto_Settings {
 		wp_localize_script( 'navitto-admin-settings', 'navittoAdmin', array(
 			'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
 			'nonce'         => wp_create_nonce( 'navitto_bulk_action' ),
-			'licenseNonce'  => wp_create_nonce( 'navitto_license_activate' ),
 			'i18n'          => array(
 				'confirmEnableAll'   => __( 'すべての投稿で固定ナビを有効にしますか？', 'navitto' ),
 				'confirmDisableAll'  => __( 'すべての投稿で固定ナビを無効にしますか？', 'navitto' ),
-				'processing'        => __( '処理中...', 'navitto' ),
-				'error'             => __( 'エラーが発生しました。', 'navitto' ),
-				'licenseActivate'   => __( '有効化', 'navitto' ),
-				'licenseActivating' => __( '確認中...', 'navitto' ),
-				'licenseValid'      => __( 'ライセンスは有効です。', 'navitto' ),
-				'licenseInvalid'    => __( 'ライセンスが無効です。', 'navitto' ),
-				'licenseEmpty'      => __( 'ライセンスキーを入力してください。', 'navitto' ),
-				'licenseClear'      => __( 'ライセンスをクリア', 'navitto' ),
-				'confirmClearLicense' => __( '保存したライセンスをクリアします。未入力状態で検証できます。', 'navitto' ),
+				'processing'         => __( '処理中...', 'navitto' ),
+				'error'              => __( 'エラーが発生しました。', 'navitto' ),
 			),
 		) );
 	}
@@ -178,64 +168,6 @@ class Navitto_Settings {
 	 */
 	public function render_section_default() {
 		echo '<p>' . esc_html__( '新規投稿作成時のデフォルト動作を設定します。', 'navitto' ) . '</p>';
-	}
-
-	/**
-	 * ライセンスセクションの説明と入力欄
-	 *
-	 * @return void
-	 */
-	public function render_section_license() {
-		$license_key   = get_option( 'navitto_license_key', '' );
-		$license_status = get_option( 'navitto_license_status', '' );
-		$is_valid      = ( $license_status === 'valid' );
-		?>
-		<p><?php
-			if ( defined( 'NAVITTO_PRO_URL' ) ) {
-				echo '<a href="' . esc_url( NAVITTO_PRO_URL ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Navitto Pro ライセンス', 'navitto' ) . '</a>';
-			} else {
-				echo esc_html__( 'Navitto Pro ライセンス', 'navitto' );
-			}
-			echo esc_html__( 'を購入すると、アイコン設置やデザインカスタマイズが可能になります。ライセンスキーを入力し、「有効化」をクリックしてください。', 'navitto' );
-		?></p>
-		<table class="form-table" role="presentation">
-			<tbody>
-				<tr>
-					<th scope="row"><label for="navitto_license_key"><?php esc_html_e( 'ライセンスキー', 'navitto' ); ?></label></th>
-					<td>
-						<input type="text"
-							id="navitto_license_key"
-							class="regular-text"
-							name="navitto_license_key"
-							value="<?php echo esc_attr( $license_key ); ?>"
-							placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-							autocomplete="off" />
-						<button type="button"
-							id="navitto_activate_license"
-							class="button button-secondary">
-							<?php esc_html_e( '有効化', 'navitto' ); ?>
-						</button>
-						<span id="navitto_license_result" class="navitto-license-result" aria-live="polite"></span>
-						<?php if ( $is_valid ) : ?>
-							<p class="description navitto-license-status navitto-license-status-valid">
-								<?php esc_html_e( 'ライセンスは有効です。', 'navitto' ); ?>
-							</p>
-							<p class="description" style="margin-top: 6px;">
-								<button type="button" id="navitto_clear_license" class="button button-link-delete">
-									<?php esc_html_e( 'ライセンスをクリア', 'navitto' ); ?>
-								</button>
-								<?php esc_html_e( '（未入力状態の検証用）', 'navitto' ); ?>
-							</p>
-						<?php elseif ( $license_key && ! $is_valid ) : ?>
-							<p class="description navitto-license-status navitto-license-status-invalid">
-								<?php esc_html_e( 'ライセンスが無効です。キーを確認するか、再度有効化してください。', 'navitto' ); ?>
-							</p>
-						<?php endif; ?>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<?php
 	}
 
 	/* =========================================================================
@@ -323,26 +255,17 @@ class Navitto_Settings {
 					</tbody>
 				</table>
 
-				<hr />
-
-				<!-- ライセンスセクション（最後に配置） -->
-				<h2><?php esc_html_e( 'ライセンス', 'navitto' ); ?></h2>
-				<?php $this->render_section_license(); ?>
-
 				<?php submit_button(); ?>
 			</form>
 
 			<style>
-				.navitto-bulk-result,
-				.navitto-license-result {
+				.navitto-bulk-result {
 					display: inline-block;
 					margin-left: 10px;
 					font-weight: 600;
 				}
-				.navitto-bulk-result.success,
-				.navitto-license-result.success { color: #00a32a; }
-				.navitto-bulk-result.error,
-				.navitto-license-result.error   { color: #d63638; }
+				.navitto-bulk-result.success { color: #00a32a; }
+				.navitto-bulk-result.error   { color: #d63638; }
 			</style>
 		</div>
 		<?php
@@ -360,16 +283,13 @@ class Navitto_Settings {
 	public function ajax_enable_all() {
 		$this->verify_ajax_request();
 
-		global $wpdb;
-
-		// 全 publish 投稿の ID を取得
-		$post_ids = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT ID FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-				'post',
-				'publish'
-			)
-		);
+		// 全 publish 投稿の ID を取得（get_posts でキャッシュ・抽象化を利用）
+		$post_ids = get_posts( array(
+			'post_type'      => 'post',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+		) );
 
 		$count = 0;
 		foreach ( $post_ids as $post_id ) {
@@ -393,15 +313,12 @@ class Navitto_Settings {
 	public function ajax_disable_all() {
 		$this->verify_ajax_request();
 
-		global $wpdb;
-
-		$post_ids = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT ID FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-				'post',
-				'publish'
-			)
-		);
+		$post_ids = get_posts( array(
+			'post_type'      => 'post',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+		) );
 
 		$count = 0;
 		foreach ( $post_ids as $post_id ) {
@@ -415,119 +332,6 @@ class Navitto_Settings {
 			'message' => sprintf( __( '%d件の投稿を無効にしました。', 'navitto' ), $count ),
 			'count'   => $count,
 		) );
-	}
-
-	/**
-	 * Ajax: ライセンスキーを有効化（Lemon Squeezy で検証）
-	 *
-	 * @return void
-	 */
-	public function ajax_activate_license() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( '権限がありません。', 'navitto' ) ) );
-		}
-		if ( ! check_ajax_referer( 'navitto_license_activate', 'nonce', false ) ) {
-			wp_send_json_error( array( 'message' => __( 'セキュリティ検証に失敗しました。', 'navitto' ) ) );
-		}
-
-		$license_key = isset( $_POST['license_key'] ) ? sanitize_text_field( wp_unslash( $_POST['license_key'] ) ) : '';
-		if ( '' === $license_key ) {
-			wp_send_json_error( array( 'message' => __( 'ライセンスキーを入力してください。', 'navitto' ) ) );
-		}
-
-		$result = $this->validate_license_with_lemonsqueezy( $license_key );
-
-		if ( is_wp_error( $result ) ) {
-			update_option( 'navitto_license_status', '' );
-			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
-		}
-
-		if ( empty( $result['valid'] ) ) {
-			update_option( 'navitto_license_status', '' );
-			$error_msg = ! empty( $result['error'] ) ? $result['error'] : __( 'ライセンスが無効です。', 'navitto' );
-			wp_send_json_error( array( 'message' => $error_msg ) );
-		}
-
-		// 有効な場合のみキーとステータスを保存
-		update_option( 'navitto_license_key', $license_key );
-		update_option( 'navitto_license_status', 'valid' );
-		if ( ! empty( $result['meta']['customer_email'] ) ) {
-			update_option( 'navitto_license_email', $result['meta']['customer_email'] );
-		} else {
-			delete_option( 'navitto_license_email' );
-		}
-
-		wp_send_json_success( array( 'message' => __( 'ライセンスは有効です。', 'navitto' ) ) );
-	}
-
-	/**
-	 * Ajax: ライセンスをクリア（未入力状態で検証する用）
-	 *
-	 * @return void
-	 */
-	public function ajax_clear_license() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( '権限がありません。', 'navitto' ) ) );
-		}
-		if ( ! check_ajax_referer( 'navitto_license_activate', 'nonce', false ) ) {
-			wp_send_json_error( array( 'message' => __( 'セキュリティ検証に失敗しました。', 'navitto' ) ) );
-		}
-
-		delete_option( 'navitto_license_key' );
-		delete_option( 'navitto_license_status' );
-		delete_option( 'navitto_license_email' );
-
-		wp_send_json_success( array( 'message' => __( 'ライセンスをクリアしました。', 'navitto' ) ) );
-	}
-
-	/* =========================================================================
-	   ヘルパー
-	   ========================================================================= */
-
-	/**
-	 * Lemon Squeezy API でライセンスキーを検証
-	 *
-	 * @param string $license_key ライセンスキー
-	 * @return array|WP_Error 成功時は API レスポンス配列、失敗時は WP_Error
-	 */
-	private function validate_license_with_lemonsqueezy( $license_key ) {
-		$url = 'https://api.lemonsqueezy.com/v1/licenses/validate';
-		$body = array( 'license_key' => $license_key );
-
-		$response = wp_remote_post(
-			$url,
-			array(
-				'timeout' => 15,
-				'headers' => array(
-					'Accept'       => 'application/json',
-					'Content-Type' => 'application/x-www-form-urlencoded',
-				),
-				'body'    => $body,
-			)
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		$code = wp_remote_retrieve_response_code( $response );
-		$body_raw = wp_remote_retrieve_body( $response );
-		$data = json_decode( $body_raw, true );
-
-		if ( $code !== 200 ) {
-			$msg = isset( $data['error'] ) ? $data['error'] : sprintf(
-				/* translators: %d: HTTP status code */
-				__( 'ライセンスの確認に失敗しました。（HTTP %d）', 'navitto' ),
-				$code
-			);
-			return new WP_Error( 'navitto_license_http_error', $msg );
-		}
-
-		if ( ! is_array( $data ) ) {
-			return new WP_Error( 'navitto_license_invalid_response', __( 'ライセンスの確認に失敗しました。', 'navitto' ) );
-		}
-
-		return $data;
 	}
 
 	/**

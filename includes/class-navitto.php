@@ -69,8 +69,6 @@ class Navitto_Main {
 			return;
 		}
 
-		$license_ok = ( get_option( 'navitto_license_status', '' ) === 'valid' );
-
 		// CSS
 		wp_enqueue_style(
 			'navitto-frontend',
@@ -79,31 +77,11 @@ class Navitto_Main {
 			$this->version
 		);
 
-		// ライセンス有効時のみ Font Awesome とアイコンレジストリを読み込む
-		if ( $license_ok ) {
-			$fa_css = NAVITTO_PLUGIN_DIR . 'assets/lib/fontawesome/all-nv.min.css';
-			if ( file_exists( $fa_css ) ) {
-				wp_enqueue_style(
-					'navitto-fontawesome',
-					NAVITTO_PLUGIN_URL . 'assets/lib/fontawesome/all-nv.min.css',
-					array(),
-					$this->version
-				);
-			}
-			wp_enqueue_script(
-				'navitto-icons',
-				NAVITTO_PLUGIN_URL . 'assets/js/navitto-icons.js',
-				array(),
-				$this->version,
-				true
-			);
-		}
-
-		// JavaScript（ライセンス無効時はアイコン用スクリプトに依存しない）
+		// JavaScript
 		wp_enqueue_script(
 			'navitto-frontend',
 			NAVITTO_PLUGIN_URL . 'assets/js/frontend.js',
-			$license_ok ? array( 'jquery', 'navitto-icons' ) : array( 'jquery' ),
+			array( 'jquery' ),
 			$this->version,
 			true
 		);
@@ -131,11 +109,6 @@ class Navitto_Main {
 			$selected_h2 = is_array( $raw ) ? $raw : array();
 			$raw_texts = get_post_meta( $post_id, '_navitto_h2_custom_texts', true );
 			$custom_texts = is_array( $raw_texts ) ? $raw_texts : array();
-			// ライセンス有効時のみアイコンデータを読み込む
-			if ( $license_ok ) {
-				$raw_icons = get_post_meta( $post_id, '_navitto_h2_icons', true );
-				$h2_icons = is_array( $raw_icons ) ? $raw_icons : array();
-			}
 		}
 
 		// 表示開始位置の設定
@@ -143,12 +116,9 @@ class Navitto_Main {
 		$trigger_data = array(
 			'type' => $trigger_type ? $trigger_type : 'immediate',
 		);
-		// プリセット（カスタムは有料：ライセンス未有効時はシンプルとして扱う）
+		// プリセット
 		$preset = get_theme_mod( 'navitto_preset', 'simple' );
-		if ( ! in_array( $preset, array( 'simple', 'theme', 'custom' ), true ) ) {
-			$preset = 'simple';
-		}
-		if ( 'custom' === $preset && get_option( 'navitto_license_status', '' ) !== 'valid' ) {
+		if ( ! in_array( $preset, array( 'simple', 'theme' ), true ) ) {
 			$preset = 'simple';
 		}
 
@@ -167,9 +137,6 @@ class Navitto_Main {
 			$js_custom_texts[ strval( $k ) ] = $v;
 		}
 		$js_h2_icons = array();
-		foreach ( $h2_icons as $k => $v ) {
-			$js_h2_icons[ strval( $k ) ] = $v;
-		}
 
 		$theme_bg_transparent = (bool) get_theme_mod( 'navitto_theme_bg_transparent', false );
 
@@ -224,22 +191,6 @@ class Navitto_Main {
 			$css .= '--navitto-font-weight:700;';
 		}
 		$css .= '}';
-
-		// カスタムプリセット: 文字色・背景色・選択中テキスト色を CSS 変数で出力（有料・ライセンス有効時のみ）
-		$preset = get_theme_mod( 'navitto_preset', 'simple' );
-		if ( 'custom' === $preset && get_option( 'navitto_license_status', '' ) === 'valid' ) {
-			$text_color      = get_theme_mod( 'navitto_custom_color_text', '#333333' ) ?: '#333333';
-			$bg_color        = get_theme_mod( 'navitto_custom_color_bg', '#ffffff' ) ?: '#ffffff';
-			$underline_color = get_theme_mod( 'navitto_custom_color_underline', '#0073aa' ) ?: '#0073aa';
-			$css .= '.navitto-nav.cp-preset-custom{';
-			$css .= '--navitto-bg:' . esc_attr( $bg_color ) . ';';
-			$css .= '--navitto-text:' . esc_attr( $text_color ) . ';';
-			$css .= '--navitto-text-hover:' . esc_attr( $underline_color ) . ';';
-			$css .= '--navitto-active-text:' . esc_attr( $underline_color ) . ';';
-			$css .= '--navitto-active-bg:transparent;';
-			$css .= '--navitto-border:' . esc_attr( $underline_color ) . ';';
-			$css .= '}';
-		}
 
 		// デフォルト値のみの場合はインラインCSS不要
 		if ( ':root {}' !== $css ) {

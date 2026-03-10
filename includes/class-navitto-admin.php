@@ -56,41 +56,13 @@ class Navitto_Admin {
 			NAVITTO_VERSION
 		);
 
-		$license_ok = ( get_option( 'navitto_license_status', '' ) === 'valid' );
-
-		// ライセンス有効時のみ Font Awesome とアイコンレジストリを読み込む
-		if ( $license_ok ) {
-			$fa_css = NAVITTO_PLUGIN_DIR . 'assets/lib/fontawesome/all-nv.min.css';
-			if ( file_exists( $fa_css ) ) {
-				wp_enqueue_style(
-					'navitto-fontawesome',
-					NAVITTO_PLUGIN_URL . 'assets/lib/fontawesome/all-nv.min.css',
-					array(),
-					NAVITTO_VERSION
-				);
-			}
-			wp_enqueue_script(
-				'navitto-icons',
-				NAVITTO_PLUGIN_URL . 'assets/js/navitto-icons.js',
-				array(),
-				NAVITTO_VERSION,
-				true
-			);
-		}
-
 		wp_enqueue_script(
 			'navitto-admin-metabox',
 			NAVITTO_PLUGIN_URL . 'assets/js/admin-metabox.js',
-			$license_ok ? array( 'navitto-icons' ) : array(),
+			array(),
 			NAVITTO_VERSION,
 			true
 		);
-
-		wp_localize_script( 'navitto-admin-metabox', 'navittoMetabox', array(
-			'i18n' => array(
-				'addIcon' => __( 'アイコンを追加', 'navitto' ),
-			),
-		) );
 	}
 
 	/**
@@ -139,14 +111,11 @@ class Navitto_Admin {
 
 		$selected_h2   = array();
 		$custom_texts  = array();
-		$h2_icons      = array();
 		if ( 'select' === $display_mode ) {
 			$selected_h2 = get_post_meta( $post->ID, '_navitto_selected_h2', true );
 			$selected_h2 = is_array( $selected_h2 ) ? $selected_h2 : array();
 			$custom_texts = get_post_meta( $post->ID, '_navitto_h2_custom_texts', true );
 			$custom_texts = is_array( $custom_texts ) ? $custom_texts : array();
-			$h2_icons = get_post_meta( $post->ID, '_navitto_h2_icons', true );
-			$h2_icons = is_array( $h2_icons ) ? $h2_icons : array();
 		}
 
 		// トリガー設定
@@ -164,7 +133,6 @@ class Navitto_Admin {
 		$h2_list = $this->extract_h2_list_from_content( $content );
 
 		$is_select   = ( 'select' === $display_mode );
-		$license_ok = ( get_option( 'navitto_license_status', '' ) === 'valid' );
 		?>
 		<div class="navitto-meta-box">
 			<!-- 表示モード -->
@@ -194,7 +162,6 @@ class Navitto_Admin {
 				<?php foreach ( $h2_list as $index => $h2_text ) :
 					$is_checked  = in_array( $index, $selected_h2, false );
 					$custom_text = isset( $custom_texts[ $index ] ) ? $custom_texts[ $index ] : '';
-					$icon_value  = isset( $h2_icons[ $index ] ) ? $h2_icons[ $index ] : ''; // "setId:iconName" または ""
 				?>
 					<div class="cp-h2-item">
 						<label>
@@ -207,13 +174,6 @@ class Navitto_Admin {
 							<?php echo esc_html( $h2_text ); ?>
 						</label>
 						<div class="cp-h2-item-row">
-							<?php if ( $license_ok ) : ?>
-							<span class="navitto-icon-picker-preview" data-type="h2" data-index="<?php echo esc_attr( $index ); ?>"><?php
-								if ( $icon_value && $icon_value !== 'none' && substr( $icon_value, -4 ) !== ':none' ) {
-									echo '<span class="navitto-icon-picker-placeholder" data-icon-value="' . esc_attr( $icon_value ) . '"></span>';
-								}
-							?></span>
-							<?php endif; ?>
 							<input type="text"
 								name="navitto_h2_text_<?php echo esc_attr( $index ); ?>"
 								class="cp-h2-text-input"
@@ -222,22 +182,6 @@ class Navitto_Admin {
 								placeholder="<?php echo esc_attr( $h2_text ); ?>"
 								<?php echo $is_checked ? '' : 'disabled'; ?> />
 						</div>
-						<?php if ( $license_ok ) : ?>
-						<div class="cp-h2-item-row cp-h2-item-row--icon-btn">
-							<button type="button"
-								class="navitto-icon-picker-btn button button-small"
-								data-type="h2"
-								data-index="<?php echo esc_attr( $index ); ?>"
-								title="<?php esc_attr_e( 'アイコンを追加', 'navitto' ); ?>"
-								<?php echo $is_checked ? '' : 'disabled'; ?>><?php esc_html_e( 'アイコンを追加', 'navitto' ); ?></button>
-							<input type="hidden"
-								name="navitto_h2_icon_<?php echo esc_attr( $index ); ?>"
-								class="navitto-icon-picker-value"
-								data-type="h2"
-								data-index="<?php echo esc_attr( $index ); ?>"
-								value="<?php echo esc_attr( $icon_value ); ?>" />
-						</div>
-						<?php endif; ?>
 					</div>
 				<?php endforeach; ?>
 				<?php endif; ?>
@@ -285,15 +229,6 @@ class Navitto_Admin {
 					</label>
 				<?php endforeach; ?>
 			</div>
-
-			<?php if ( defined( 'NAVITTO_PRO_URL' ) && get_option( 'navitto_license_status', '' ) !== 'valid' ) : ?>
-			<div style="margin-top:12px;padding-top:12px;border-top:1px solid #ddd;">
-				<p style="margin:0 0 4px;">
-					<a href="<?php echo esc_url( NAVITTO_PRO_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Pro版へ', 'navitto' ); ?></a>
-				</p>
-				<p class="description" style="margin:0;"><?php esc_html_e( 'Pro版ではアイコン設置やデザインカスタマイズが可能です。', 'navitto' ); ?></p>
-			</div>
-			<?php endif; ?>
 		</div>
 		<?php
 	}
@@ -382,21 +317,6 @@ class Navitto_Admin {
 			}
 			update_post_meta( $post_id, '_navitto_h2_custom_texts', $texts );
 
-			// ライセンス有効時のみアイコンデータを保存
-			if ( get_option( 'navitto_license_status', '' ) === 'valid' ) {
-				$icons = array();
-				foreach ( $selected as $idx ) {
-					$icon_key = 'navitto_h2_icon_' . $idx;
-					if ( isset( $_POST[ $icon_key ] ) ) {
-						$val = sanitize_text_field( wp_unslash( $_POST[ $icon_key ] ) );
-						if ( $val !== '' ) {
-							$icons[ $idx ] = $val;
-						}
-					}
-				}
-				update_post_meta( $post_id, '_navitto_h2_icons', $icons );
-			}
-
 			// 表示開始位置
 			$trigger_type = isset( $_POST['_navitto_trigger_type'] )
 				? sanitize_text_field( wp_unslash( $_POST['_navitto_trigger_type'] ) )
@@ -408,7 +328,6 @@ class Navitto_Admin {
 		} else {
 			delete_post_meta( $post_id, '_navitto_selected_h2' );
 			delete_post_meta( $post_id, '_navitto_h2_custom_texts' );
-			delete_post_meta( $post_id, '_navitto_h2_icons' );
 			delete_post_meta( $post_id, '_navitto_trigger_type' );
 		}
 
@@ -436,15 +355,10 @@ class Navitto_Admin {
 			'priority' => 200,
 		) );
 
-		// プリセット（カスタムは有料・ライセンス有効時のみ選択肢に表示）
-		$license_ok = ( get_option( 'navitto_license_status', '' ) === 'valid' );
 		$preset_choices = array(
 			'simple' => __( 'シンプル', 'navitto' ),
 			'theme'  => __( 'テーマ準拠', 'navitto' ),
 		);
-		if ( $license_ok ) {
-			$preset_choices['custom'] = __( 'カスタム', 'navitto' );
-		}
 		$wp_customize->add_setting( 'navitto_preset', array(
 			'default'           => 'simple',
 			'sanitize_callback' => array( $this, 'sanitize_preset' ),
@@ -454,49 +368,6 @@ class Navitto_Admin {
 			'section' => 'navitto_design',
 			'type'    => 'select',
 			'choices' => $preset_choices,
-		) );
-
-		// カスタムプリセット時のみ: 文字色・背景色・選択中テキスト色
-		$wp_customize->add_setting( 'navitto_custom_color_text', array(
-			'default'           => '#333333',
-			'sanitize_callback' => 'sanitize_hex_color',
-		) );
-		$wp_customize->add_control( new WP_Customize_Color_Control(
-			$wp_customize,
-			'navitto_custom_color_text',
-			array(
-				'label'           => __( '文字色', 'navitto' ),
-				'section'         => 'navitto_design',
-				'active_callback' => array( $this, 'is_preset_custom' ),
-			)
-		) );
-
-		$wp_customize->add_setting( 'navitto_custom_color_bg', array(
-			'default'           => '#ffffff',
-			'sanitize_callback' => 'sanitize_hex_color',
-		) );
-		$wp_customize->add_control( new WP_Customize_Color_Control(
-			$wp_customize,
-			'navitto_custom_color_bg',
-			array(
-				'label'           => __( '背景色', 'navitto' ),
-				'section'         => 'navitto_design',
-				'active_callback' => array( $this, 'is_preset_custom' ),
-			)
-		) );
-
-		$wp_customize->add_setting( 'navitto_custom_color_underline', array(
-			'default'           => '#0073aa',
-			'sanitize_callback' => 'sanitize_hex_color',
-		) );
-		$wp_customize->add_control( new WP_Customize_Color_Control(
-			$wp_customize,
-			'navitto_custom_color_underline',
-			array(
-				'label'           => __( '選択中テキスト色', 'navitto' ),
-				'section'         => 'navitto_design',
-				'active_callback' => array( $this, 'is_preset_custom' ),
-			)
 		) );
 
 		// 配置位置
@@ -557,18 +428,6 @@ class Navitto_Admin {
 			'type'        => 'checkbox',
 		) );
 
-		// Pro版へリンク（ダミー setting + カスタムコントロール）
-		$wp_customize->add_setting( 'navitto_pro_link_dummy', array(
-			'sanitize_callback' => '__return_empty_string',
-		) );
-		require_once NAVITTO_PLUGIN_DIR . 'includes/class-navitto-customize-pro-link-control.php';
-		$wp_customize->add_control( new Navitto_Customize_Pro_Link_Control(
-			$wp_customize,
-			'navitto_pro_link_dummy',
-			array(
-				'section' => 'navitto_design',
-			)
-		) );
 	}
 
 	/* =========================================================================
@@ -576,26 +435,11 @@ class Navitto_Admin {
 	   ========================================================================= */
 
 	public function sanitize_preset( $value ) {
-		$valid = array( 'simple', 'theme', 'custom' );
+		$valid = array( 'simple', 'theme' );
 		if ( ! in_array( $value, $valid, true ) ) {
 			return 'simple';
 		}
-		// カスタムは有料のため、ライセンス未有効時はシンプルに落とす
-		if ( 'custom' === $value && get_option( 'navitto_license_status', '' ) !== 'valid' ) {
-			return 'simple';
-		}
 		return $value;
-	}
-
-	/**
-	 * デザインプリセットが「カスタム」かつライセンス有効のときのみ true（カラーコントロールの active_callback）
-	 *
-	 * @param WP_Customize_Control $control Control instance.
-	 * @return bool
-	 */
-	public function is_preset_custom( $control ) {
-		return 'custom' === get_theme_mod( 'navitto_preset', 'simple' )
-			&& get_option( 'navitto_license_status', '' ) === 'valid';
 	}
 
 	public function sanitize_position( $value ) {

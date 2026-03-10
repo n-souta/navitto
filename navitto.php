@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Navitto
  * Plugin URI:        https://wordpress.org/plugins/navitto/
- * Description:       設定ゼロで始める固定ナビゲーション。ナビっと表示、サクッと移動。
+ * Description:       Fixed navigation bar that follows H2 headings and shows a simple, sticky table of contents.
  * Version:           1.2.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
@@ -57,11 +57,6 @@ define( 'NAVITTO_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'NAVITTO_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 /**
- * Navitto Pro 購入ページURL（プラグイン一覧・設定画面の「Pro版へ」「ライセンスを購入」のリンク先）
- */
-define( 'NAVITTO_PRO_URL', 'https://www.nsouta.com/navitto/' );
-
-/**
  * クラスファイルの読み込み
  * 管理画面専用クラスは is_admin() 内で遅延読込（#7 Structure）
  */
@@ -76,15 +71,6 @@ require_once NAVITTO_PLUGIN_DIR . 'includes/class-navitto-detector.php';
  * @return void
  */
 function navitto_init() {
-	// テキストドメインを読み込む
-	load_plugin_textdomain(
-		'navitto',
-		false,
-		dirname( plugin_basename( __FILE__ ) ) . '/languages'
-	);
-
-	add_filter( 'plugin_action_links_' . NAVITTO_PLUGIN_BASENAME, 'navitto_plugin_action_links' );
-
 	// フロントエンド初期化
 	$plugin = Navitto_Main::get_instance();
 	$plugin->init();
@@ -107,20 +93,6 @@ function navitto_init() {
 	navitto_maybe_upgrade();
 }
 add_action( 'plugins_loaded', 'navitto_init' );
-
-/**
- * プラグイン一覧に「Pro版へ」リンクを追加
- *
- * @param array $actions 既存のアクションリンク
- * @return array
- */
-function navitto_plugin_action_links( $actions ) {
-	if ( ! defined( 'NAVITTO_PRO_URL' ) || get_option( 'navitto_license_status', '' ) === 'valid' ) {
-		return $actions;
-	}
-	$actions[] = '<a href="' . esc_url( NAVITTO_PRO_URL ) . '" target="_blank" rel="noopener noreferrer" class="navitto-link-pro">' . esc_html__( 'Pro版へ', 'navitto' ) . '</a>';
-	return $actions;
-}
 
 /**
  * バージョンベースのアップグレード処理
