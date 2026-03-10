@@ -1,0 +1,22 @@
+# OS
+.DS_Store
+Thumbs.db
+._*
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build / logs
+*.log
+build/
+
+# IDE / editor
+*.swp
+*~
+.idea/
+
+# WordPress (when developing inside WP)
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
