@@ -1,0 +1,480 @@
+/**
+ * Navitto フロントエンド CSS
+ *
+ * テーマヘッダー内挿入方式対応
+ *
+ * @package Navitto
+ * @since   1.2.0
+ */
+
+/* ==========================================================================
+   CSS変数（デフォルト = シンプルプリセット）
+   ========================================================================== */
+
+:root {
+	--navitto-bg: #ffffff;
+	--navitto-text: #b3b3b3;  /* 非アクティブの文字色（薄め） */
+	--navitto-text-hover: #0073aa;
+	--navitto-active-bg: transparent;
+	--navitto-active-text: #0073aa;
+	--navitto-border: #e0e0e0;
+	/* --navitto-nav-shadow: テーマで定義。未定義時は影なし */
+	--navitto-height: 56px;
+	--navitto-height-mobile: 48px;
+	--navitto-z-index: 99;
+	--navitto-font-size: 14px;
+	--navitto-radius: 0px;
+	--navitto-adminbar-h: 0px;
+	--navitto-nav-transition-duration: 0.3s;
+	--navitto-font-weight: 500;
+}
+
+/* 管理バーの高さをCSS変数で管理（SWELL方式） */
+.admin-bar {
+	--navitto-adminbar-h: var(--wp-admin--admin-bar--height, 32px);
+}
+
+@media screen and (max-width: 782px) {
+	.admin-bar {
+		--navitto-adminbar-h: var(--wp-admin--admin-bar--height, 46px);
+	}
+}
+
+/* ==========================================================================
+   固定ナビゲーション（デフォルト: body追加時のfixed方式）
+   ========================================================================== */
+
+.navitto-nav {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: var(--navitto-z-index);
+	background: var(--navitto-bg);
+	box-shadow: var(--navitto-nav-shadow, none);
+	height: var(--navitto-height);
+	display: flex;
+	align-items: center;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity var(--navitto-nav-transition-duration);
+	/* 管理バー分を下げる（ない場合は0px） */
+	margin-top: var(--navitto-adminbar-h);
+}
+
+/* ヘッダー内に挿入された場合: fixed解除、相対配置にする（出現アニメ 0.2s） */
+.navitto-nav.cp-inside-header {
+	position: relative;
+	top: auto;
+	left: auto;
+	right: auto;
+	z-index: auto;
+	width: 100%;
+	margin-top: 0;
+	transition: height 0.2s ease-out, opacity var(--navitto-nav-transition-duration);
+}
+
+/* 表示開始前に「背景だけ見える」状態にしない：ヘッダー内では is-visible まで高さ0で潰す */
+/* 一番上に戻った時：テキストを先にフェードアウト(0.2s)→高さを詰める(0.2s)。opacity/visibility は 0.4s 遅延で変化 */
+.navitto-nav.cp-inside-header:not(.is-visible) {
+	height: 0;
+	min-height: 0;
+	overflow: hidden;
+	visibility: hidden;
+	transition: height 0.2s ease-out 0.2s, opacity 0.2s ease-out 0.4s, visibility 0s linear 0.4s;
+}
+.navitto-nav.cp-inside-header:not(.is-visible) .navitto-nav__inner {
+	opacity: 0;
+	transition: opacity 0.2s ease-out;
+	transition-delay: 0s;
+}
+
+.navitto-nav.cp-inside-header.is-visible .navitto-nav__inner {
+	opacity: 1;
+	transition: opacity 0.2s ease-out;
+	transition-delay: 0.2s;
+}
+
+.navitto-nav.is-visible {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* テーマヘッダーが position:sticky の場合は出現アニメーションなし */
+.navitto-nav.cp-theme-header-sticky {
+	transition-duration: 0s;
+}
+
+/* 指定範囲を過ぎて次のh2に達したとき：プラグインナビ＋テーマヘッダーごと非表示（スムーズに） */
+.navitto-header-hidden {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transform: translateY(-100%);
+	will-change: transform, opacity;
+	transition: opacity 0.4s ease-out, transform 0.4s ease-out, visibility 0s linear 0.4s;
+}
+
+/* 指定した最後のh2を過ぎて次のh2に達したとき：navitto-nav をスムーズに非表示 */
+.navitto-nav.navitto-nav--past-last-h2 {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	will-change: opacity;
+	transition: opacity 0.1s ease-out, visibility 0s linear 0.1s;
+}
+
+/* 固定配置時はスライドで隠す（カクツキ防止） */
+.navitto-nav.navitto-nav--past-last-h2:not(.cp-inside-header) {
+	transform: translateY(-100%);
+	will-change: transform, opacity;
+	transition: opacity 0.1s ease-out, transform 0.1s ease-out, visibility 0s linear 0.1s;
+}
+
+.navitto-nav.cp-pos-bottom.navitto-nav--past-last-h2:not(.cp-inside-header) {
+	transform: translateY(100%);
+}
+
+/* ヘッダー内のナビは高さを詰めてスムーズに隠す */
+.navitto-nav.cp-inside-header.navitto-nav--past-last-h2 {
+	height: 0;
+	min-height: 0;
+	overflow: hidden;
+	transition: height 0.1s ease-out, opacity 0.1s ease-out, visibility 0s linear 0.1s;
+}
+
+/* 下部固定 */
+.navitto-nav.cp-pos-bottom {
+	top: auto;
+	bottom: 0;
+}
+
+/* 下部固定時: アクティブインジケーターは上側に表示（box-shadow で描画） */
+.navitto-nav.cp-pos-bottom .navitto-nav__link {
+	box-shadow: inset 0 3px 0 transparent, inset 0 -3px 0 transparent;
+}
+
+.navitto-nav.cp-pos-bottom .navitto-nav__item--active .navitto-nav__link {
+	box-shadow: inset 0 3px 0 var(--navitto-active-text), inset 0 -3px 0 transparent;
+}
+
+/* 下部固定時も影はテーマの --navitto-nav-shadow に従う */
+.navitto-nav.cp-pos-bottom {
+	box-shadow: var(--navitto-nav-shadow, none);
+}
+
+/* ==========================================================================
+   ナビゲーション内部（横スクロール対応）
+   ========================================================================== */
+
+.navitto-nav__inner {
+	position: relative;
+	width: 100%;
+	max-width: var(--navitto-content-width, 100%);
+	margin: 0 auto;
+	padding: 0 16px;
+	overflow-x: auto;
+	overflow-y: hidden;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none;
+	text-align: center;
+}
+
+.navitto-nav__inner::-webkit-scrollbar {
+	display: none;
+}
+
+/* スクロールヒント（左側のみ） */
+.navitto-nav__inner.has-scroll-left::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 32px;
+	pointer-events: none;
+	z-index: 2;
+	background: linear-gradient(to right, var(--navitto-bg), transparent);
+}
+
+.navitto-nav__list {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: nowrap;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* ==========================================================================
+   ナビゲーション項目
+   ========================================================================== */
+
+.navitto-nav__item {
+	flex-shrink: 0;
+	margin: 0;
+	padding: 0;
+}
+
+.navitto-nav__link {
+	display: flex;
+	align-items: center;
+	height: var(--navitto-height);
+	padding: 0 16px;
+	color: var(--navitto-text);
+	font-family: inherit;
+	font-size: var(--navitto-font-size);
+	font-weight: var(--navitto-font-weight);
+	text-decoration: none;
+	white-space: nowrap;
+	/* 下線は box-shadow で描画（レイアウトに含めない）→ アイコン・テキストが高さ方向で正しく中央に揃う */
+	box-shadow: inset 0 -3px 0 transparent;
+	border-radius: var(--navitto-radius);
+	transition: all 0.2s ease;
+	-webkit-tap-highlight-color: transparent;  /* スマホ：リンクタップ時の一瞬のハイライトを消す（色が残って見える現象の緩和） */
+}
+
+.navitto-nav__link:hover {
+	color: var(--navitto-text-hover);
+	text-decoration: none;
+}
+
+.navitto-nav__item--active .navitto-nav__link {
+	color: var(--navitto-active-text);
+	background: var(--navitto-active-bg);
+	box-shadow: inset 0 -3px 0 var(--navitto-active-text);
+}
+
+/* ---------- ナビ項目内アイコン（Font Awesome nvfa / 装飾用・aria-hidden） ---------- */
+.navitto-nav__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 1em;
+	height: 1em;
+	margin-right: 4px;
+}
+.navitto-nav__icon i.nvfa {
+	font-size: 1em;
+	vertical-align: middle;
+}
+.navitto-nav__icon svg {
+	width: 1em;
+	height: 1em;
+	vertical-align: middle;
+}
+.navitto-nav__text {
+	display: inline;
+}
+
+/* ==========================================================================
+   固定ナビの表示方法
+   ========================================================================== */
+
+/* --- 横スクロール可能（デフォルト: nav-scroll） --- */
+/* 既存の __inner / __list / __item のスタイルがそのまま適用される */
+
+/* --- 均等割（nav-equal） --- */
+nav.navitto-nav.nav-equal .navitto-nav__inner {
+	overflow-x: hidden;
+	overflow-y: hidden;
+}
+
+nav.navitto-nav.nav-equal .navitto-nav__list {
+	display: flex;
+	flex-wrap: nowrap;
+	width: 100%;
+}
+
+nav.navitto-nav.nav-equal .navitto-nav__item {
+	flex: 1 1 0%;
+	flex-shrink: 1;
+	min-width: 0;
+	overflow: hidden;
+}
+
+nav.navitto-nav.nav-equal .navitto-nav__link {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: clip;
+	text-align: center;
+	line-height: var(--navitto-height);
+	padding: 0 8px;
+	height: auto;
+}
+
+/* はみ出している場合は左揃え */
+nav.navitto-nav.nav-equal .navitto-nav__link.is-overflow {
+	text-align: left;
+}
+
+/* ==========================================================================
+   デザインプリセット（シンプル = :root デフォルト / テーマ準拠 = 下記）
+   追加プリセットは追加コンテンツで提供する場合あり
+   ========================================================================== */
+
+/* テーマ準拠: JS が --navitto-theme-color / --navitto-theme-text / --navitto-theme-bg / --navitto-theme-active-bg を設定 */
+.navitto-nav.cp-preset-theme {
+	--navitto-theme-color: currentColor;          /* メインカラー: JS 未実行時フォールバック */
+	--navitto-theme-text: currentColor;            /* 文字色: JS 未実行時フォールバック */
+	--navitto-theme-bg: #ffffff;                  /* ナビ背景（ヘッダー色）: JS 未実行時フォールバック */
+	--navitto-theme-active-bg: transparent; /* アクティブ項目背景: 指定なし */
+	--navitto-bg: var(--navitto-theme-bg);
+	--navitto-text: var(--navitto-theme-text);
+	--navitto-text-hover: var(--navitto-theme-text);
+	--navitto-active-text: var(--navitto-theme-text);
+	--navitto-border: var(--navitto-theme-color);
+	/* 影はテーマの --navitto-nav-shadow に従う（.navitto-nav で var(--navitto-nav-shadow, none) を使用） */
+	border-bottom: none;
+}
+
+/* テーマ準拠: 非アクティブは opacity で薄く */
+.navitto-nav.cp-preset-theme .navitto-nav__item:not(.navitto-nav__item--active) .navitto-nav__link {
+	opacity: 0.5;
+}
+
+.navitto-nav.cp-preset-theme .navitto-nav__item--active .navitto-nav__link {
+	opacity: 1;
+}
+
+.navitto-nav.cp-preset-theme.cp-pos-bottom {
+	border-top: none;
+}
+
+.navitto-nav.cp-preset-theme .navitto-nav__link:hover {
+	opacity: 0.85;
+}
+
+.navitto-nav.cp-preset-theme .navitto-nav__item--active .navitto-nav__link {
+	background: var(--navitto-theme-active-bg);
+	box-shadow: inset 0 -3px 0 var(--navitto-theme-color);
+}
+
+.navitto-nav.cp-preset-theme.cp-pos-bottom .navitto-nav__item--active .navitto-nav__link {
+	box-shadow: inset 0 3px 0 var(--navitto-theme-color), inset 0 -3px 0 transparent;
+}
+
+/* ==========================================================================
+   レスポンシブ
+   ========================================================================== */
+
+@media (max-width: 768px) {
+	.navitto-nav {
+		height: var(--navitto-height-mobile);
+	}
+
+	.navitto-nav__inner {
+		padding: 0 12px;
+	}
+
+	.navitto-nav__link {
+		height: var(--navitto-height-mobile);
+		padding: 0 12px;
+		font-size: 13px;
+	}
+
+	/* モバイルでも均等割を維持 */
+	nav.navitto-nav.nav-equal .navitto-nav__inner {
+		overflow-x: hidden;
+	}
+
+	nav.navitto-nav.nav-equal .navitto-nav__list {
+		display: flex;
+		width: 100%;
+	}
+
+	nav.navitto-nav.nav-equal .navitto-nav__item {
+		flex: 1 1 0%;
+		flex-shrink: 1;
+		min-width: 0;
+	}
+
+	nav.navitto-nav.nav-equal .navitto-nav__link {
+		padding: 0 4px;
+		line-height: var(--navitto-height-mobile);
+	}
+}
+
+/* ==========================================================================
+   見出しのスクロールオフセット
+   JS が --navitto-scroll-offset を動的に設定
+   ========================================================================== */
+
+:root {
+	--navitto-scroll-offset: 100px;
+}
+
+/* scroll-padding-top: html に設定するだけで
+   scrollIntoView / アンカーリンクのずれを自動補正 */
+html {
+	scroll-padding-top: var(--navitto-scroll-offset);
+}
+
+/* 下部配置の場合は不要 */
+body.navitto-pos-bottom {
+	/* scroll-padding-top を無効化 */
+}
+body.navitto-pos-bottom ~ html,
+html:has(body.navitto-pos-bottom) {
+	scroll-padding-top: 0;
+}
+
+/* ==========================================================================
+   bodyのパディング調整（ナビが固定で「先頭」にある場合のみ付与）
+   ヘッダーが固定されていないテーマでは付与しない（余白防止）
+   ========================================================================== */
+
+body.navitto-active.navitto-body-padding {
+	padding-top: var(--navitto-height);
+	transition: padding 0.4s ease;
+}
+
+body.navitto-active.navitto-body-padding.navitto-bottom {
+	padding-top: 0;
+	padding-bottom: var(--navitto-height);
+	transition: padding 0.4s ease;
+}
+
+/* 指定範囲を過ぎて次のh2に達したとき：ナビを隠すので body のナビ分余白もスムーズに解除 */
+body.navitto-past-last-h2.navitto-body-padding {
+	padding-top: 0;
+}
+
+body.navitto-past-last-h2.navitto-body-padding.navitto-bottom {
+	padding-bottom: 0;
+}
+
+@media (max-width: 768px) {
+	body.navitto-active.navitto-body-padding {
+		padding-top: var(--navitto-height-mobile);
+	}
+	body.navitto-active.navitto-body-padding.navitto-bottom {
+		padding-top: 0;
+		padding-bottom: var(--navitto-height-mobile);
+	}
+	body.navitto-past-last-h2.navitto-body-padding {
+		padding-top: 0;
+	}
+	body.navitto-past-last-h2.navitto-body-padding.navitto-bottom {
+		padding-bottom: 0;
+	}
+}
+
+/* ==========================================================================
+   印刷時は非表示
+   ========================================================================== */
+
+@media print {
+	.navitto-nav {
+		display: none !important;
+	}
+	body.navitto-active.navitto-body-padding {
+		padding-top: 0 !important;
+		padding-bottom: 0 !important;
+	}
+}
