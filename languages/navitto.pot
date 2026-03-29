@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Navitto package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Navitto 1.1.0\n"
+"Project-Id-Version: Navitto 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-02-19T00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
