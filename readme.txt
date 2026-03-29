@@ -5,7 +5,7 @@ Tags: navigation, table of contents, fixed nav, toc, heading
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,9 +24,6 @@ It helps readers understand “where they are” in long-form content and lets t
 * **Bulk apply** – Enable or disable Navitto for all existing posts at once from “Settings → Navitto”.
 * **Theme-aware** – Tries to detect common fixed headers and adjust scroll offset so the heading is not hidden behind the header.
 * **Posts and pages** – Works on both posts and pages, which is useful for long landing pages and comparison content.
-
-Navitto does **not** require any license key or external service.  
-All features included in this plugin are fully available for free.
 
 == Installation ==
 
@@ -63,26 +60,13 @@ Please refer to your theme’s documentation for details.
 
 == Changelog ==
 
+= 1.0.1 = (2026-03-29)
+* Updated readme: trimmed description and simplified changelog for the plugin directory page.
+
 = 1.0.0 = (2026-03-29)
 * Initial release on the WordPress.org Plugin Directory.
-* Changed: Customizer inline CSS is built only from predefined fixed strings (allowlisted theme_mod pairs), per Plugin Directory review guidance.
-
-= 1.2.0 = (2026-02-20)
-* Changed: Removed license checks and external license validation to comply with WordPress.org guidelines.
-* Changed: Made all features included in this plugin fully available without any license key.
-* Improved: Theme integration and minor visual tweaks to the fixed navigation.
-
-= 1.1.0 = (2026-02-19)
-* Added: Design presets (“Simple” / “Theme-based”) with Customizer controls.
-* Changed: Respect the “Enable by default for new posts” option when determining initial display mode.
-* Changed: Bulk enable/disable now preserves each post’s selected headings and display mode.
-* Changed: Updated bulk apply description text.
-* Removed: “Navitto – Common Settings” section from the Customizer (scroll offset fixed at 100px).
 
 == Upgrade Notice ==
 
-= 1.0.0 =
-Initial release on WordPress.org. Customizer inline CSS uses only predefined CSS fragments for directory compliance. No functional changes from the last pre-release build.
-
-= 1.2.0 =
-This release removes license checks and external license validation and makes all included features available for free. It also includes minor visual and compatibility improvements for the fixed navigation bar.
+= 1.0.1 =
+Readme-only update. No code changes.

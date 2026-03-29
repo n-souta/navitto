@@ -13,8 +13,6 @@ Fixed navigation bar that follows H2 headings and shows a simple, sticky table o
 - **Theme-aware** – Adjusts scroll offset for common fixed headers.
 - **Posts and pages** – Works on both.
 
-No license key or external service required. All features are free.
-
 ## Requirements
 
 - WordPress 6.0+
