@@ -166,13 +166,37 @@ class Navitto_Main {
 	}
 
 	/**
-	 * カスタマイザー設定からインラインCSSを生成
+	 * カスタマイザー設定に対応するインライン CSS（プラグイン内の固定断片のみ）
+	 *
+	 * レビュー推奨どおり、サニタイズ済みの allowlist 値の組み合わせをキーに、
+	 * 事前定義した CSS 文字列だけを返す（変数連結で CSS を組み立てない）。
+	 *
+	 * @param string $nav_height  'small'|'medium'|'large'
+	 * @param string $font_weight 'default'|'bold'
+	 * @return string 空文字はデフォルトテーマ変数のみ（インライン不要）
+	 */
+	private function get_inline_css_for_theme_mods( $nav_height, $font_weight ) {
+		$map = array(
+			'small|default'  => ':root{--navitto-height:44px;--navitto-height-mobile:38px;--navitto-font-size:12px;}',
+			'small|bold'     => ':root{--navitto-height:44px;--navitto-height-mobile:38px;--navitto-font-size:12px;--navitto-font-weight:700;}',
+			'medium|default' => '',
+			'medium|bold'    => ':root{--navitto-font-weight:700;}',
+			'large|default'  => ':root{--navitto-height:68px;--navitto-height-mobile:56px;--navitto-font-size:16px;}',
+			'large|bold'     => ':root{--navitto-height:68px;--navitto-height-mobile:56px;--navitto-font-size:16px;--navitto-font-weight:700;}',
+		);
+
+		$key = $nav_height . '|' . $font_weight;
+
+		return isset( $map[ $key ] ) ? $map[ $key ] : '';
+	}
+
+	/**
+	 * カスタマイザー設定からインライン CSS を出力
 	 */
 	private function generate_inline_css() {
 		$nav_height  = get_theme_mod( 'navitto_nav_height', 'medium' );
 		$font_weight = get_theme_mod( 'navitto_font_weight', 'default' );
 
-		// 許可された値のみを使用して CSS を構築することで、インライン出力時の安全性を担保する。
 		$allowed_nav_heights = array( 'small', 'medium', 'large' );
 		if ( ! in_array( $nav_height, $allowed_nav_heights, true ) ) {
 			$nav_height = 'medium';
@@ -183,31 +207,9 @@ class Navitto_Main {
 			$font_weight = 'default';
 		}
 
-		$css = ':root {';
+		$css = $this->get_inline_css_for_theme_mods( $nav_height, $font_weight );
 
-		// ナビの高さとフォントサイズ（medium はデフォルト 56/48px・14px なので出力不要）
-		// 各プリセット: [ PC高さ, モバイル高さ, フォントサイズ(px) ]
-		$height_map = array(
-			'small' => array( '44px', '38px', 12 ),
-			'large' => array( '68px', '56px', 16 ),
-		);
-		if ( isset( $height_map[ $nav_height ] ) ) {
-			$css .= '--navitto-height:' . $height_map[ $nav_height ][0] . ';';
-			$css .= '--navitto-height-mobile:' . $height_map[ $nav_height ][1] . ';';
-			$css .= '--navitto-font-size:' . intval( $height_map[ $nav_height ][2] ) . 'px;';
-		}
-
-		// フォントの太さ（デフォルト=500 / 太字=700）
-		if ( 'bold' === $font_weight ) {
-			$css .= '--navitto-font-weight:700;';
-		}
-		$css .= '}';
-
-		// 念のため、インライン CSS 文字列から不要なタグ等を除去してから出力する。
-		$css = wp_strip_all_tags( $css );
-
-		// デフォルト値のみの場合はインラインCSS不要
-		if ( ':root {}' !== $css ) {
+		if ( '' !== $css ) {
 			wp_add_inline_style( 'navitto-frontend', $css );
 		}
 	}

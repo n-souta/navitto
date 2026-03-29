@@ -5,7 +5,7 @@ Tags: navigation, table of contents, fixed nav, toc, heading
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,9 @@ Please refer to your theme’s documentation for details.
 
 == Changelog ==
 
+= 1.2.1 = (2026-03-28)
+* Changed: Customizer inline CSS is built only from predefined fixed strings (allowlisted theme_mod pairs), per Plugin Directory review guidance.
+
 = 1.2.0 = (2026-02-20)
 * Changed: Removed license checks and external license validation to comply with WordPress.org guidelines.
 * Changed: Made all features included in this plugin fully available without any license key.
@@ -79,6 +82,9 @@ Please refer to your theme’s documentation for details.
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.2.1 =
+Refactors Customizer-driven inline CSS to use only predefined CSS fragments for WordPress.org compliance. No feature changes.
 
 = 1.2.0 =
 This release removes license checks and external license validation and makes all included features available for free. It also includes minor visual and compatibility improvements for the fixed navigation bar.
