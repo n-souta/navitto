@@ -69,19 +69,25 @@ class Navitto_Main {
 			return;
 		}
 
+		$style_deps  = apply_filters( 'navitto_frontend_style_deps', array() );
+		$style_deps  = is_array( $style_deps ) ? array_values( array_unique( array_filter( $style_deps ) ) ) : array();
+
 		// CSS
 		wp_enqueue_style(
 			'navitto-frontend',
 			NAVITTO_PLUGIN_URL . 'assets/css/frontend.css',
-			array(),
+			$style_deps,
 			$this->version
 		);
+
+		$script_deps = apply_filters( 'navitto_frontend_script_deps', array( 'jquery' ) );
+		$script_deps = is_array( $script_deps ) ? array_values( array_unique( array_filter( $script_deps ) ) ) : array( 'jquery' );
 
 		// JavaScript
 		wp_enqueue_script(
 			'navitto-frontend',
 			NAVITTO_PLUGIN_URL . 'assets/js/frontend.js',
-			array( 'jquery' ),
+			$script_deps,
 			$this->version,
 			true
 		);
@@ -116,9 +122,11 @@ class Navitto_Main {
 		$trigger_data = array(
 			'type' => $trigger_type ? $trigger_type : 'immediate',
 		);
-		// プリセット
-		$preset = get_theme_mod( 'navitto_preset', 'simple' );
-		if ( ! in_array( $preset, array( 'simple', 'theme' ), true ) ) {
+		// プリセット（拡張用 allowlist — デフォルトは simple / theme のみ）
+		$allowed_presets = apply_filters( 'navitto_allowed_presets', array( 'simple', 'theme' ) );
+		$allowed_presets = is_array( $allowed_presets ) ? $allowed_presets : array( 'simple', 'theme' );
+		$preset          = get_theme_mod( 'navitto_preset', 'simple' );
+		if ( ! in_array( $preset, $allowed_presets, true ) ) {
 			$preset = 'simple';
 		}
 
@@ -140,29 +148,34 @@ class Navitto_Main {
 
 		$theme_bg_transparent = (bool) get_theme_mod( 'navitto_theme_bg_transparent', false );
 
+		$localize = array(
+			'scrollOffset'       => 80,
+			'animDuration'       => 500,
+			'showAfterScroll'    => 0,
+			'preset'             => $preset,
+			'themeBgTransparent' => $theme_bg_transparent,
+			'position'           => $position,
+			'displayMode'        => $display_mode,
+			'selectedH2'         => $selected_h2,
+			'customTexts'        => ! empty( $js_custom_texts ) ? $js_custom_texts : new stdClass(),
+			'h2Icons'            => ! empty( $js_h2_icons ) ? $js_h2_icons : new stdClass(),
+			'trigger'            => $trigger_data,
+			'navWidth'           => $nav_width,
+			'detection'          => $detection_data,
+			'fixedHeader'        => $header_data,
+		);
+
+		$localize = apply_filters( 'navitto_localize_data', $localize, $post_id );
+		$localize = is_array( $localize ) ? $localize : array();
+
 		wp_localize_script(
 			'navitto-frontend',
 			'navittoData',
-			array(
-				'scrollOffset'        => 80,
-				'animDuration'        => 500,
-				'showAfterScroll'     => 0,
-				'preset'              => $preset,
-				'themeBgTransparent'   => $theme_bg_transparent,
-				'position'            => $position,
-				'displayMode'         => $display_mode,
-				'selectedH2'          => $selected_h2,
-				'customTexts'         => ! empty( $js_custom_texts ) ? $js_custom_texts : new stdClass(),
-				'h2Icons'             => ! empty( $js_h2_icons ) ? $js_h2_icons : new stdClass(),
-				'trigger'             => $trigger_data,
-				'navWidth'            => $nav_width,
-				'detection'           => $detection_data,
-				'fixedHeader'         => $header_data,
-			)
+			$localize
 		);
 
 		// インラインCSS
-		$this->generate_inline_css();
+		$this->generate_inline_css( $post_id );
 	}
 
 	/**
@@ -192,8 +205,10 @@ class Navitto_Main {
 
 	/**
 	 * カスタマイザー設定からインライン CSS を出力
+	 *
+	 * @param int $post_id 表示中の投稿 ID（拡張フィルター用）
 	 */
-	private function generate_inline_css() {
+	private function generate_inline_css( $post_id ) {
 		$nav_height  = get_theme_mod( 'navitto_nav_height', 'medium' );
 		$font_weight = get_theme_mod( 'navitto_font_weight', 'default' );
 
@@ -211,6 +226,11 @@ class Navitto_Main {
 
 		if ( '' !== $css ) {
 			wp_add_inline_style( 'navitto-frontend', $css );
+		}
+
+		$extra = apply_filters( 'navitto_frontend_inline_css_extra', '', $post_id );
+		if ( is_string( $extra ) && '' !== trim( $extra ) ) {
+			wp_add_inline_style( 'navitto-frontend', $extra );
 		}
 	}
 

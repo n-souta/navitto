@@ -8,6 +8,8 @@
  * @since   1.0.1
  */
 (function(){
+	window.navittoMetabox = window.navittoMetabox || {};
+
 	var radios      = document.querySelectorAll('input[name="navitto_display_mode"]');
 	var h2Area      = document.getElementById('cp-h2-select-area');
 	var triggerArea = document.querySelector('.navitto-trigger-settings');
@@ -39,7 +41,9 @@
 			if ( !e.target || !e.target.classList.contains('cp-h2-checkbox') ) return;
 			var idx = e.target.getAttribute('data-index');
 			var input = document.querySelector('.cp-h2-text-input[data-index="' + idx + '"]');
+			var iconBtn = document.querySelector('.navitto-icon-picker-btn[data-index="' + idx + '"]');
 			if (input) { input.disabled = !e.target.checked; }
+			if (iconBtn) { iconBtn.disabled = !e.target.checked; }
 		});
 	}
 
@@ -74,19 +78,27 @@
 		var h2List = extractH2FromHtml(content);
 		if ( h2List.length === 0 ) return;
 
-		var fragment = document.createDocumentFragment();
-		h2List.forEach(function(text, index) {
-			var item = document.createElement('div');
-			item.className = 'cp-h2-item';
-			var escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-			item.innerHTML =
+		function defaultH2RowInnerHtml(index, escaped) {
+			return (
 				'<label>' +
 				'<input type="checkbox" name="navitto_selected_h2[]" value="' + index + '" class="cp-h2-checkbox" data-index="' + index + '"> ' +
 				escaped +
 				'</label>' +
 				'<div class="cp-h2-item-row">' +
 				'<input type="text" name="navitto_h2_text_' + index + '" class="cp-h2-text-input" data-index="' + index + '" value="" placeholder="' + escaped + '" disabled>' +
-				'</div>';
+				'</div>'
+			);
+		}
+
+		var fragment = document.createDocumentFragment();
+		h2List.forEach(function(text, index) {
+			var item = document.createElement('div');
+			item.className = 'cp-h2-item';
+			var escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+			var inner = (window.navittoMetabox && typeof window.navittoMetabox.h2RowInnerHtml === 'function')
+				? window.navittoMetabox.h2RowInnerHtml(index, text, escaped)
+				: defaultH2RowInnerHtml(index, escaped);
+			item.innerHTML = inner;
 			fragment.appendChild(item);
 		});
 
