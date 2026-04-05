@@ -5,7 +5,7 @@ Tags: navigation, table of contents, fixed nav, toc, heading
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -60,9 +60,6 @@ Please refer to your theme’s documentation for details.
 
 == Changelog ==
 
-= 1.0.2 =
-* Added developer hooks for extensions: `navitto_allowed_presets`, `navitto_preset_choices`, `navitto_localize_data`, `navitto_frontend_style_deps`, `navitto_frontend_script_deps`, `navitto_frontend_inline_css_extra`, `navitto_meta_box_h2_item_before_text_input`, `navitto_meta_box_h2_item_after_text_row`, and `navitto_after_save_post_meta`. Default behavior is unchanged.
-
 = 1.0.1 = (2026-03-29)
 * Updated readme: trimmed description and simplified changelog for the plugin directory page.
 
@@ -70,9 +67,6 @@ Please refer to your theme’s documentation for details.
 * Initial release on the WordPress.org Plugin Directory.
 
 == Upgrade Notice ==
-
-= 1.0.2 =
-Adds extension hooks only. No change to default front-end behavior.
 
 = 1.0.1 =
 Readme-only update. No code changes.

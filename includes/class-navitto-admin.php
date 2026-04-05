@@ -174,18 +174,6 @@ class Navitto_Admin {
 							<?php echo esc_html( $h2_text ); ?>
 						</label>
 						<div class="cp-h2-item-row">
-							<?php
-							/**
-							 * テキスト入力の直前（拡張: アイコンプレビュー用スペース等）
-							 *
-							 * @param WP_Post $post         投稿オブジェクト。
-							 * @param int     $index        H2 の 0 始まりインデックス。
-							 * @param bool    $is_checked   その見出しが選択されているか。
-							 * @param string  $h2_text      見出しテキスト。
-							 * @param string  $custom_text  カスタムラベル。
-							 */
-							do_action( 'navitto_meta_box_h2_item_before_text_input', $post, (int) $index, $is_checked, $h2_text, $custom_text );
-							?>
 							<input type="text"
 								name="navitto_h2_text_<?php echo esc_attr( $index ); ?>"
 								class="cp-h2-text-input"
@@ -194,18 +182,6 @@ class Navitto_Admin {
 								placeholder="<?php echo esc_attr( $h2_text ); ?>"
 								<?php echo esc_attr( $is_checked ? '' : 'disabled' ); ?> />
 						</div>
-						<?php
-						/**
-						 * テキスト行の直後（拡張: アイコンボタン行等）
-						 *
-						 * @param WP_Post $post         投稿オブジェクト。
-						 * @param int     $index        H2 の 0 始まりインデックス。
-						 * @param bool    $is_checked   その見出しが選択されているか。
-						 * @param string  $h2_text      見出しテキスト。
-						 * @param string  $custom_text  カスタムラベル。
-						 */
-						do_action( 'navitto_meta_box_h2_item_after_text_row', $post, (int) $index, $is_checked, $h2_text, $custom_text );
-						?>
 					</div>
 				<?php endforeach; ?>
 				<?php endif; ?>
@@ -352,7 +328,6 @@ class Navitto_Admin {
 		} else {
 			delete_post_meta( $post_id, '_navitto_selected_h2' );
 			delete_post_meta( $post_id, '_navitto_h2_custom_texts' );
-			delete_post_meta( $post_id, '_navitto_h2_icons' );
 			delete_post_meta( $post_id, '_navitto_trigger_type' );
 		}
 
@@ -362,14 +337,6 @@ class Navitto_Admin {
 			$nav_width = 'scroll';
 		}
 		update_post_meta( $post_id, '_navitto_nav_width', $nav_width );
-
-		/**
-		 * メタ保存の末尾（拡張プラグインが追加メタを保存する用）
-		 *
-		 * @param int    $post_id 投稿 ID。
-		 * @param string $mode    表示モード show_all|select|hide。
-		 */
-		do_action( 'navitto_after_save_post_meta', $post_id, $mode );
 
 	}
 
@@ -388,14 +355,7 @@ class Navitto_Admin {
 			'priority' => 200,
 		) );
 
-		$preset_choices = apply_filters(
-			'navitto_preset_choices',
-			array(
-				'simple' => __( 'シンプル', 'navitto' ),
-				'theme'  => __( 'テーマ準拠', 'navitto' ),
-			)
-		);
-		$preset_choices = is_array( $preset_choices ) ? $preset_choices : array(
+		$preset_choices = array(
 			'simple' => __( 'シンプル', 'navitto' ),
 			'theme'  => __( 'テーマ準拠', 'navitto' ),
 		);
@@ -475,8 +435,7 @@ class Navitto_Admin {
 	   ========================================================================= */
 
 	public function sanitize_preset( $value ) {
-		$valid = apply_filters( 'navitto_allowed_presets', array( 'simple', 'theme' ) );
-		$valid = is_array( $valid ) ? $valid : array( 'simple', 'theme' );
+		$valid = array( 'simple', 'theme' );
 		if ( ! in_array( $value, $valid, true ) ) {
 			return 'simple';
 		}
