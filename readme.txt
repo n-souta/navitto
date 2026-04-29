@@ -1,7 +1,7 @@
 === Navitto ===
 
 Contributors: nsouta
-Tags: navigation, table of contents, fixed nav, toc, heading
+Tags: heading, navigation, table of contents, toc, sticky
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
@@ -13,50 +13,60 @@ Fixed navigation bar that follows H2 headings and shows a simple, sticky table o
 
 == Description ==
 
-Navitto adds a fixed navigation bar that follows the H2 headings of a single post or page and behaves like a compact table of contents.  
-It helps readers understand “where they are” in long-form content and lets them jump smoothly to each section.
+Navitto adds a fixed navigation bar that follows H2 headings in posts and pages.
+It helps readers understand where they are in long-form content and jump quickly to sections.
 
 **Features**
 
-* **Fixed navigation bar** – Stays at the top (or bottom) of the screen while scrolling and always shows the list of H2 headings.
-* **Display modes** – Show all headings, select specific headings to show, or hide the nav entirely per post/page.
-* **Customizer integration** – Choose a design preset (simple or theme-based), position (top/bottom), height, and font weight.
-* **Bulk apply** – Enable or disable Navitto for all existing posts at once from “Settings → Navitto”.
-* **Theme-aware** – Tries to detect common fixed headers and adjust scroll offset so the heading is not hidden behind the header.
-* **Posts and pages** – Works on both posts and pages, which is useful for long landing pages and comparison content.
+* **Fixed navigation bar** - Stays at the top or bottom while scrolling and lists H2 headings.
+* **Display modes** - Show all headings, choose specific H2 headings, or hide the nav for each post/page.
+* **Customizer** - Control preset (simple/theme), position, height, and font weight.
+* **Bulk apply** - Enable or disable Navitto on all existing posts from **Settings > Navitto**.
+* **Theme-aware offset** - Attempts to avoid headings being hidden under fixed headers.
+* **Posts and pages** - Works on both content types.
+
+**Source code and support**
+
+* Repository: https://github.com/n-souta/navitto
+* Issues: https://github.com/n-souta/navitto/issues
 
 == Installation ==
 
-1. Upload the plugin ZIP or search for “Navitto” from “Plugins → Add New” in your WordPress admin and install it.
-2. Click “Activate”.
-3. Open the post or page edit screen. You will see the “Navitto” meta box in the sidebar, where you can choose the display mode and select headings.
-4. (Optional) Go to “Appearance → Customize → Navitto” to adjust design presets, position, height, and font weight.
-5. (Optional) Go to “Settings → Navitto” to change the default behavior for new posts and run bulk enable/disable for existing posts.
+1. Upload the plugin ZIP or search for **Navitto** in **Plugins > Add New**.
+2. Activate the plugin.
+3. Edit a post or page and use the **Navitto** meta box in the sidebar.
+4. (Optional) Open **Appearance > Customize > Navitto** for global design settings.
+5. (Optional) Open **Settings > Navitto** for default behavior and bulk apply.
 
 == Frequently Asked Questions ==
 
 = The fixed nav does not appear =
 
-* Make sure the post/page is not set to “Hide fixed nav” in the Navitto meta box.
-* The fixed nav is shown only when the content has at least two H2 headings. If there is only one (or none), it will not appear.
+* Ensure the post/page is not set to hide the nav in the Navitto meta box.
+* Navitto appears only when the content has at least two H2 headings.
 
 = How do I choose which headings are shown? =
 
-Select “Choose headings to display” in the Navitto meta box.  
-You can then check the H2 headings you want to show and optionally override their label text.
-You can also control when the fixed nav appears (from the top of the page, or after passing the first selected heading).
+Select **Choose headings to display** in the Navitto meta box, then check the H2 headings you want.
+You can also override each heading label and set when the nav starts appearing.
 
 = Can I insert the nav inside the theme header? =
 
-If your theme supports the `navitto_fixed_nav_inside_header` filter and outputs the nav in the header, Navitto can be placed inside the header area.  
-Please refer to your theme’s documentation for details.
+If your theme supports the `navitto_fixed_nav_inside_header` filter and outputs Navitto inside the header area, it can render there.
+Please refer to your theme's documentation.
+
+= How can I contribute Japanese translations for WordPress.org? =
+
+Navitto uses the WordPress.org translation platform.
+You can submit Japanese translations at:
+https://translate.wordpress.org/projects/wp-plugins/navitto/
 
 == Screenshots ==
 
-1. Navitto meta box on the post edit screen. You can choose the display mode, select headings, and adjust the trigger.
-2. Example of the fixed navigation (simple preset, fixed at the top). The active item changes as you scroll through H2 headings.
-3. “Navitto” section in the Customizer. You can configure presets, position, height, and font weight.
-4. “Settings → Navitto” screen. Default behavior and bulk enable/disable controls.
+1. Navitto meta box in the editor sidebar (display mode, H2 selection, and trigger settings).
+2. Front-end fixed navigation example while scrolling a post.
+3. Appearance > Customize > Navitto settings (preset, position, height, and typography).
+4. Settings > Navitto screen for default behavior and bulk apply.
 
 == Changelog ==
 
