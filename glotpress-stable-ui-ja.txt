@@ -1,0 +1,69 @@
+Navitto Stable UI Translation Mapping (EN -> JA)
+================================================
+
+Note:
+- Keep placeholders like `%d` unchanged.
+- Keep punctuation and capitalization as needed for WordPress admin UI.
+
+EN: Navitto Settings
+JA: Navitto設定
+
+EN: Navitto
+JA: Navitto
+
+EN: Enable the fixed nav on all posts?
+JA: すべての投稿で固定ナビを有効にしますか？
+
+EN: Disable the fixed nav on all posts?
+JA: すべての投稿で固定ナビを無効にしますか？
+
+EN: Processing...
+JA: 処理中...
+
+EN: An error has occurred.
+JA: エラーが発生しました。
+
+EN: Default behavior
+JA: デフォルトの動作
+
+EN: Enable by default for new posts
+JA: 新規投稿でデフォルト有効にする
+
+EN: Configure the default behavior when creating new posts.
+JA: 新規投稿を作成する際のデフォルト動作を設定します。
+
+EN: Enabled
+JA: 有効
+
+EN: If unchecked, the fixed nav must be enabled manually on each new post.
+JA: チェックを外した場合は、新しい投稿ごとに固定ナビを手動で有効化する必要があります。
+
+EN: Bulk apply
+JA: 一括適用
+
+EN: Override the fixed nav setting for all posts at once. You can later run the opposite action to revert the global change.
+JA: すべての投稿の固定ナビ設定を一括で上書きします。後で反対の操作を実行すると、全体の変更を元に戻せます。
+
+EN: Enable on all posts
+JA: すべての投稿で有効にする
+
+EN: Enable the fixed nav on all posts
+JA: すべての投稿で固定ナビを有効にする
+
+EN: Disable on all posts
+JA: すべての投稿で無効にする
+
+EN: Disable the fixed nav on all posts
+JA: すべての投稿で固定ナビを無効にする
+
+EN: %d posts enabled.
+JA: %d件の投稿を有効化しました。
+
+EN: %d posts disabled.
+JA: %d件の投稿を無効化しました。
+
+EN: You do not have permission to perform this action.
+JA: この操作を実行する権限がありません。
+
+EN: Security check failed.
+JA: セキュリティチェックに失敗しました。
