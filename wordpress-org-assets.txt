@@ -19,3 +19,11 @@ WordPress.org 申請の準備 - 資材メモ
 
 4. ライセンス・GPL
    - navitto.php ヘッダー・readme.txt・LICENSE で GPL v2 表記済み。対応済み。
+
+5. SVN で readme / ディレクトリ用画像を更新
+   - SVN パスワード: プロフィール「Account & Security」
+     https://profiles.wordpress.org/nsouta/profile/edit/group/3/?screen=svn-password
+   - プラグインのルートで実行: ./scripts/svn-wordpress-org.sh
+     （trunk/readme.txt・assets/*・tags/<Stable tag>/readme.txt をローカルの readme.txt と wordpress-org/ から更新）
+   - チェックアウト先を変える場合: WPORG_SVN_DIR=/path/to/checkout
+   - 非対話: SVN_USERNAME=nsouta SVN_PASSWORD=… ./scripts/svn-wordpress-org.sh
