@@ -4,15 +4,10 @@
 
 name: WordPress.org readme & assets
 
+# After adding SVN_USERNAME and SVN_PASSWORD, run this workflow manually from the Actions tab.
+# Optional: add a push.paths trigger to auto-deploy on readme / wordpress-org changes.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'readme.txt'
-      - 'wordpress-org/**'
-      - '.github/workflows/wordpress-org-readme-assets.yml'
 
 jobs:
   deploy:
