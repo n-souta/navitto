@@ -4,7 +4,17 @@ WordPress.org 申請の準備 - 資材メモ
 1. readme.txt
    - ルートの readme.txt を整備済み。
    - Contributors に WordPress.org ユーザー名を記入すること。
-   - Stable tag は申請バージョン（1.2.0）と一致させること。
+   - Stable tag は実際に tags/ にあるバージョン（例: 1.0.1）と readme・プラグインヘッダーで一致させること。
+
+5. SVN で WordPress.org に反映
+   - 公式: https://developer.wordpress.org/plugins/wordpress-org/how-to-use-subversion/
+   - リポジトリ URL: https://plugins.svn.wordpress.org/navitto/
+   - 認証: WordPress.org プロフィールで「アプリケーションパスワード」を作成し、SVN のユーザー名（.org のユーザー名）とパスワード欄にそのパスワードを使う。
+   - 手元から一括: プラグインルートで ./scripts/svn-wordpress-org.sh readme-assets
+     （readme.txt と wordpress-org/ を trunk・assets・Stable tag フォルダに反映）
+   - 本体コードのみ trunk 更新: ./scripts/svn-wordpress-org.sh trunk
+   - 新リリース: trunk を更新したあと svn copy trunk tags/X.Y.Z -m "Tag X.Y.Z"（X.Y.Z は readme の Stable tag と揃える）
+   - 作業用チェックアウトの場所は環境変数 WPORG_SVN_DIR で変更可（デフォルトはリポのひとつ上の navitto.svn-wporg）
 
 2. スクリーンショット
    - 1枚以上（推奨4枚）、推奨サイズ 1280x720。
