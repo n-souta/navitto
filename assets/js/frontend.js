@@ -16,6 +16,7 @@
 		$nav: null,
 		$headerParent: null,  // ナビの挿入先ヘッダー要素
 		$nextH2AfterLast: null,  // 指定した最後のh2の「次の」h2（この位置に達したらナビを隠す）
+		$lastTrackedH2: null,    // 監視対象の最後のh2（次h2がない場合のフォールバック）
 		insertMode: 'body',   // 'inside' | 'after' | 'body'
 		isScrolling: false,
 		lastActiveIndex: -1,  // 前回のアクティブインデックス
@@ -113,15 +114,48 @@
 
 		collectH2Headings: function() {
 			var self = this;
-			var $container = $(
-				'.entry-content, .post-content, .wp-block-post-content, ' +
-				'article .content, .post_content, #the_content'
-			).first();
-			if ($container.length === 0) $container = $('article').first();
-			if ($container.length === 0) $container = $('main').first();
-			if ($container.length === 0) return;
+			var containerSelectors = [
+				'.post_content',          // SWELL
+				'.wp-block-post-content', // Block themes
+				'.entry-content',
+				'.post-content',
+				'article .content',
+				'#the_content'
+			];
 
-			$container.find('h2').each(function() {
+			var bestContainer = null;
+			var bestCount = 0;
+			var seen = [];
+
+			for (var i = 0; i < containerSelectors.length; i++) {
+				$(containerSelectors[i]).each(function() {
+					if (seen.indexOf(this) !== -1) return;
+					seen.push(this);
+
+					var count = $(this).find('h2').length;
+					if (count > bestCount) {
+						bestCount = count;
+						bestContainer = this;
+					}
+				});
+			}
+
+			// フォールバック（本文コンテナが見つからない場合）
+			if (!bestContainer) {
+				var $article = $('article').first();
+				if ($article.length > 0) {
+					bestContainer = $article[0];
+				} else {
+					var $main = $('main').first();
+					if ($main.length > 0) {
+						bestContainer = $main[0];
+					}
+				}
+			}
+
+			if (!bestContainer) return;
+
+			$(bestContainer).find('h2').each(function() {
 				var $h2 = $(this);
 				var text = $h2.text().trim();
 				if (text) {
@@ -812,16 +846,17 @@
 		 */
 		cacheNextH2AfterLast: function() {
 			this.$nextH2AfterLast = null;
+			this.$lastTrackedH2 = null;
 			if (this.headings.length === 0) return;
-			var $container = $(
-				'.entry-content, .post-content, .wp-block-post-content, ' +
-				'article .content, .post_content, #the_content'
-			).first();
-			if ($container.length === 0) $container = $('article').first();
-			if ($container.length === 0) $container = $('main').first();
-			if ($container.length === 0) return;
-			var $allH2 = $container.find('h2');
+
 			var lastEl = this.headings[this.headings.length - 1].element;
+			if (!lastEl) return;
+
+			// 見出し検出で採用した実要素をそのまま保持（コンテナ差異の影響を受けない）
+			this.$lastTrackedH2 = $(lastEl);
+
+			// 文書全体のh2順で「次のh2」を取得
+			var $allH2 = $('h2');
 			var lastIndex = $allH2.index(lastEl);
 			if (lastIndex >= 0 && lastIndex < $allH2.length - 1) {
 				this.$nextH2AfterLast = $allH2.eq(lastIndex + 1);
@@ -836,20 +871,38 @@
 		 * 指定した最後のh2を過ぎて次のh2に達したかどうか（ヒステリシス：隠すのは閾値より下にスクロールしたとき）
 		 */
 		isPastLastH2: function(scrollTop) {
-			if (!this.$nextH2AfterLast || !this.$nextH2AfterLast.length) return false;
 			var offset = this.getScrollOffset();
-			var threshold = this.$nextH2AfterLast.offset().top - offset;
-			return scrollTop >= threshold + this._nextH2Hysteresis;
+			// 通常: 最後に採用したh2の「次のh2」に達したら非表示
+			if (this.$nextH2AfterLast && this.$nextH2AfterLast.length) {
+				var threshold = this.$nextH2AfterLast.offset().top - offset;
+				return scrollTop >= threshold + this._nextH2Hysteresis;
+			}
+			// フォールバック: 次h2がない場合は、最後のh2自体を十分通過したら非表示
+			if (this.$lastTrackedH2 && this.$lastTrackedH2.length) {
+				var rect = this.$lastTrackedH2[0].getBoundingClientRect();
+				var docTop = scrollTop + rect.top;
+				var thresholdLast = docTop + this.$lastTrackedH2.outerHeight();
+				return scrollTop >= thresholdLast - offset + this._nextH2Hysteresis;
+			}
+			return false;
 		},
 
 		/**
 		 * 次のh2より十分上に戻ったか（ヒステリシス：再表示は閾値より上にスクロールしたとき）
 		 */
 		isBackAboveNextH2: function(scrollTop) {
-			if (!this.$nextH2AfterLast || !this.$nextH2AfterLast.length) return true;
 			var offset = this.getScrollOffset();
-			var threshold = this.$nextH2AfterLast.offset().top - offset;
-			return scrollTop < threshold - this._nextH2Hysteresis;
+			if (this.$nextH2AfterLast && this.$nextH2AfterLast.length) {
+				var threshold = this.$nextH2AfterLast.offset().top - offset;
+				return scrollTop < threshold - this._nextH2Hysteresis;
+			}
+			if (this.$lastTrackedH2 && this.$lastTrackedH2.length) {
+				var rect = this.$lastTrackedH2[0].getBoundingClientRect();
+				var docTop = scrollTop + rect.top;
+				var thresholdLast = docTop + this.$lastTrackedH2.outerHeight();
+				return scrollTop < thresholdLast - offset - this._nextH2Hysteresis;
+			}
+			return true;
 		},
 
 		/**
