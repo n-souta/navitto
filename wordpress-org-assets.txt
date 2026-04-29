@@ -4,7 +4,7 @@ WordPress.org 申請の準備 - 資材メモ
 1. readme.txt
    - ルートの readme.txt を整備済み。
    - Contributors に WordPress.org ユーザー名を記入すること。
-   - Stable tag は申請バージョン（1.2.0）と一致させること。
+   - Stable tag は SVN の tags/ にあるリリース番号と readme・navitto.php の Version で一致させること。
 
 2. スクリーンショット
    - 1枚以上（推奨4枚）、推奨サイズ 1280x720。
@@ -27,3 +27,19 @@ WordPress.org 申請の準備 - 資材メモ
      （trunk/readme.txt・assets/*・tags/<Stable tag>/readme.txt をローカルの readme.txt と wordpress-org/ から更新）
    - チェックアウト先を変える場合: WPORG_SVN_DIR=/path/to/checkout
    - 非対話: SVN_USERNAME=nsouta SVN_PASSWORD=… ./scripts/svn-wordpress-org.sh
+
+6. 日本語のプラグインディレクトリページ・管理画面
+   ■ ディレクトリ（説明・FAQ・インストール手順などの日本語ページ）
+   - 英語 readme.txt がソースになり、日本語は GlotPress で翻訳して承認されると反映される。
+   - プロジェクト: https://translate.wordpress.org/projects/wp-plugins/navitto/
+   - 手順の流れ:
+     1) 上記を開き、ロケールで「日本語」を選ぶ。
+     2) 「Development」「Stable (readme)」などの readme 系サブプロジェクトで文字列を翻訳して「提案する」。
+     3) PTE（プロジェクト翻訳編集者）またはロケールの GTE などが翻訳を「承認」すると、サイト側に取り込まれる（時間差あり）。
+   - 作者は Polyglots で自プラグインの PTE になれる場合があり、承認待ちが短くなることがある。
+   - 確認用 URL の例: https://ja.wordpress.org/plugins/navitto/
+   - 参考ハンドブック: https://make.wordpress.org/polyglots/handbook/
+
+   ■ 管理画面の日本語（ブロックエディタのサイドバー・設定・カスタマイザーなど）
+   - 同じ GlotPress プロジェクトの「Development（開発版）」など UI 用の文字列を翻訳する。
+   - 閾値を満たすと WordPress が言語パックを配布し、サイト言語が日本語のときに表示される（プラグインは text domain navitto で読み込み）。

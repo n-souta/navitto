@@ -5,7 +5,7 @@ Tags: heading, navigation, table of contents, toc, sticky
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -77,6 +77,9 @@ https://translate.wordpress.org/projects/wp-plugins/navitto/
 * Initial release on the WordPress.org Plugin Directory.
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Loads translations explicitly for locale-ready admin UI (directory Japanese still via GlotPress).
 
 = 1.0.1 =
 Readme-only update. No code changes.

@@ -3,7 +3,7 @@
  * Plugin Name:       Navitto
  * Plugin URI:        https://wordpress.org/plugins/navitto/
  * Description:       Fixed navigation bar that follows H2 headings and shows a simple, sticky table of contents.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            nsouta
@@ -38,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * プラグインバージョン
  */
-define( 'NAVITTO_VERSION', '1.0.1' );
+define( 'NAVITTO_VERSION', '1.0.2' );
 
 /**
  * プラグインディレクトリパス
@@ -54,6 +54,21 @@ define( 'NAVITTO_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
  * プラグインベースネーム
  */
 define( 'NAVITTO_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+
+/**
+ * GlotPress の言語パックおよび languages/ 内の翻訳を読み込む
+ *
+ * @since 1.0.2
+ * @return void
+ */
+function navitto_load_textdomain() {
+	load_plugin_textdomain(
+		'navitto',
+		false,
+		dirname( NAVITTO_PLUGIN_BASENAME ) . '/languages'
+	);
+}
+add_action( 'plugins_loaded', 'navitto_load_textdomain', 5 );
 
 /**
  * クラスファイルの読み込み
