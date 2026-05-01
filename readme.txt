@@ -70,6 +70,10 @@ https://translate.wordpress.org/projects/wp-plugins/navitto/
 
 == Changelog ==
 
+= 1.0.2 = (2026-05-01)
+* Improve H2 detection when multiple content containers exist (e.g. SWELL).
+* Hide the fixed nav after passing the last tracked heading when there is no following H2.
+
 = 1.0.1 = (2026-03-29)
 * Updated readme: trimmed description and simplified changelog for the plugin directory page.
 
@@ -79,7 +83,7 @@ https://translate.wordpress.org/projects/wp-plugins/navitto/
 == Upgrade Notice ==
 
 = 1.0.2 =
-Loads translations explicitly for locale-ready admin UI (directory Japanese still via GlotPress).
+Frontend fixes for SWELL heading detection and hiding the nav after the last section.
 
 = 1.0.1 =
 Readme-only update. No code changes.
