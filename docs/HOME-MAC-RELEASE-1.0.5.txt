@@ -1,0 +1,308 @@
+================================================================================
+Navitto 1.0.5 リリース手順 — Mac 用（家の PC でこのファイルだけ見れば OK）
+================================================================================
+最終更新: 2026-07-07
+対象: Phase D（admin 英語 msgid 化 + 同梱 ja + GlotPress Stable UI）
+前提: Phase C（readme 日本語化）完了 / PTE 付与済み（@nsouta）
+GitHub: https://github.com/n-souta/navitto （コミット d6f2fa9 以降）
+
+
+================================================================================
+■ 全体の流れ（順番を変えない）
+================================================================================
+
+  0. 準備（git pull / svn 確認）
+  1. WordPress.org Plugin SVN に 1.0.5 を公開     ← 最優先
+  2. 数時間待つ（GlotPress が 1.0.5 を取り込む）
+  3. GlotPress Stable UI を英語→日本語で Approve
+  4. 日本語サイトで管理画面の動作確認
+  5. GitHub に v1.0.5 タグを push（任意だが推奨）
+
+  ※ GlotPress の Original が日本語のうちに翻訳入力しないこと。
+    1.0.4 本番は admin.php が日本語 msgid のため。1.0.5 SVN 後に英語 Original になる。
+
+
+================================================================================
+■ パス設定（自分の環境に合わせて一度だけ編集）
+================================================================================
+
+ターミナルで以下を実行するか、~/.zshrc に書いておくと楽です。
+
+  export NAVITTO_REPO="$HOME/Developer/navitto-github"
+  export NAVITTO_SVN="$HOME/Developer/navitto.svn-wporg"
+
+  # 例: デスクトップに置く場合
+  # export NAVITTO_REPO="$HOME/Desktop/navitto-github"
+  # export NAVITTO_SVN="$HOME/Desktop/navitto.svn-wporg"
+
+
+================================================================================
+■ Step 0: 準備
+================================================================================
+
+【0-1】必要ツール（未インストールなら）
+
+  xcode-select --install          # 開発者ツール（rsync 等）
+  brew install subversion         # svn が無い場合
+
+【0-2】GitHub から最新を取得
+
+  cd "$NAVITTO_REPO"
+  git pull origin main
+  git log -1 --oneline
+  # → Prepare 1.0.5: ... が見えること
+
+【0-3】バージョン確認（1.0.5 であること）
+
+  grep "Version:" "$NAVITTO_REPO/navitto.php"
+  grep "NAVITTO_VERSION" "$NAVITTO_REPO/navitto.php"
+  grep "Domain Path" "$NAVITTO_REPO/navitto.php"
+  grep "Stable tag" "$NAVITTO_REPO/readme.txt"
+  ls -la "$NAVITTO_REPO/languages/navitto-ja.mo"
+
+  期待値:
+    Version:           1.0.5
+    NAVITTO_VERSION', '1.0.5'
+    Domain Path:       /languages
+    Stable tag: 1.0.5
+    navitto-ja.mo が存在
+
+【0-4】Plugin SVN を checkout（初回のみ）
+
+  mkdir -p "$(dirname "$NAVITTO_SVN")"
+  svn co https://plugins.svn.wordpress.org/navitto/ "$NAVITTO_SVN"
+
+  # 2回目以降は update のみ
+  cd "$NAVITTO_SVN"
+  svn update
+
+
+================================================================================
+■ Step 1: SVN に 1.0.5 を反映（Mac コマンド一式）
+================================================================================
+
+【1-1】trunk にプラグインファイルをコピー
+
+  # Git リポジトリのコード → SVN trunk（開発用ファイルは除外）
+  rsync -av \
+    "$NAVITTO_REPO/navitto.php" \
+    "$NAVITTO_REPO/readme.txt" \
+    "$NAVITTO_REPO/uninstall.php" \
+    "$NAVITTO_REPO/LICENSE" \
+    "$NAVITTO_SVN/trunk/"
+
+  rsync -av "$NAVITTO_REPO/includes/" "$NAVITTO_SVN/trunk/includes/"
+  rsync -av "$NAVITTO_REPO/assets/"   "$NAVITTO_SVN/trunk/assets/"
+  rsync -av "$NAVITTO_REPO/languages/" "$NAVITTO_SVN/trunk/languages/"
+
+  # trunk に載せないもの（参考）:
+  #   docs/ glotpress-*.txt scripts/ .git/ README.md package.json
+
+【1-2】差分確認
+
+  cd "$NAVITTO_SVN"
+  svn status
+
+  # 主な変更が含まれること:
+  #   M trunk/navitto.php
+  #   M trunk/readme.txt
+  #   M trunk/includes/class-navitto-admin.php
+  #   M trunk/languages/navitto-ja.po
+  #   M trunk/languages/navitto-ja.mo
+  #   M trunk/languages/navitto.pot
+
+【1-3】新規ファイルがあれば svn add
+
+  svn add --force trunk
+
+  # 削除されたファイルがあれば
+  # svn status | grep '^!' | awk '{print $2}' | xargs svn rm
+
+【1-4】tags/1.0.5 を作成
+
+  cd "$NAVITTO_SVN"
+
+  # 既にタグがある場合はスキップ or バージョンを見直す
+  if svn info "tags/1.0.5" >/dev/null 2>&1; then
+    echo "tags/1.0.5 は既に存在します"
+  else
+    svn cp trunk tags/1.0.5
+  fi
+
+【1-5】コミット
+
+  cd "$NAVITTO_SVN"
+  svn status
+
+  svn ci -m "Release 1.0.5: English msgids, Domain Path, full ja translations."
+
+  # ユーザー名: WordPress.org のユーザー名（nsouta）
+  # パスワード: SVN 用パスワード（ログインパスワードではない）
+  # 取得: https://profiles.wordpress.org/nsouta/profile/edit/group/3/?screen=svn-password
+
+【1-6】assets（スクリーンショット）について
+
+  スクリーンショット・バナー・アイコンは SVN 直下の assets/ にあり、trunk とは別。
+  1.0.5 で画像を変えないなら作業不要。
+  readme だけ以前更新済みなら、上記 trunk コピーで十分。
+
+  画像も更新する場合（任意）:
+    rsync -av "$NAVITTO_REPO/wordpress-org/" "$NAVITTO_SVN/assets/"
+    # ※ wordpress-org/ フォルダをローカルに用意している場合のみ
+
+
+================================================================================
+■ Step 2: GlotPress 反映待ち（数時間〜半日）
+================================================================================
+
+【2-1】確認 URL（未翻訳フィルタ）
+
+  https://translate.wordpress.org/projects/wp-plugins/navitto/stable/ja/default/?filters%5Bstatus%5D=untranslated
+
+【2-2】OK / NG の見分け
+
+  OK（翻訳入力してよい）:
+    Original: Hide fixed nav
+    Original: Choose headings to display
+    Original: Simple
+
+  NG（まだ待つ）:
+    Original: 固定ナビを非表示
+    Original: シンプル
+    Original: 中※デフォルト
+
+【2-3】ターミナルでざっくり確認（任意）
+
+  curl -sL "https://translate.wordpress.org/projects/wp-plugins/navitto/stable/ja/default/?filters%5Bstatus%5D=untranslated" \
+    | grep -o 'Original untranslated</h3>[^<]*<[^>]*>[^<]*' | head -5
+
+  # 英語 Original が並び始めたら Step 3 へ
+
+
+================================================================================
+■ Step 3: GlotPress Stable UI — 翻訳入力・Approve
+================================================================================
+
+【3-1】文案ファイル（GitHub リポジトリ内）
+
+  "$NAVITTO_REPO/glotpress-stable-ui-ja.txt"
+
+  形式: EN: ... / JA: ... のペア（48 文字列）
+
+【3-2】手順
+
+  1. 上記 URL を開く（ログイン: WordPress.org アカウント）
+  2. 各文字列で Original（英語）を確認
+  3. Translation 欄に glotpress-stable-ui-ja.txt の JA をコピペ
+  4. 「提案する」→ PTE として「Approve」
+  5. 未翻訳 0 / 100% になるまで繰り返す
+
+【3-3】スタイルガイド（readme と同様）
+
+  - 疑問符: 〜ますか ?（半角、前にスペース）
+  - 「全て」→「すべて」
+  - プレースホルダー %d はそのまま（例: %d件の投稿を有効化しました。）
+
+【3-4】進捗確認 URL
+
+  https://translate.wordpress.org/projects/wp-plugins/navitto/stable/ja/default/
+
+  目標: Translated 100%（90% 超で言語パック生成の条件を満たす）
+
+
+================================================================================
+■ Step 4: 動作確認（日本語 WordPress サイト）
+================================================================================
+
+【4-1】プラグイン更新
+
+  ダッシュボード → プラグイン → Navitto を 1.0.5 に更新
+  （SVN 反映後、配信まで少し時間がかかることがある）
+
+【4-2】チェックリスト
+
+  □ 投稿編集 → サイドバー Navitto メタボックス
+      「固定ナビを表示」「表示する見出しを選択」「固定ナビを非表示」
+  □ 外観 → カスタマイズ → Navitto - デザイン
+      「シンプル」「テーマ準拠」「配置位置」等
+  □ 設定 → Navitto
+      「デフォルトの動作」「一括適用」
+
+【4-3】英語のまま出る場合
+
+  - サイト言語が日本語か確認（設定 → 一般）
+  - languages/navitto-ja.mo がプラグインに含まれているか確認
+  - 言語パック: ダッシュボード → 更新 → 翻訳を更新
+
+
+================================================================================
+■ Step 5: GitHub タグ（任意だが推奨）
+================================================================================
+
+  cd "$NAVITTO_REPO"
+  git pull origin main
+  git tag -a v1.0.5 -m "Release 1.0.5: English msgids, Domain Path, bundled ja."
+  git push origin v1.0.5
+  git tag -l "v1.0.*"
+
+
+================================================================================
+■ おまけ: po を直したとき mo の再コンパイル
+================================================================================
+
+【方法 A】Node.js（リポジトリ同梱スクリプト）
+
+  cd "$NAVITTO_REPO"
+  npm install --no-save gettext-parser
+  node scripts/compile-mo.mjs
+  ls -la languages/navitto-ja.mo
+
+  # 再コンパイル後は Step 1 の rsync で trunk/languages/ を再コピー → svn ci
+
+【方法 B】gettext（Homebrew）
+
+  brew install gettext
+  msgfmt -o languages/navitto-ja.mo languages/navitto-ja.po
+
+
+================================================================================
+■ トラブルシュート
+================================================================================
+
+【svn ci で認証エラー】
+  → profiles.wordpress.org の SVN Password を使用（通常の WP ログイン PW ではない）
+
+【tags/1.0.5 already exists】
+  → 既にリリース済み。上書きは原則しない。バージョンを 1.0.6 にするか状況を確認。
+
+【GlotPress がずっと日本語 Original】
+  → SVN コミットから数時間待つ。tags/1.0.5 が作成されているか svn info で確認。
+
+【管理画面が英語のまま】
+  → 同梱 mo の有無を確認。GlotPress Approve 後も言語パック反映に時間差あり。
+
+【rsync で間違えた】
+  → svn revert -R trunk で戻してから Step 1 をやり直し（未コミットの場合）
+
+
+================================================================================
+■ 参照リンク
+================================================================================
+
+  GitHub:           https://github.com/n-souta/navitto
+  ja プラグインページ: https://ja.wordpress.org/plugins/navitto/
+  GlotPress (ja):   https://translate.wordpress.org/projects/wp-plugins/navitto/stable/ja/default/
+  SVN パスワード:   https://profiles.wordpress.org/nsouta/profile/edit/group/3/?screen=svn-password
+  翻訳スタイルガイド: https://ja.wordpress.org/team/handbook/translation/translation-style-guide/
+
+
+================================================================================
+■ リポジトリ内の関連ファイル一覧
+================================================================================
+
+  この手順書           docs/HOME-MAC-RELEASE-1.0.5.txt
+  GlotPress UI 文案    glotpress-stable-ui-ja.txt
+  GlotPress Readme 文案 glotpress-stable-readme-ja.txt（Phase C 完了済み）
+  全体工程             docs/NAVITTO-作業工程-最新.txt
+  mo コンパイル        scripts/compile-mo.mjs
+  プラグイン本体       navitto.php, includes/, assets/, languages/, readme.txt
