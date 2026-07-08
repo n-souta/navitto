@@ -21,7 +21,7 @@ msgstr "Navitto"
 
 #: includes/class-navitto-admin.php
 msgid "Show fixed nav (use H2 headings as-is)"
-msgstr "固定ナビを表示（H2 見出しをそのまま反映）"
+msgstr "固定ナビを表示 (H2 見出しをそのまま反映)"
 
 #: includes/class-navitto-admin.php
 msgid "Choose headings to display"
@@ -61,11 +61,11 @@ msgstr "固定ナビの表示方法"
 
 #: includes/class-navitto-admin.php
 msgid "Horizontal scroll (show all)"
-msgstr "横スクロール可能（すべて表示）"
+msgstr "横スクロール可能 (すべて表示)"
 
 #: includes/class-navitto-admin.php
 msgid "Equal width (hide overflow)"
-msgstr "均等割（はみ出し非表示）"
+msgstr "均等割 (はみ出し非表示)"
 
 #: includes/class-navitto-admin.php
 msgid "Navitto - Design"
@@ -105,7 +105,7 @@ msgstr "小"
 
 #: includes/class-navitto-admin.php
 msgid "Medium (default)"
-msgstr "中（デフォルト）"
+msgstr "中 (デフォルト)"
 
 #: includes/class-navitto-admin.php
 msgid "Large"

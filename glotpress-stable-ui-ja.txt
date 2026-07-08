@@ -3,7 +3,11 @@ Navitto Stable UI Translation Mapping (EN -> JA)
 
 Note:
 - Keep placeholders like `%d` unchanged.
-- Keep punctuation and capitalization as needed for WordPress admin UI.
+- 翻訳スタイルガイド: https://ja.wordpress.org/team/handbook/translation/translation-style-guide/
+- 丸括弧は半角 ( )、前後に半角スペース1つ。括弧内側の直後・直前にはスペースなし（1-5, 1-6）
+- 疑問符・感嘆符は半角、直前に半角スペース1つ（例: 〜ますか ?）（1-2）
+- 英数字と日本語の間は半角スペース1つ。数字・%d の直後にはスペースなし（1-4, 1-9）
+- 「下さい」→「ください」、「全て」→「すべて」（3-6）
 
 EN: Navitto Settings
 JA: Navitto 設定
@@ -73,7 +77,7 @@ Admin / Customizer (class-navitto-admin.php)
 ================================================================
 
 EN: Show fixed nav (use H2 headings as-is)
-JA: 固定ナビを表示（H2 見出しをそのまま反映）
+JA: 固定ナビを表示 (H2 見出しをそのまま反映)
 
 EN: Choose headings to display
 JA: 表示する見出しを選択
@@ -103,10 +107,10 @@ EN: Fixed nav display mode
 JA: 固定ナビの表示方法
 
 EN: Horizontal scroll (show all)
-JA: 横スクロール可能（すべて表示）
+JA: 横スクロール可能 (すべて表示)
 
 EN: Equal width (hide overflow)
-JA: 均等割（はみ出し非表示）
+JA: 均等割 (はみ出し非表示)
 
 EN: Navitto - Design
 JA: Navitto - デザイン
@@ -136,7 +140,7 @@ EN: Small
 JA: 小
 
 EN: Medium (default)
-JA: 中（デフォルト）
+JA: 中 (デフォルト)
 
 EN: Large
 JA: 大
@@ -155,3 +159,21 @@ JA: 背景を透明にする
 
 EN: When using the theme preset, make the nav background transparent.
 JA: テーマ準拠のとき、ナビの背景を透明にします。
+
+================================================================
+Plugin header metadata (navitto.php — GlotPress 末尾付近)
+================================================================
+※ URL・作者名は翻訳せず、原文と同じ文字列をそのまま入力して Approve する。
+※ Author URI と Plugin URI を取り違えないこと。
+
+EN: nsouta
+JA: nsouta
+Comment: Author of the plugin
+
+EN: https://profiles.wordpress.org/nsouta/
+JA: https://profiles.wordpress.org/nsouta/
+Comment: Author URI of the plugin
+
+EN: https://wordpress.org/plugins/navitto/
+JA: https://wordpress.org/plugins/navitto/
+Comment: Plugin URI of the plugin
