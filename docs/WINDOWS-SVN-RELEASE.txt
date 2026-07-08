@@ -1,0 +1,84 @@
+================================================================================
+Navitto WordPress.org SVN 手順 — Windows（この PC 用）
+================================================================================
+最終更新: 2026-07-08
+
+この PC で SVN 公開できます（Slik Subversion 導入済み）。
+作業コピー: c:\Users\3336\Desktop\test\navitto.svn-wporg
+Git 作業ブランチ: prepare-1.0.5-backup（1.0.5 系）
+
+================================================================================
+■ 前提
+================================================================================
+
+1. svn コマンドが使える（Slik Subversion）
+2. WordPress.org の SVN パスワードを設定済み
+   https://profiles.wordpress.org/nsouta/profile/edit/group/3/?screen=svn-password
+3. Git で prepare-1.0.5-backup を checkout 済み
+4. readme.txt の Stable tag と navitto.php の Version が一致
+
+================================================================================
+■ いま必要な作業（readme タグ改行の修正のみ）
+================================================================================
+
+1.0.5 は公開済み。readme の Tags 行の改行ミスだけ直します。
+
+PowerShell:
+
+  cd c:\Users\3336\Desktop\test\navitto-github
+  git checkout prepare-1.0.5-backup
+  .\scripts\svn-wordpress-org.ps1 -Mode readme
+
+  cd c:\Users\3336\Desktop\test\navitto.svn-wporg
+  svn commit -m "Fix readme Tags line break for 1.0.5."
+
+コミット時に WordPress.org のユーザー名と SVN パスワードを入力。
+
+数時間後に確認:
+  https://wordpress.org/plugins/navitto/
+  Tags に 5 個表示されるか
+
+================================================================================
+■ 次回の新バージョン公開（例: 1.0.6）
+================================================================================
+
+1. prepare ブランチでコード・readme を更新
+2. navitto.php Version / readme Stable tag / changelog を揃える
+3. languages/navitto-ja.mo を再生成（.po から）
+4. Readme Validator で readme.txt を検証
+5. PowerShell:
+
+  cd c:\Users\3336\Desktop\test\navitto-github
+  .\scripts\svn-wordpress-org.ps1 -Mode release
+
+  cd c:\Users\3336\Desktop\test\navitto.svn-wporg
+  svn commit -m "Release 1.0.6."
+
+※ -Mode release は trunk 全ファイルを上書きし、tags/{Stable tag} を新規作成します。
+
+================================================================================
+■ Mac よりミスが少ないポイント（この PC の利点）
+================================================================================
+
+- Cursor で readme / PHP を直接編集・検証できる
+- SVN 作業コピーが c:\Users\3336\Desktop\test\navitto.svn-wporg に固定
+- スクリプト svn-wordpress-org.ps1 で手順を統一
+- readme の Tags 改行ミスはローカルで grep してからコミット可能
+
+================================================================================
+■ トラブルシュート
+================================================================================
+
+svn: command not found
+  → 新しい PowerShell を開く（PATH 反映）
+  → または Slik Subversion を再インストール
+
+tags/1.0.x が既にある
+  → 新バージョンは Stable tag を上げる
+  → 既存 tag の readme だけ直す場合は -Mode readme
+
+認証エラー
+  → SVN パスワードは WordPress ログインパスワードと別
+  → プロフィール画面で再設定
+
+================================================================================
